@@ -39,7 +39,7 @@ target/
 .python-version
 
 # Environments
-venv/
+.venv/
 
 # mypy
 .mypy_cache/
