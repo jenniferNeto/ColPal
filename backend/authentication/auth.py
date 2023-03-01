@@ -20,7 +20,6 @@ class PasswordlessAuthentication(ModelBackend):
             else:
                 return None
         except User.DoesNotExist:
-            print("User does not exist")
             raise ValidationError("Invalid credentials")
 
     def get_user(self, user_id):

@@ -1,8 +1,7 @@
-from django.db import models
 from datetime import datetime, timedelta
-from django.contrib.auth.models import User
-from django.conf import settings
-from rest_framework import serializers
+from django.db import models
+
+
 from backend.models import TimeStamp
 
 
@@ -34,5 +33,13 @@ class Pipeline(TimeStamp):
         if self.is_approved and self.old_is_approved != self.is_approved:
             self.approved_date = datetime.now()
 
+        # Reset the approval date to null if the pipeline isn't approved anymore
+        if not self.is_approved:
+            self.approved_date = None
+
         # Save the updated changes
         super(Pipeline, self).save(*args, **kwargs)
+
+class ModificationPipelineRequest(Pipeline):
+    class Meta:
+        proxy = True
