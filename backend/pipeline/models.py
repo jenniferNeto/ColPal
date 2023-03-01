@@ -1,13 +1,12 @@
 from datetime import datetime, timedelta
 from django.db import models
+from django.conf import settings
 
 
 from backend.models import TimeStamp
 
-
 class Pipeline(TimeStamp):
     title = models.CharField(max_length=40)
-    # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     upload_frequency = models.DurationField(default=timedelta)
     is_approved = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
