@@ -1,5 +1,7 @@
 from django.urls import path
+
 from . import views
+
 
 urlpatterns = [
     path("<int:pk_pipeline>/viewers/", views.ViewerRetrieveAPIView.as_view()),

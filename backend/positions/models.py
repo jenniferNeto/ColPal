@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 
 from pipeline.models import Pipeline
 
+
 class Viewer(models.Model):
     viewer = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True)
     pipeline = models.ForeignKey(Pipeline, on_delete=models.CASCADE, null=True)

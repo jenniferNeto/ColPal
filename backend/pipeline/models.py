@@ -1,9 +1,8 @@
-from datetime import datetime, timedelta
 from django.db import models
-from django.conf import settings
-
+from datetime import datetime, timedelta
 
 from backend.models import TimeStamp
+
 
 class Pipeline(TimeStamp):
     title = models.CharField(max_length=40)

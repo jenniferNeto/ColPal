@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Viewer, Uploader, Manager
 
+
 class ViewerSerailizer(serializers.ModelSerializer):
     class Meta:
         model = Viewer
