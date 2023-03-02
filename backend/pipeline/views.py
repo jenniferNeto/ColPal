@@ -1,4 +1,5 @@
 from rest_framework import generics
+from django.db.models import Exists
 
 from .models import Pipeline, ModificationPipelineRequest
 from .serializers import PipelineSerializer, PipelineHistorySeralizer
@@ -32,13 +33,18 @@ class PipelineCreateAPIView(generics.CreateAPIView):
     serializer_class = PipelineSerializer
 
 
-class PipelineRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+class PipelineUpdateAPIView(generics.UpdateAPIView):
     """
     Update a pipeline
     """
 
     queryset = Pipeline.objects.all()
-    serializer_class = PipelineSerializer
+    serializer_class = PipelineHistorySeralizer
+
+    def get_queryset(self):
+        pipelines = Pipeline.objects.all()
+        pipelines.annotate(update_reason=Exists(pipelines))
+        return pipelines
 
     def update(self, request, *args, **kwargs):
         """

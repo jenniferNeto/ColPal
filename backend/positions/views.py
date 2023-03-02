@@ -4,7 +4,7 @@ from .models import Viewer, Uploader, Manager
 from .seralizers import ViewerSerailizer, UploaderSerailizer, ManagerSerailizer
 
 
-class ViewerRetrieveAPIView(generics.ListAPIView):
+class ViewerListAPIView(generics.ListAPIView):
     """
     View all Viewers for a specific pipeline
     """
@@ -14,7 +14,7 @@ class ViewerRetrieveAPIView(generics.ListAPIView):
 
     serializer_class = ViewerSerailizer
 
-class UploaderRetrieveAPIView(generics.ListAPIView):
+class UploaderListAPIView(generics.ListAPIView):
     """
     View all Uploaders for a specific pipeline
     """
@@ -24,7 +24,7 @@ class UploaderRetrieveAPIView(generics.ListAPIView):
 
     serializer_class = UploaderSerailizer
 
-class ManagerRetrieveAPIView(generics.ListAPIView):
+class ManagerListAPIView(generics.ListAPIView):
     """
     View all Managers for a specific pipeline
     """

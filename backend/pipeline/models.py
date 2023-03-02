@@ -20,6 +20,8 @@ class Pipeline(TimeStamp):
     is_approved = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     approved_date = models.DateTimeField(null=True, blank=True)
+    # update_reason = models.TextField(null=True, blank=True)
+    update_reason = models.TextField(default="No reason provided", null=False)
     history = HistoricalRecords(
         history_change_reason_field=models.TextField(null=True)
     )
@@ -48,7 +50,6 @@ class Pipeline(TimeStamp):
         if not self.is_approved:
             self.approved_date = None
 
-        # Save the updated changes
         super(Pipeline, self).save(*args, **kwargs)
 
 class ModificationPipelineRequest(Pipeline):

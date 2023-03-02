@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from simple_history.models import HistoricalRecords
+from django.db.models import Exists
 
 from .models import Pipeline
 
@@ -15,6 +16,7 @@ class PipelineSerializer(serializers.ModelSerializer):
 
     approved = serializers.SerializerMethodField(read_only=True)
     approved_date = serializers.SerializerMethodField(read_only=True)
+    # update_reason = serializers.CharField(required=False)
 
     class Meta:
         model = Pipeline
@@ -51,7 +53,13 @@ class PipelineSerializer(serializers.ModelSerializer):
         return obj.is_approved
 
 class PipelineHistorySeralizer(PipelineSerializer):
+    """
+    Seralize the entire Pipeline object but include the
+    history of pipeline modifications and a reason for
+    modifying the object
+    """
     history = serializers.SerializerMethodField()
+    updated_reason = serializers.SerializerMethodField()
 
     class Meta:
         model = Pipeline
@@ -65,8 +73,21 @@ class PipelineHistorySeralizer(PipelineSerializer):
             'is_active',
             'approved',
             'approved_date',
+            'updated_reason',
             'history',
         ]
 
+    # def get_update_reason(self, obj):
+    #     return obj.update_reason
+
     def get_history(self, obj):
-        return obj.history.all().values()
+        print(obj.__dict__)
+        # hist = obj.history.all().annotate(update_reason="")
+        hist = obj.history.all()
+        # print("History values: ", hist.values())
+        return hist.values()
+
+    def get_updated_reason(self, obj):
+        hist = obj.history.all().values()
+        print("PLEASE WHEN IS THIS GETTING CALLED", hist)
+        return obj.history.all().values_list('history_change_reason')
