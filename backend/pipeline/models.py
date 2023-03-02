@@ -3,7 +3,16 @@ from datetime import datetime, timedelta
 
 from backend.models import TimeStamp
 
+"""
+TODO: Pipeline history should be storable and loadable.
+Work on requesting pipeline changes and then on the history portion
+Also USER settings needs to be the first thing set up
 
+
+USER PERMISSION TO MAKE REQUESTS
+PIPELINE HISTORY
+
+"""
 class Pipeline(TimeStamp):
     title = models.CharField(max_length=40)
     upload_frequency = models.DurationField(default=timedelta)
