@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from simple_history.models import HistoricalRecords
 
 from .models import Pipeline
 
@@ -27,7 +28,7 @@ class PipelineSerializer(serializers.ModelSerializer):
             'upload_frequency',
             'is_active',
             'approved',
-            'approved_date'
+            'approved_date',
         ]
 
     # def get_creator(self, obj):
@@ -48,3 +49,24 @@ class PipelineSerializer(serializers.ModelSerializer):
 
     def get_approved(self, obj):
         return obj.is_approved
+
+class PipelineHistorySeralizer(PipelineSerializer):
+    history = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Pipeline
+
+        fields = [
+            'id',
+            'title',
+            'created',
+            'last_modified',
+            'upload_frequency',
+            'is_active',
+            'approved',
+            'approved_date',
+            'history',
+        ]
+
+    def get_history(self, obj):
+        return obj.history.all().values()

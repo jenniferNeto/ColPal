@@ -9,4 +9,5 @@ urlpatterns = [
     path("create", views.PipelineCreateAPIView.as_view()),
     path("<int:pk>", views.PipelineDetailAPIView.as_view()),
     path("<int:pk>/update", views.PipelineRetrieveUpdateAPIView.as_view()),
+    path("<int:pk_pipeline>/history", views.PipelineHistoricalRecordsRetrieveAPIView.as_view()),
 ]

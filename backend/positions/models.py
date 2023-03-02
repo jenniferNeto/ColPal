@@ -8,7 +8,7 @@ from pipeline.models import Pipeline
 class Viewer(models.Model):
     viewer = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True)
     pipeline = models.ForeignKey(Pipeline, on_delete=models.CASCADE, null=True)
-    pipeline_key = pipeline.primary_key
+    pipeline_id = pipeline.primary_key
 
     class Meta:
         unique_together = ('viewer', 'pipeline')
@@ -16,7 +16,7 @@ class Viewer(models.Model):
 class Uploader(models.Model):
     uploader = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True)
     pipeline = models.ForeignKey(Pipeline, on_delete=models.CASCADE, null=True)
-    pipeline_key = pipeline.primary_key
+    pipeline_id = pipeline.primary_key
 
     class Meta:
         unique_together = ('uploader', 'pipeline')
@@ -24,7 +24,7 @@ class Uploader(models.Model):
 class Manager(models.Model):
     manager = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True)
     pipeline = models.ForeignKey(Pipeline, on_delete=models.CASCADE, null=True)
-    pipeline_key = pipeline.primary_key
+    pipeline_id = pipeline.primary_key
 
     class Meta:
         unique_together = ('manager', 'pipeline')

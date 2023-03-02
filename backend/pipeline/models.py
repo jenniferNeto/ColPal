@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime, timedelta
+from simple_history.models import HistoricalRecords
 
 from backend.models import TimeStamp
 
@@ -19,6 +20,9 @@ class Pipeline(TimeStamp):
     is_approved = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     approved_date = models.DateTimeField(null=True, blank=True)
+    history = HistoricalRecords(
+        history_change_reason_field=models.TextField(null=True)
+    )
 
     def __init__(self, *args, **kwargs):
         super(Pipeline, self).__init__(*args, **kwargs)

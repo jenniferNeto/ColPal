@@ -1,8 +1,7 @@
 from rest_framework import generics
 
 from .models import Pipeline, ModificationPipelineRequest
-from .serializers import PipelineSerializer
-
+from .serializers import PipelineSerializer, PipelineHistorySeralizer
 
 class PipelineListAPIView(generics.ListAPIView):
     """
@@ -37,10 +36,15 @@ class PipelineRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     """
     Update a pipeline
     """
+
     queryset = Pipeline.objects.all()
     serializer_class = PipelineSerializer
 
     def update(self, request, *args, **kwargs):
+        """
+        This is broken. Currently when the user updates a model
+        a new empty Pipeline is created
+        """
         # request_data = json.loads(request.raw_post_data)
 
         partial = kwargs.pop('partial', False)
@@ -63,3 +67,10 @@ class PipelineRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         print("===================================", previousInstance.__dict__)
         print("===================================", mod.__dict__)
         return update_request
+
+class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
+    def get_queryset(self):
+        pipeline_id = self.kwargs['pk_pipeline']
+        return Pipeline.objects.filter(pk=pipeline_id)
+
+    serializer_class = PipelineHistorySeralizer
