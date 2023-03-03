@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from datetime import datetime, timedelta
 from simple_history.models import HistoricalRecords
 
@@ -38,11 +39,11 @@ class Pipeline(TimeStamp):
                 self.old_is_approved != self.is_approved or \
                 self.old_upload_frequency != self.upload_frequency or \
                 self.old_is_active != self.is_active:
-            self.last_modified = datetime.now()
+            self.last_modified = datetime.now(tz=timezone.get_current_timezone())
 
         # If the pipeline is now approved update timestamp
         if self.is_approved and self.old_is_approved != self.is_approved:
-            self.approved_date = datetime.now()
+            self.approved_date = datetime.now(tz=timezone.get_current_timezone())
 
         # Reset the approval date to null if the pipeline isn't approved anymore
         if not self.is_approved:

@@ -1,8 +1,7 @@
 from django.db import models
-from datetime import datetime
 
 class TimeStamp(models.Model):
-    created = models.DateTimeField(default=datetime.now)
+    created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(null=True, blank=True)
 
     # To generate a single table
