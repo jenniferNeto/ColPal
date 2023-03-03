@@ -1,32 +1,31 @@
 from rest_framework import generics, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+
 from django.contrib.auth.models import User
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.http import Http404
 
 from .serializers import UsersSerializer, UserLoginSerializer
 
+
 class UsersListAPIView(generics.ListAPIView):
-    """
-    Expose all users to the API
-    """
+    """Expose all users to the API"""
     queryset = User.objects.all()
     serializer_class = UsersSerializer
 
 
 class UsersDetailAPIView(generics.RetrieveAPIView):
-    """
-    Expose a user to the API using the user id number
-    """
+    """Expose a user to the API using the user id number"""
     queryset = User.objects.all()
     serializer_class = UsersSerializer
 
 class UserLoginAPIView(generics.CreateAPIView):
-    """
-    Log a user in by their userid
-    """
+    """Log a user in by their userid"""
     queryset = User.objects.all()
     serializer_class = UserLoginSerializer
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         user_id = request.data['user_id']
@@ -44,3 +43,13 @@ class UserLoginAPIView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserLogoutAPIView(APIView):
+    """Log a user out"""
+
+    def post(self, request, *args, **kwargs):
+        # Don't need any validation or serialization here
+        # Honor every logout request made
+        logout(request)
+
+        return Response(status=status.HTTP_200_OK)

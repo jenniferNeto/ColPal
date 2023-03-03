@@ -5,5 +5,6 @@ from . import views
 urlpatterns = [
     path('', views.UsersListAPIView.as_view(), name="Get Users"),
     path('<int:pk>/', views.UsersDetailAPIView.as_view(), name="Get Users"),
-    path('login/', views.UserLoginAPIView.as_view())
+    path('login/', views.UserLoginAPIView.as_view()),
+    path('logout/', views.UserLogoutAPIView.as_view())
 ]

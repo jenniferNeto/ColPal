@@ -5,9 +5,7 @@ from .seralizers import ViewerSerailizer, UploaderSerailizer, ManagerSerailizer
 
 
 class ViewerListAPIView(generics.ListAPIView):
-    """
-    View all Viewers for a specific pipeline
-    """
+    """View all Viewers for a specific pipeline"""
     def get_queryset(self):
         pipeline_id = self.kwargs['pk_pipeline']
         return Viewer.objects.filter(pipeline_id=pipeline_id)
@@ -15,9 +13,7 @@ class ViewerListAPIView(generics.ListAPIView):
     serializer_class = ViewerSerailizer
 
 class UploaderListAPIView(generics.ListAPIView):
-    """
-    View all Uploaders for a specific pipeline
-    """
+    """View all Uploaders for a specific pipeline"""
     def get_queryset(self):
         pipeline_id = self.kwargs['pk_pipeline']
         return Uploader.objects.filter(pipeline_id=pipeline_id)
@@ -25,9 +21,7 @@ class UploaderListAPIView(generics.ListAPIView):
     serializer_class = UploaderSerailizer
 
 class ManagerListAPIView(generics.ListAPIView):
-    """
-    View all Managers for a specific pipeline
-    """
+    """View all Managers for a specific pipeline"""
     def get_queryset(self):
         pipeline_id = self.kwargs['pk_pipeline']
         return Manager.objects.filter(pipeline_id=pipeline_id)

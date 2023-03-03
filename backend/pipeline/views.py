@@ -7,37 +7,27 @@ from .models import Pipeline, ModificationPipelineRequest
 from .serializers import PipelineSerializer, PipelineHistorySeralizer, PipelineUpdateSerializer
 
 class PipelineListAPIView(generics.ListAPIView):
-    """
-    View all created pipelines
-    """
+    """View all created pipelines"""
     queryset = Pipeline.objects.all()
     serializer_class = PipelineSerializer
 
 class ApprovedPipelineListAPIView(generics.ListAPIView):
-    """
-    View all created pipelines
-    """
+    """View all created pipelines"""
     queryset = Pipeline.objects.filter(is_approved=True)
     serializer_class = PipelineSerializer
 
 class PipelineDetailAPIView(generics.RetrieveAPIView):
-    """
-    View a specific pipeline based on its id
-    """
+    """View a specific pipeline based on its id"""
     queryset = Pipeline.objects.all()
     serializer_class = PipelineSerializer
 
 class PipelineCreateAPIView(generics.CreateAPIView):
-    """
-    Create a new pipeline
-    """
+    """Create a new pipeline"""
     queryset = Pipeline.objects.all()
     serializer_class = PipelineSerializer
 
 class PipelineUpdateAPIView(generics.UpdateAPIView):
-    """
-    Update a pipeline
-    """
+    """Update a pipeline"""
     queryset = Pipeline.objects.all()
     serializer_class = PipelineUpdateSerializer
 
@@ -77,6 +67,7 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
 
 
 class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
+    """View pipeline historical instances"""
     def get_queryset(self):
         pipeline_id = self.kwargs['pk_pipeline']
         pipeline = Pipeline.objects.filter(pk=pipeline_id)
