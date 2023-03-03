@@ -9,3 +9,12 @@ class UsersSerializer(serializers.ModelSerializer):
             'username',
             'email',
         ]
+
+class UserLoginSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField()
+
+    class Meta:
+        model = User
+        fields = [
+            'user_id'
+        ]
