@@ -34,10 +34,6 @@ class PipelineCreateAPIView(generics.CreateAPIView):
     queryset = Pipeline.objects.all()
     serializer_class = PipelineSerializer
 
-    # def get(self, request):
-    #     return Response("OK")
-
-
 class PipelineUpdateAPIView(generics.UpdateAPIView):
     """
     Update a pipeline
@@ -46,21 +42,27 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
     serializer_class = PipelineUpdateSerializer
 
     def update(self, request, *args, **kwargs):
-        # Perform the update on the current model first
-        update_model = super().update(request)
-
         pipeline_id = self.kwargs['pk']
         # Query the most recent updated model of the history
         # If history is queried then updated the query will be off by one
         pipeline = Pipeline.objects.filter(pk=pipeline_id).first()
-        if pipeline is None:
-            raise Http404
+
+        # Set update_reason to None so it becomes a required field
+        pipeline.update_reason = None
+
+        # Perform super update with modified instance
+        # super.update() will pull pipeline instance without additional field
+        partial = kwargs.pop('partial', False)
+        instance = pipeline
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
 
         # Update change reason in history on model
         update_request = request.data["update_reason"]
         update_change_reason(pipeline, update_request)
 
-        return update_model
+        return Response(serializer.data)
 
     def get(self, request, pk):
         pipeline = Pipeline.objects.filter(pk=pk).first()
