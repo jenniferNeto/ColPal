@@ -1,19 +1,30 @@
 import React from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, Navigate } from 'react-router-dom'
+import { useAuth } from '../../context/UserContext'
 import Sidebar from "../commons/Sidebar"
 
 export default function AuthLayout() {
+  const {currentUser} = useAuth()
 
+  console.log(currentUser)
+ 
   return (
-    <div class="container-fluid">
+    
+      currentUser !== null ? (
+        <div class="container-fluid">
         <div class="row">
-            <div class="col-sm-auto bg-light sticky-top bg-black shadow-sm">
+            <div class="col-sm-auto sticky-top py-2">
                 <Sidebar />
             </div>
-            <div class="col-sm p-3 min-vh-100">
+            <div class="container col-sm p-2 min-vh-100">
                 <Outlet />
             </div>
         </div>
     </div>
+      ) : (
+        <Navigate to={"/login"} replace />
+      )
+    
+    
   )
 }
