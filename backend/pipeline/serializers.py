@@ -1,6 +1,4 @@
 from rest_framework import serializers
-from simple_history.models import HistoricalRecords
-from django.db.models import Exists
 
 from .models import Pipeline
 
@@ -16,7 +14,6 @@ class PipelineSerializer(serializers.ModelSerializer):
 
     approved = serializers.SerializerMethodField(read_only=True)
     approved_date = serializers.SerializerMethodField(read_only=True)
-    # update_reason = serializers.CharField(required=False)
 
     class Meta:
         model = Pipeline
@@ -59,7 +56,6 @@ class PipelineHistorySeralizer(PipelineSerializer):
     modifying the object
     """
     history = serializers.SerializerMethodField()
-    updated_reason = serializers.SerializerMethodField()
 
     class Meta:
         model = Pipeline
@@ -73,7 +69,6 @@ class PipelineHistorySeralizer(PipelineSerializer):
             'is_active',
             'approved',
             'approved_date',
-            'updated_reason',
             'history',
         ]
 
@@ -81,13 +76,23 @@ class PipelineHistorySeralizer(PipelineSerializer):
     #     return obj.update_reason
 
     def get_history(self, obj):
-        print(obj.__dict__)
-        # hist = obj.history.all().annotate(update_reason="")
         hist = obj.history.all()
-        # print("History values: ", hist.values())
         return hist.values()
 
-    def get_updated_reason(self, obj):
-        hist = obj.history.all().values()
-        print("PLEASE WHEN IS THIS GETTING CALLED", hist)
-        return obj.history.all().values_list('history_change_reason')
+class PipelineUpdateSerializer(PipelineHistorySeralizer):
+    """
+    Serialize the entier Pipeline object but include the
+    reason for updating a pipeline. This field will be used
+    in place of the history.history_change_reason field
+    """
+    update_reason = serializers.CharField()
+
+    class Meta:
+        model = Pipeline
+
+        fields = [
+            'title',
+            'upload_frequency',
+            'update_reason',
+            'is_active',
+        ]
