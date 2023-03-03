@@ -1,4 +1,5 @@
 from rest_framework import generics
+from rest_framework.response import Response
 from simple_history.utils import update_change_reason
 from django.http import Http404
 
@@ -41,9 +42,6 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
     queryset = Pipeline.objects.all()
     serializer_class = PipelineUpdateSerializer
 
-    def get_queryset(self):
-        return super().get_queryset()
-
     def update(self, request, *args, **kwargs):
         # Perform the update on the current model first
         update_model = super().update(request)
@@ -58,6 +56,15 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         update_change_reason(pipeline, update_request)
 
         return update_model
+
+    def get(self, request, pk):
+        pipeline = Pipeline.objects.filter(pk=pk)[0]
+
+        # Set update_reason to None so PipelineUpdateSerializer can
+        # match all the required added fields on a Pipeline
+        # Without this line update requests will always be 405 response code
+        pipeline.update_reason = None
+        return Response(PipelineSerializer(pipeline).data)
 
 
 class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
