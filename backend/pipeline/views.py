@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from simple_history.utils import update_change_reason
 from django.http import Http404
@@ -34,6 +34,9 @@ class PipelineCreateAPIView(generics.CreateAPIView):
     queryset = Pipeline.objects.all()
     serializer_class = PipelineSerializer
 
+    # def get(self, request):
+    #     return Response("OK")
+
 
 class PipelineUpdateAPIView(generics.UpdateAPIView):
     """
@@ -49,7 +52,9 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         pipeline_id = self.kwargs['pk']
         # Query the most recent updated model of the history
         # If history is queried then updated the query will be off by one
-        pipeline = Pipeline.objects.filter(pk=pipeline_id)[0]
+        pipeline = Pipeline.objects.filter(pk=pipeline_id).first()
+        if pipeline is None:
+            raise Http404
 
         # Update change reason in history on model
         update_request = request.data["update_reason"]
@@ -58,7 +63,9 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         return update_model
 
     def get(self, request, pk):
-        pipeline = Pipeline.objects.filter(pk=pk)[0]
+        pipeline = Pipeline.objects.filter(pk=pk).first()
+        if pipeline is None:
+            raise Http404
 
         # Set update_reason to None so PipelineUpdateSerializer can
         # match all the required added fields on a Pipeline
