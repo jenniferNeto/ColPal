@@ -1,7 +1,10 @@
-from rest_framework import generics, status
+from rest_framework import generics
 from rest_framework.response import Response
-from simple_history.utils import update_change_reason
+from rest_framework.permissions import IsAdminUser
+
 from django.http import Http404
+
+from simple_history.utils import update_change_reason
 
 from .models import Pipeline, ModificationPipelineRequest
 from .serializers import PipelineSerializer, PipelineHistorySeralizer, PipelineUpdateSerializer
@@ -10,11 +13,13 @@ class PipelineListAPIView(generics.ListAPIView):
     """View all created pipelines"""
     queryset = Pipeline.objects.all()
     serializer_class = PipelineSerializer
+    permission_classes = [IsAdminUser]
 
 class ApprovedPipelineListAPIView(generics.ListAPIView):
     """View all created pipelines"""
     queryset = Pipeline.objects.filter(is_approved=True)
     serializer_class = PipelineSerializer
+    permission_classes = [IsAdminUser]
 
 class PipelineDetailAPIView(generics.RetrieveAPIView):
     """View a specific pipeline based on its id"""
