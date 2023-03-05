@@ -3,11 +3,15 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 
 from simple_history.utils import update_change_reason
 
+from positions.models import Manager
+
 from .models import Pipeline, ModificationPipelineRequest
 from .serializers import PipelineSerializer, PipelineHistorySeralizer, PipelineUpdateSerializer
+
 
 class PipelineListAPIView(generics.ListAPIView):
     """View all created pipelines"""
@@ -42,6 +46,9 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         # If history is queried then updated the query will be off by one
         pipeline = Pipeline.objects.filter(pk=pipeline_id).first()
 
+        # Check to see if user is allowed to update this pipeline
+        self.check_user_permissions(request, pipeline_id)
+
         # Set update_reason to None so it becomes a required field
         pipeline.update_reason = None
 
@@ -64,11 +71,28 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         if pipeline is None:
             raise Http404
 
+        # Check to see if a user is allowed to update this pipeline
+        self.check_user_permissions(request, pk)
+
         # Set update_reason to None so PipelineUpdateSerializer can
         # match all the required added fields on a Pipeline
         # Without this line update requests will always be 405 response code
         pipeline.update_reason = None
         return Response(PipelineSerializer(pipeline).data)
+
+    def check_user_permissions(self, request, pk):
+        """
+        TODO: Update later for Uploader permissions
+        Temporary permission checking to demonstate how it will work
+        """
+        # Get current user instance
+        user = request.user
+
+        # Get managers for the current pipeline
+        managers = Manager.objects.filter(pipeline_id=pk).values_list('user', flat=True)
+
+        if not user.is_staff and user not in managers:
+            raise PermissionDenied
 
 
 class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
