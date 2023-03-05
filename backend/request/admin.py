@@ -2,9 +2,10 @@ from django.contrib import admin
 
 from .models import Request
 
-class RequestHistoryAdmin(admin.ModelAdmin):
+class RequestAdminModel(admin.ModelAdmin):
     list_display = [
         'title',
+        'id',
         'upload_frequency',
         'update_reason',
         'accept_changes'
@@ -17,4 +18,4 @@ class RequestHistoryAdmin(admin.ModelAdmin):
         'approved_date',
     ]
 
-admin.site.register(Request, RequestHistoryAdmin)
+admin.site.register(Request, RequestAdminModel)

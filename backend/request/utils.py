@@ -4,6 +4,7 @@ from .models import Request
 
 
 def createRequest(data, instance):
+    # Create a new pipeline modification request
     mod = Request.objects.create(title="Blank", pipeline=instance)
 
     mod.title = data['title']

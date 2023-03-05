@@ -6,6 +6,7 @@ from .models import Pipeline
 class PipelineHistoryAdmin(SimpleHistoryAdmin):
     list_display = [
         'title',
+        'id',
         'upload_frequency',
         'is_approved',
         'is_active',
@@ -14,6 +15,7 @@ class PipelineHistoryAdmin(SimpleHistoryAdmin):
     history_list_display = ['status']
     search_fields = [
         'title',
+        'id',
         'upload_frequency',
         'is_approved',
         'is_active',

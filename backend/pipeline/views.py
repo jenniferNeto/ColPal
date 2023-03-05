@@ -4,13 +4,14 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework import status
 
 from django.http import Http404
-from django.core.exceptions import PermissionDenied
+from django.db.utils import IntegrityError
 
-from positions.models import Manager, Viewer
+from positions.models import Viewer, Uploader, Manager
 
 from request.utils import createRequest
 
 from .models import Pipeline
+from .utils import check_user_permissions
 from .serializers import PipelineSerializer, PipelineHistorySeralizer, PipelineUpdateSerializer
 
 
@@ -31,6 +32,20 @@ class PipelineDetailAPIView(generics.RetrieveAPIView):
     queryset = Pipeline.objects.all()
     serializer_class = PipelineSerializer
 
+    def get(self, request, pk):
+        pipeline = Pipeline.objects.filter(pk=pk).first()
+        if pipeline is None:
+            raise Http404
+
+        # Check to see if a user is allowed to update this pipeline
+        check_user_permissions(request, pk, Viewer)
+
+        # Set update_reason to None so PipelineUpdateSerializer can
+        # match all the required added fields on a Pipeline
+        # Without this line update requests will always be 405 response code
+        pipeline.update_reason = None
+        return Response(PipelineSerializer(pipeline).data)
+
 class PipelineCreateAPIView(generics.CreateAPIView):
     """Create a new pipeline"""
     queryset = Pipeline.objects.all()
@@ -42,8 +57,9 @@ class PipelineCreateAPIView(generics.CreateAPIView):
         pipeline = serializer.save()
         headers = self.get_success_headers(serializer.data)
 
-        # Whoever creates a pipeline is automatically a manager of that pipeline
+        # Whoever creates a pipeline is automatically a viewer and manager of that pipeline
         Manager.objects.create(user=request.user, pipeline=pipeline)
+        Viewer.objects.create(user=request.user, pipeline=pipeline)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -52,14 +68,14 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
     queryset = Pipeline.objects.all()
     serializer_class = PipelineUpdateSerializer
 
-    # def put(self, request, *args, **kwargs):
-    #     return self.update(request, args, kwargs)
-
     def put(self, request, *args, **kwargs):
         pipeline_id = self.kwargs['pk']
         # Query the most recent updated model of the history
         # If history is queried then updated the query will be off by one
         instance = Pipeline.objects.filter(pk=pipeline_id).first()
+
+        # User must be an uploader to request changes to a pipeline
+        check_user_permissions(request, pipeline_id, Uploader)
 
         return self.create(request, instance=instance)
         # # Check to see if user is allowed to update this pipeline
@@ -100,27 +116,13 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
             raise Http404
 
         # Check to see if a user is allowed to update this pipeline
-        self.check_user_permissions(request, pk)
+        check_user_permissions(request, pk, Uploader)
 
         # Set update_reason to None so PipelineUpdateSerializer can
         # match all the required added fields on a Pipeline
         # Without this line update requests will always be 405 response code
         pipeline.update_reason = None
         return Response(PipelineSerializer(pipeline).data)
-
-    def check_user_permissions(self, request, pk):
-        """
-        TODO: Update later for Uploader permissions
-        Temporary permission checking to demonstate how it will work
-        """
-        # Get current user instance
-        user = request.user
-
-        # Get managers for the current pipeline
-        managers = Manager.objects.filter(pipeline_id=pk).values_list('user', flat=True)
-
-        if not user.is_staff and user not in managers:
-            raise PermissionDenied
 
 class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
     """View pipeline historical instances"""
@@ -132,5 +134,9 @@ class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
         if pipeline.count() == 0:
             raise Http404
         return pipeline
+
+    def get(self, request, *args, **kwargs):
+        check_user_permissions(request, kwargs['pk_pipeline'], Viewer)
+        return super().get(request, *args, **kwargs)
 
     serializer_class = PipelineHistorySeralizer

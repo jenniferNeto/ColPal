@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, views
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
@@ -6,11 +6,17 @@ from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 
 from pipeline.models import Pipeline
+from pipeline.utils import check_user_permissions
 
 from .models import Viewer, Uploader, Manager
 from . import serializers
 
-class ViewerListAPIView(generics.ListAPIView):
+class IsViewerRequired(generics.ListAPIView):
+    def get(self, request, *args, **kwargs):
+        check_user_permissions(request, kwargs['pk_pipeline'], Manager)
+        return super().get(request, *args, **kwargs)
+
+class ViewerListAPIView(IsViewerRequired):
     """View all Viewers for a specific pipeline"""
     def get_queryset(self):
         pipeline_id = self.kwargs['pk_pipeline']
@@ -18,7 +24,7 @@ class ViewerListAPIView(generics.ListAPIView):
 
     serializer_class = serializers.ViewerSerializer
 
-class UploaderListAPIView(generics.ListAPIView):
+class UploaderListAPIView(IsViewerRequired):
     """View all Uploaders for a specific pipeline"""
     def get_queryset(self):
         pipeline_id = self.kwargs['pk_pipeline']
@@ -26,7 +32,7 @@ class UploaderListAPIView(generics.ListAPIView):
 
     serializer_class = serializers.UploaderSerializer
 
-class ManagerListAPIView(generics.ListAPIView):
+class ManagerListAPIView(IsViewerRequired):
     """View all Managers for a specific pipeline"""
     def get_queryset(self):
         pipeline_id = self.kwargs['pk_pipeline']
@@ -40,6 +46,9 @@ class ViewerCreateAPIView(generics.CreateAPIView):
     serializer_class = serializers.ViewerCreateSerializer
 
     def post(self, request, pk_pipeline):
+        # Check user is a manager
+        check_user_permissions(request, pk_pipeline, Manager)
+
         user = User.objects.filter(pk=request.data['user']).first()
         pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
 
@@ -57,6 +66,9 @@ class UploaderCreateAPIView(generics.CreateAPIView):
     serializer_class = serializers.UploaderCreateSerializer
 
     def post(self, request, pk_pipeline):
+        # Check user is a manager
+        check_user_permissions(request, pk_pipeline, Manager)
+
         user = User.objects.filter(pk=request.data['user']).first()
         pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
 
@@ -74,6 +86,9 @@ class ManagerCreateAPIView(generics.CreateAPIView):
     serializer_class = serializers.ManagerCreateSerializer
 
     def post(self, request, pk_pipeline):
+        # Check user is a manager
+        check_user_permissions(request, pk_pipeline, Manager)
+
         user = User.objects.filter(pk=request.data['user']).first()
         pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
 
