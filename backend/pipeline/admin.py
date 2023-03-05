@@ -1,11 +1,10 @@
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Pipeline, Request
+from .models import Pipeline
 
 class PipelineHistoryAdmin(SimpleHistoryAdmin):
     list_display = [
-        'id',
         'title',
         'upload_frequency',
         'is_approved',
@@ -14,7 +13,6 @@ class PipelineHistoryAdmin(SimpleHistoryAdmin):
     ]
     history_list_display = ['status']
     search_fields = [
-        'id',
         'title',
         'upload_frequency',
         'is_approved',
@@ -22,5 +20,7 @@ class PipelineHistoryAdmin(SimpleHistoryAdmin):
         'approved_date'
     ]
 
+    def has_change_permission(self, request, obj=None):
+        return False
+
 admin.site.register(Pipeline, PipelineHistoryAdmin)
-admin.site.register(Request)

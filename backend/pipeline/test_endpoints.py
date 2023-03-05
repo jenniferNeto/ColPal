@@ -3,6 +3,8 @@ from rest_framework import status
 
 from django.contrib.auth.models import User
 
+from request.models import Request
+
 from .models import Pipeline
 
 class PipelineValidationEndpointTestCase(APITestCase):
@@ -90,6 +92,7 @@ class PipelineEndpointTestCase(APITestCase):
         data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
         response = self.client.put("/pipelines/1/update/", data=data, follow=True)
         self.assertEquals(response.status_code, self.status_code)
+        self.assertEquals(Request.objects.all().count(), 1)
 
     def test_pipelines_history(self):
         """Test the pipelines get history"""
@@ -104,3 +107,10 @@ class AnonymousPipelineEndpointTestCase(PipelineEndpointTestCase):
     def setUp(self):
         Pipeline.objects.all().delete()
         Pipeline.objects.create(title='Test Pipeline')
+
+    def test_pipelines_updateview_put(self):
+        """Test the pipelines put update endpoint"""
+        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
+        response = self.client.put("/pipelines/1/update/", data=data, follow=True)
+        self.assertEquals(response.status_code, self.status_code)
+        self.assertEquals(Request.objects.all().count(), 0)

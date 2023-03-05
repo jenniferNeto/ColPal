@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'authentication',
     'pipeline',
     'positions',
+    'request',
 ]
 
 MIDDLEWARE = [

@@ -1,16 +1,16 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
-from rest_framework import mixins, status
+from rest_framework import status
 
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 
-from simple_history.utils import update_change_reason
+from positions.models import Manager, Viewer
 
-from positions.models import Manager
+from request.utils import createRequest
 
-from .models import Pipeline, Request
+from .models import Pipeline
 from .serializers import PipelineSerializer, PipelineHistorySeralizer, PipelineUpdateSerializer
 
 
@@ -36,18 +36,29 @@ class PipelineCreateAPIView(generics.CreateAPIView):
     queryset = Pipeline.objects.all()
     serializer_class = PipelineSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 class PipelineUpdateAPIView(generics.UpdateAPIView):
     """Update a pipeline"""
     queryset = Pipeline.objects.all()
     serializer_class = PipelineUpdateSerializer
 
-    def update(self, request, *args, **kwargs):
+    # def put(self, request, *args, **kwargs):
+    #     return self.update(request, args, kwargs)
+
+    def put(self, request, *args, **kwargs):
         pipeline_id = self.kwargs['pk']
         # Query the most recent updated model of the history
         # If history is queried then updated the query will be off by one
         instance = Pipeline.objects.filter(pk=pipeline_id).first()
 
-        return self.create(request, args, kwargs)
+        return self.create(request, instance=instance)
         # # Check to see if user is allowed to update this pipeline
         # self.check_user_permissions(request, pipeline_id)
 
@@ -67,14 +78,16 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
 
         # return Response(serializer.data)
 
-    def create(self, request, *args, **kwargs):
-        pipeline_id = self.kwargs['pk']
-        instance = Pipeline.objects.filter(pk=pipeline_id).first()
+    def create(self, request, instance):
+        if instance is None:
+            raise Http404
+
         serializer = self.get_serializer(instance, data=request.data)
         instance.update_reason = None
-
         serializer.is_valid(raise_exception=True)
-        instance.createModificationPipeline(request.data)
+
+        # Create the new request object
+        createRequest(data=request.data, instance=instance)
 
         return Response(status=status.HTTP_200_OK)
 

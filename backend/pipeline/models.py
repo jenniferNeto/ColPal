@@ -1,20 +1,12 @@
 from django.db import models
 from django.utils import timezone
+
 from datetime import datetime, timedelta
+
 from simple_history.models import HistoricalRecords
 
 from backend.models import TimeStamp
 
-"""
-TODO: Pipeline history should be storable and loadable.
-Work on requesting pipeline changes and then on the history portion
-Also USER settings needs to be the first thing set up
-
-
-USER PERMISSION TO MAKE REQUESTS
-PIPELINE HISTORY
-
-"""
 
 class Pipe(TimeStamp):
     title = models.CharField(max_length=40)
@@ -24,7 +16,7 @@ class Pipe(TimeStamp):
     approved_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.pk}, {self.title}'
+        return f'{self.title}'
 
     class Meta:
         abstract = True
@@ -33,16 +25,6 @@ class Pipeline(Pipe):
     history = HistoricalRecords(
         history_change_reason_field=models.TextField(null=True)
     )
-
-    def createModificationPipeline(self, data):
-        mod = Request.objects.create(title="Blank")
-        print(data)
-
-        mod.title = data['title']
-        mod.upload_frequency = timedelta(0)
-        mod.is_active = True if data['is_active'] == 'true' else False
-        mod.update_reason = data['update_reason']
-        mod.save()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,15 +59,6 @@ class Pipeline(Pipe):
         finally:
             del self.skip_history_when_saving
         return ret
-
-class Request(Pipe):
-    update_reason = models.TextField(null=True)
-
-    changes_decisions = (
-        (1, 'Accept'),
-        (2, 'Reject')
-    )
-    accept_changes = models.IntegerField(choices=changes_decisions, default=2)
 
 """
 
