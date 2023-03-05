@@ -9,7 +9,7 @@ urlpatterns = [
 
     path('<int:pk_pipeline>/uploaders/', views.UploaderListAPIView.as_view()),
     path('<int:pk_pipeline>/uploaders/add/', views.UploaderCreateAPIView.as_view()),
-    
+
     path('<int:pk_pipeline>/managers/', views.ManagerListAPIView.as_view()),
     path('<int:pk_pipeline>/managers/add/', views.ManagerCreateAPIView.as_view()),
 

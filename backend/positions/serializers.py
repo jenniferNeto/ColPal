@@ -37,6 +37,8 @@ class ManagerSerializer(PipelineUserSerializer):
 
 class PositionCreateSerializer(serializers.ModelSerializer):
     # Show the userid instead of the user itself for post purposes
+    # TODO: This line of code is causing the makemigrations to fail. It's 4:30AM so I'm going to bed now
+    # TODO: Figure out why this line is making everything fail. Stack trace is annoying to read but it should help
     user = serializers.ChoiceField(choices=User.objects.all().values().values_list('pk', flat=True))
 
     class Meta:

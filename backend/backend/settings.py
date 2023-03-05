@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     'simple_history',
     'drf_multiple_model',
     'backend',
-    'pipeline',
     'authentication',
+    'pipeline',
     'positions',
 ]
 
