@@ -1,6 +1,7 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
+from rest_framework import mixins, status
 
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
@@ -9,7 +10,7 @@ from simple_history.utils import update_change_reason
 
 from positions.models import Manager
 
-from .models import Pipeline, ModificationPipelineRequest
+from .models import Pipeline, Request
 from .serializers import PipelineSerializer, PipelineHistorySeralizer, PipelineUpdateSerializer
 
 
@@ -44,27 +45,38 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         pipeline_id = self.kwargs['pk']
         # Query the most recent updated model of the history
         # If history is queried then updated the query will be off by one
-        pipeline = Pipeline.objects.filter(pk=pipeline_id).first()
+        instance = Pipeline.objects.filter(pk=pipeline_id).first()
 
-        # Check to see if user is allowed to update this pipeline
-        self.check_user_permissions(request, pipeline_id)
+        return self.create(request, args, kwargs)
+        # # Check to see if user is allowed to update this pipeline
+        # self.check_user_permissions(request, pipeline_id)
 
-        # Set update_reason to None so it becomes a required field
-        pipeline.update_reason = None
+        # # Set update_reason to None so it becomes a required field
+        # pipeline.update_reason = None
 
-        # Perform super update with modified instance
-        # super.update() will pull pipeline instance without additional field
-        partial = kwargs.pop('partial', False)
-        instance = pipeline
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        # # Perform super update with modified instance
+        # # super.update() will pull pipeline instance without additional field
+        # partial = kwargs.pop('partial', False)
+        # serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        # serializer.is_valid(raise_exception=True)
+        # self.perform_update(serializer)
+
+        # # Update change reason in history on model
+        # update_request = request.data["update_reason"]
+        # update_change_reason(pipeline, update_request)
+
+        # return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        pipeline_id = self.kwargs['pk']
+        instance = Pipeline.objects.filter(pk=pipeline_id).first()
+        serializer = self.get_serializer(instance, data=request.data)
+        instance.update_reason = None
+
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        instance.createModificationPipeline(request.data)
 
-        # Update change reason in history on model
-        update_request = request.data["update_reason"]
-        update_change_reason(pipeline, update_request)
-
-        return Response(serializer.data)
+        return Response(status=status.HTTP_200_OK)
 
     def get(self, request, pk):
         pipeline = Pipeline.objects.filter(pk=pk).first()
@@ -93,7 +105,6 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
 
         if not user.is_staff and user not in managers:
             raise PermissionDenied
-
 
 class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
     """View pipeline historical instances"""

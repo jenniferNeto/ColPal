@@ -1,7 +1,7 @@
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Pipeline
+from .models import Pipeline, Request
 
 class PipelineHistoryAdmin(SimpleHistoryAdmin):
     list_display = [
@@ -23,3 +23,4 @@ class PipelineHistoryAdmin(SimpleHistoryAdmin):
     ]
 
 admin.site.register(Pipeline, PipelineHistoryAdmin)
+admin.site.register(Request)
