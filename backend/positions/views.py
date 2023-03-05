@@ -1,7 +1,14 @@
 from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
+
+from django.contrib.auth.models import User
+from django.db.utils import IntegrityError
+
+from pipeline.models import Pipeline
 
 from .models import Viewer, Uploader, Manager
-from .seralizers import ViewerSerializer, UploaderSerializer, ManagerSerializer
+from . import serializers
 
 class ViewerListAPIView(generics.ListAPIView):
     """View all Viewers for a specific pipeline"""
@@ -9,7 +16,7 @@ class ViewerListAPIView(generics.ListAPIView):
         pipeline_id = self.kwargs['pk_pipeline']
         return Viewer.objects.filter(pipeline_id=pipeline_id)
 
-    serializer_class = ViewerSerializer
+    serializer_class = serializers.ViewerSerializer
 
 class UploaderListAPIView(generics.ListAPIView):
     """View all Uploaders for a specific pipeline"""
@@ -17,7 +24,7 @@ class UploaderListAPIView(generics.ListAPIView):
         pipeline_id = self.kwargs['pk_pipeline']
         return Uploader.objects.filter(pipeline_id=pipeline_id)
 
-    serializer_class = UploaderSerializer
+    serializer_class = serializers.UploaderSerializer
 
 class ManagerListAPIView(generics.ListAPIView):
     """View all Managers for a specific pipeline"""
@@ -25,4 +32,55 @@ class ManagerListAPIView(generics.ListAPIView):
         pipeline_id = self.kwargs['pk_pipeline']
         return Manager.objects.filter(pipeline_id=pipeline_id)
 
-    serializer_class = ManagerSerializer
+    serializer_class = serializers.ManagerSerializer
+
+class ViewerCreateAPIView(generics.CreateAPIView):
+    """Create a new viewer for a specific pipeline"""
+    queryset = Viewer.objects.none()
+    serializer_class = serializers.ViewerCreateSerializer
+
+    def post(self, request, pk_pipeline):
+        user = User.objects.filter(pk=request.data['user']).first()
+        pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
+
+        # Attempt to create a Viewer on the pipeline which requires a unique instance
+        try:
+            Viewer.objects.create(user=user, pipeline=pipeline)
+        except IntegrityError:
+            raise ValidationError(detail='User is already a viewer of this pipeline')
+
+        return Response(request.data)
+
+class UploaderCreateAPIView(generics.CreateAPIView):
+    """Create a new viewer for a specific pipeline"""
+    queryset = Uploader.objects.none()
+    serializer_class = serializers.UploaderCreateSerializer
+
+    def post(self, request, pk_pipeline):
+        user = User.objects.filter(pk=request.data['user']).first()
+        pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
+
+        # Attempt to create a Uploader on the pipeline which requires a unique instance
+        try:
+            Uploader.objects.create(user=user, pipeline=pipeline)
+        except IntegrityError:
+            raise ValidationError(detail='User is already a uploader of this pipeline')
+
+        return Response(request.data)
+
+class ManagerCreateAPIView(generics.CreateAPIView):
+    """Create a new viewer for a specific pipeline"""
+    queryset = Uploader.objects.none()
+    serializer_class = serializers.ManagerCreateSerializer
+
+    def post(self, request, pk_pipeline):
+        user = User.objects.filter(pk=request.data['user']).first()
+        pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
+
+        # Attempt to create a Manager on the pipeline which requires a unique instance
+        try:
+            Manager.objects.create(user=user, pipeline=pipeline)
+        except IntegrityError:
+            raise ValidationError(detail='User is already a manager of this pipeline')
+
+        return Response(request.data)
