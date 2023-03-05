@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'simple_history',
+    'drf_multiple_model',
     'backend',
     'pipeline',
     'authentication',

@@ -7,19 +7,19 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
 from django.http import Http404
 
-from .serializers import UsersSerializer, UserLoginSerializer
+from .serializers import UserSerializer, UserLoginSerializer
 
 
 class UsersListAPIView(generics.ListAPIView):
     """Expose all users to the API"""
     queryset = User.objects.all()
-    serializer_class = UsersSerializer
+    serializer_class = UserSerializer
 
 
 class UsersDetailAPIView(generics.RetrieveAPIView):
     """Expose a user to the API using the user id number"""
     queryset = User.objects.all()
-    serializer_class = UsersSerializer
+    serializer_class = UserSerializer
 
 class UserLoginAPIView(generics.CreateAPIView):
     """Log a user in by their userid"""

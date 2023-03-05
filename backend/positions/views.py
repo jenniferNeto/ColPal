@@ -1,8 +1,7 @@
 from rest_framework import generics
 
 from .models import Viewer, Uploader, Manager
-from .seralizers import ViewerSerailizer, UploaderSerailizer, ManagerSerailizer
-
+from .seralizers import ViewerSerializer, UploaderSerializer, ManagerSerializer
 
 class ViewerListAPIView(generics.ListAPIView):
     """View all Viewers for a specific pipeline"""
@@ -10,7 +9,7 @@ class ViewerListAPIView(generics.ListAPIView):
         pipeline_id = self.kwargs['pk_pipeline']
         return Viewer.objects.filter(pipeline_id=pipeline_id)
 
-    serializer_class = ViewerSerailizer
+    serializer_class = ViewerSerializer
 
 class UploaderListAPIView(generics.ListAPIView):
     """View all Uploaders for a specific pipeline"""
@@ -18,7 +17,7 @@ class UploaderListAPIView(generics.ListAPIView):
         pipeline_id = self.kwargs['pk_pipeline']
         return Uploader.objects.filter(pipeline_id=pipeline_id)
 
-    serializer_class = UploaderSerailizer
+    serializer_class = UploaderSerializer
 
 class ManagerListAPIView(generics.ListAPIView):
     """View all Managers for a specific pipeline"""
@@ -26,4 +25,4 @@ class ManagerListAPIView(generics.ListAPIView):
         pipeline_id = self.kwargs['pk_pipeline']
         return Manager.objects.filter(pipeline_id=pipeline_id)
 
-    serializer_class = ManagerSerailizer
+    serializer_class = ManagerSerializer
