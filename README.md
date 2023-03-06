@@ -1,2 +1,0 @@
-# ColPal
-Capstone Project
