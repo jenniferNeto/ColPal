@@ -59,23 +59,3 @@ class Pipeline(Pipe):
         finally:
             del self.skip_history_when_saving
         return ret
-
-"""
-
-# TODO: The ModificationPipelineRequest object needs to be created using the
-# original Pipeline's primary key so the objects can be looked up together.
-# Once the ModificationPipelineRequest object is approved, the default save needs
-# to be overriden to delete the current ModificationPipelineRequest and update the
-# original Pipeline.
-
-Ignore above, just keeping to look back at thought process
-
-History_change_reason_field should be changed to 'reason' so that the approval
-or denial of a pipeline can be returned back to the user.
-Also don't delete the modifcatio
-
-Need a way to link mod requests to a pipeline
-mod request need reason for accept / deny
-views to look at reason pipeline changes happened or not
-
-"""
