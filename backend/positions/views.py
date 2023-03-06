@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 
 from pipeline.models import Pipeline
-from pipeline.utils import check_user_permissions
+from authentication.utils import check_user_permissions
 
 from .models import Viewer, Uploader, Manager
 from . import serializers

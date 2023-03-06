@@ -7,11 +7,11 @@ from django.http import Http404
 
 from simple_history.utils import update_change_reason
 
+from authentication.utils import check_user_permissions, is_user_allowed
 from positions.models import Viewer, Uploader, Manager
 from request.utils import createRequest
 
 from .models import Pipeline
-from .utils import check_user_permissions, is_user_allowed
 from .serializers import PipelineSerializer, PipelineHistorySeralizer, PipelineUpdateSerializer
 
 
@@ -32,13 +32,13 @@ class PipelineDetailAPIView(generics.RetrieveAPIView):
     queryset = Pipeline.objects.all()
     serializer_class = PipelineSerializer
 
-    def get(self, request, pk):
-        pipeline = Pipeline.objects.filter(pk=pk).first()
+    def get(self, request, pk_pipeline):
+        pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
         if pipeline is None:
             raise Http404
 
         # Check to see if a user is allowed to update this pipeline
-        check_user_permissions(request, pk, Viewer)
+        check_user_permissions(request, pk_pipeline, Viewer)
 
         # Set update_reason to None so PipelineUpdateSerializer can
         # match all the required added fields on a Pipeline
@@ -69,7 +69,7 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
     serializer_class = PipelineUpdateSerializer
 
     def put(self, request, *args, **kwargs):
-        pipeline_id = self.kwargs['pk']
+        pipeline_id = self.kwargs['pk_pipeline']
         # Query the most recent updated model of the history
         # If history is queried then updated the query will be off by one
         instance = Pipeline.objects.filter(pk=pipeline_id).first()
@@ -84,7 +84,7 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         return self.create(request, instance=instance)
 
     def perform_update_now(self, request, *args, **kwargs):
-        pipeline_id = self.kwargs['pk']
+        pipeline_id = self.kwargs['pk_pipeline']
         instance = Pipeline.objects.filter(pk=pipeline_id).first()
         # Set update_reason to None so it becomes a required field
         instance.update_reason = None
@@ -115,13 +115,13 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
 
         return Response(status=status.HTTP_200_OK)
 
-    def get(self, request, pk):
-        pipeline = Pipeline.objects.filter(pk=pk).first()
+    def get(self, request, pk_pipeline):
+        pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
         if pipeline is None:
             raise Http404
 
         # Check to see if a user is allowed to update this pipeline
-        check_user_permissions(request, pk, Uploader)
+        check_user_permissions(request, pk_pipeline, Uploader)
 
         # Set update_reason to None so PipelineUpdateSerializer can
         # match all the required added fields on a Pipeline
