@@ -4,14 +4,14 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework import status
 
 from django.http import Http404
-from django.db.utils import IntegrityError
+
+from simple_history.utils import update_change_reason
 
 from positions.models import Viewer, Uploader, Manager
-
 from request.utils import createRequest
 
 from .models import Pipeline
-from .utils import check_user_permissions
+from .utils import check_user_permissions, is_user_allowed
 from .serializers import PipelineSerializer, PipelineHistorySeralizer, PipelineUpdateSerializer
 
 
@@ -74,28 +74,33 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         # If history is queried then updated the query will be off by one
         instance = Pipeline.objects.filter(pk=pipeline_id).first()
 
+        # User is manager and doesn't need to create an update request
+        if is_user_allowed(request, pipeline_id, Manager):
+            return self.perform_update_now(request, args, kwargs)
+
         # User must be an uploader to request changes to a pipeline
         check_user_permissions(request, pipeline_id, Uploader)
 
         return self.create(request, instance=instance)
-        # # Check to see if user is allowed to update this pipeline
-        # self.check_user_permissions(request, pipeline_id)
 
-        # # Set update_reason to None so it becomes a required field
-        # pipeline.update_reason = None
+    def perform_update_now(self, request, *args, **kwargs):
+        pipeline_id = self.kwargs['pk']
+        instance = Pipeline.objects.filter(pk=pipeline_id).first()
+        # Set update_reason to None so it becomes a required field
+        instance.update_reason = None
 
-        # # Perform super update with modified instance
-        # # super.update() will pull pipeline instance without additional field
-        # partial = kwargs.pop('partial', False)
-        # serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        # serializer.is_valid(raise_exception=True)
-        # self.perform_update(serializer)
+        # Perform super update with modified instance
+        # super.update() will pull pipeline instance without additional field
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
 
-        # # Update change reason in history on model
-        # update_request = request.data["update_reason"]
-        # update_change_reason(pipeline, update_request)
+        # Update change reason in history on model
+        update_request = request.data["update_reason"]
+        update_change_reason(instance, update_request)
 
-        # return Response(serializer.data)
+        return Response(serializer.data)
 
     def create(self, request, instance):
         if instance is None:
