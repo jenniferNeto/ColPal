@@ -145,3 +145,16 @@ class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
     serializer_class = PipelineHistorySeralizer
+
+
+"""
+
+As of now the API has the following problems:
+
+Upload frequency should be converted into the amount of seconds in the pipeline
+model like it described in history.
+
+The history_change_reason is not being set when the pipeline object is updating through
+an approved request. This feature does work however if the pipeline is updated by a manager.
+
+"""

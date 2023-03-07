@@ -13,3 +13,4 @@ class Request(Pipe):
         (2, 'Rejected')
     )
     accept_changes = models.IntegerField(choices=changes_decisions, default=0)
+    response = models.TextField(null=True)

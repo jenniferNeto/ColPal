@@ -78,6 +78,12 @@ class UploaderCreateAPIView(generics.CreateAPIView):
         except IntegrityError:
             raise ValidationError(detail='User is already a uploader of this pipeline')
 
+        # Managers are automatically viewers of a pipeline
+        try:
+            Viewer.objects.create(user=user, pipeline=pipeline)
+        except IntegrityError:
+            pass
+
         return Response(request.data)
 
 class ManagerCreateAPIView(generics.CreateAPIView):
@@ -97,5 +103,11 @@ class ManagerCreateAPIView(generics.CreateAPIView):
             Manager.objects.create(user=user, pipeline=pipeline)
         except IntegrityError:
             raise ValidationError(detail='User is already a manager of this pipeline')
+
+        # Managers are automatically viewers of a pipeline
+        try:
+            Viewer.objects.create(user=user, pipeline=pipeline)
+        except IntegrityError:
+            pass
 
         return Response(request.data)

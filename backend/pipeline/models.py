@@ -49,6 +49,7 @@ class Pipeline(Pipe):
         # Reset the approval date to null if the pipeline isn't approved anymore
         if not self.is_approved:
             self.approved_date = None
+
         super().save(*args, **kwargs)
 
     def save_without_historical_model(self, *args, **kwargs):

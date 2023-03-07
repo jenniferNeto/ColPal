@@ -28,14 +28,14 @@ class UserLoginAPIView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        user_id = request.data['user_id']
+        user_id = request.data['user']
         user = User.objects.filter(id=user_id).first()
 
         # 404 is user not found
         if user is None:
             raise Http404
 
-        # Login user to system
+        # Login user into system
         # This is using the PasswordlessAuthentication backend so the only
         # required attribute is the users' id number
         login(request, user)

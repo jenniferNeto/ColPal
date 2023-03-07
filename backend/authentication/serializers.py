@@ -11,10 +11,10 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 class UserLoginSerializer(serializers.ModelSerializer):
-    user_id = serializers.IntegerField()
+    user = serializers.ChoiceField(choices=User.objects.all().values().values_list('pk', flat=True))
 
     class Meta:
         model = User
         fields = [
-            'user_id'
+            'user'
         ]
