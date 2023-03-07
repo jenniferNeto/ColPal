@@ -2,6 +2,7 @@ from django.db import models
 
 from pipeline.models import Pipe, Pipeline
 
+
 class Request(Pipe):
     """Uploaders will create a Request object instead of the Pipeline being updated immediately"""
     update_reason = models.TextField(null=True)

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from .models import Viewer, Uploader, Manager
 
+
 class PipelineUserSerializer(serializers.ModelSerializer):
     """
     Base position serializer that serializers the user foreign key

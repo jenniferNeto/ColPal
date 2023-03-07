@@ -11,6 +11,7 @@ from authentication.utils import check_user_permissions
 from .models import Viewer, Uploader, Manager
 from . import serializers
 
+
 class IsViewerRequired(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         check_user_permissions(request, kwargs['pk_pipeline'], Manager)

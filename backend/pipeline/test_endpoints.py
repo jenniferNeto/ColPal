@@ -8,6 +8,7 @@ from positions.models import Uploader
 
 from .models import Pipeline
 
+
 class PipelineValidationEndpointTestCase(APITestCase):
     """Test cases for Pipeline that are based on validation"""
 

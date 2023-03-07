@@ -21,7 +21,6 @@ class PipelineSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'title',
-            # 'creator',
             'created',
             'last_modified',
             'upload_frequency',

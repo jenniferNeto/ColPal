@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from .models import Request
 
+
 class RequestSerializer(serializers.ModelSerializer):
     request_id = serializers.SerializerMethodField()
     request_status = serializers.SerializerMethodField()

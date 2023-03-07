@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Viewer, Uploader, Manager
 
+
 class PositionAdminModel(admin.ModelAdmin):
     list_display = [
         'user',

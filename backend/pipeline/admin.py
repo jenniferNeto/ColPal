@@ -3,6 +3,7 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from .models import Pipeline
 
+
 class PipelineHistoryAdmin(SimpleHistoryAdmin):
     """View endpoint for Pipelines in the admin site"""
     list_display = [
