@@ -18,13 +18,13 @@ class UsersEndpointTestCase(APITestCase):
 
     def test_user_login(self):
         """Test the user's ability to login"""
-        data = {'user_id': "1"}
+        data = {'user': "1"}
         response = self.client.post("/users/login/", data=data, follow=True)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
     def test_user_login_invalid(self):
         """Test the user's ability to login"""
-        data = {'user_id': "2"}
+        data = {'user': "2"}
         response = self.client.post("/users/login/", data=data, follow=True)
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
 

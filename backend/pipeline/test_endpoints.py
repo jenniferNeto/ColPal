@@ -4,6 +4,7 @@ from rest_framework import status
 from django.contrib.auth.models import User
 
 from request.models import Request
+from positions.models import Uploader
 
 from .models import Pipeline
 
@@ -87,12 +88,29 @@ class PipelineEndpointTestCase(APITestCase):
         response = self.client.get("/pipelines/1/update/", data=data, follow=True)
         self.assertEquals(response.status_code, self.status_code)
 
-    def test_pipelines_updateview_put(self):
+    def test_pipelines_updateview_manager_put(self):
         """Test the pipelines put update endpoint"""
         data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
         response = self.client.put("/pipelines/1/update/", data=data, follow=True)
         self.assertEquals(response.status_code, self.status_code)
+        self.assertEquals(Request.objects.all().count(), 0)
+
+    def test_pipelines_updateview_uploader_put(self):
+        """Test the pipelines put update endpoint"""
+
+        # A request is only created if the user is not a manager or superuser
+        self.client.logout()
+        Uploader.objects.create(user=User.objects.create_user("user"), pipeline=Pipeline.objects.all()[0])
+        self.client.login(username="user")
+
+        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
+        response = self.client.put("/pipelines/1/update/", data=data, follow=True)
+        self.assertEquals(response.status_code, self.status_code)
         self.assertEquals(Request.objects.all().count(), 1)
+
+        # Log out of the Uploader account and log into the superuser account again
+        self.client.logout()
+        self.client.login(username="test")
 
     def test_pipelines_history(self):
         """Test the pipelines get history"""
@@ -108,7 +126,14 @@ class AnonymousPipelineEndpointTestCase(PipelineEndpointTestCase):
         Pipeline.objects.all().delete()
         Pipeline.objects.create(title='Test Pipeline')
 
-    def test_pipelines_updateview_put(self):
+    def test_pipelines_updateview_manager_put(self):
+        """Test the pipelines put update endpoint"""
+        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
+        response = self.client.put("/pipelines/1/update/", data=data, follow=True)
+        self.assertEquals(response.status_code, self.status_code)
+        self.assertEquals(Request.objects.all().count(), 0)
+
+    def test_pipelines_updateview_uploader_put(self):
         """Test the pipelines put update endpoint"""
         data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
         response = self.client.put("/pipelines/1/update/", data=data, follow=True)
