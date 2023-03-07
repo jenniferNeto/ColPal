@@ -34,6 +34,7 @@ class RequestPipelineListAPIView(generics.RetrieveAPIView):
         return Response(RequestSerializer(instance, many=True).data)
 
 class RequestUpdateDetailAPIView(generics.UpdateAPIView):
+    """Update a pipeline using an update request"""
     queryset = Request.objects.all()
     serializer_class = RequestUpdateSerializer
 
@@ -49,8 +50,7 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
         check_user_permissions(request, instance.pipeline_id, Manager)
 
         # If the request is already accepted don't reaccept the changes
-        # TODO: I don't think this is working
-        if instance.accept_changes == request.data['accept_changes'] and instance.accept_changes == '1':
+        if instance.accept_changes == int(request.data['accept_changes']) and request.data['accept_changes'] == '1':
             return Response(status.HTTP_208_ALREADY_REPORTED)
 
         # Update the Request model
@@ -61,7 +61,7 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
         # Check if request is accepted
         if instance.accept_changes == '1':
             # Update pipeline with requested changes
-            self.update_instance(instance=instance.pipeline,
+            self.update_instance(pipeline_id=instance.pipeline_id,
                                  title=instance.title,
                                  upload_frequency=instance.upload_frequency,
                                  is_active=instance.is_active,
@@ -80,35 +80,25 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
         check_user_permissions(request, instance.pipeline_id, Manager)
         return Response(RequestSerializer(instance).data)
 
-    def update_instance(self, instance: Pipeline, **kwargs):
+    def update_instance(self, pipeline_id, **kwargs):
         # Data should have three optinal update fields
         # request_title, request_upload_frequency, request_is_active
-        print(kwargs)
 
-        # Attempting to fix the history_change_reason failure
-        n_instance = Pipeline.objects.filter(pk=instance.pk).first()
+        # Need to use specific index and not .first() or objects can be NoneType
+        instance: Pipeline = Pipeline.objects.filter(pk=pipeline_id)[0]
 
-        if not n_instance:
+        if instance is None:
             return
-        
-        print(type(n_instance))
-        print(n_instance.history)
 
-        print(instance)
+        # Update the change reason field of the history object
+        update_change_reason(instance, kwargs['update_reason'])
 
-        n_instance.title = kwargs['title']
-        n_instance.upload_frequency = kwargs['upload_frequency']
-        n_instance.is_active = kwargs['is_active']
-
-        update_change_reason(n_instance, kwargs['update_reason'])
+        # Update instance based on any found fields
+        # Update needs to be after update_change_reason or NoneType error reported
+        instance.title = kwargs['title']
+        instance.upload_frequency = kwargs['upload_frequency']
+        instance.is_active = kwargs['is_active']
 
         # Save changes on the instance
         # This will also generate a historical model of the changes
-        n_instance.save()
-"""
-
-TODO: Requests need their own endpoints so that anyone who is a Manager of a specific pipeline, or superuser,
-can look at all the requests made for a pipeline. The endpoint will allow the user to approve or reject any of
-the modifications.
-
-"""
+        instance.save()
