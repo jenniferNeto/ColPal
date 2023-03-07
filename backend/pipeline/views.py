@@ -52,6 +52,7 @@ class PipelineCreateAPIView(generics.CreateAPIView):
     serializer_class = PipelineSerializer
 
     def create(self, request, *args, **kwargs):
+        # Override create but with a different instance
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         pipeline = serializer.save()
@@ -106,6 +107,7 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         if instance is None:
             raise Http404
 
+        # Try a new request and check data integrity
         serializer = self.get_serializer(instance, data=request.data)
         instance.update_reason = None
         serializer.is_valid(raise_exception=True)
@@ -116,6 +118,7 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         return Response(status=status.HTTP_200_OK)
 
     def get(self, request, pk_pipeline):
+        # Get pipeline and check if instance exists
         pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
         if pipeline is None:
             raise Http404

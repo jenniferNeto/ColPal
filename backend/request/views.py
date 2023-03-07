@@ -7,7 +7,7 @@ from django.http import Http404
 from simple_history.utils import update_change_reason
 
 from authentication.utils import check_user_permissions
-from positions.models import Viewer, Uploader, Manager
+from positions.models import Manager
 from pipeline.models import Pipeline
 
 from .models import Request

@@ -18,4 +18,5 @@ class RequestAdminModel(admin.ModelAdmin):
         'approved_date',
     ]
 
+# Add request to admin site
 admin.site.register(Request, RequestAdminModel)

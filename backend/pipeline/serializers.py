@@ -30,11 +30,6 @@ class PipelineSerializer(serializers.ModelSerializer):
             'approved_date',
         ]
 
-    # def get_creator(self, obj):
-    #     request = self.context.get('request', None)
-    #     if request:
-    #         return request.user
-
     # Get the following attributes as READ_ONLY from the Pipeline model
     # These attributes should only be modified by users with elevated permissions
     def get_created(self, obj):
@@ -71,9 +66,6 @@ class PipelineHistorySeralizer(PipelineSerializer):
             'approved_date',
             'history',
         ]
-
-    # def get_update_reason(self, obj):
-    #     return obj.update_reason
 
     def get_history(self, obj):
         hist = obj.history.all()

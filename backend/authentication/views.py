@@ -28,6 +28,7 @@ class UserLoginAPIView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+        # Get a user based on the login info of the user
         user_id = request.data['user']
         user = User.objects.filter(id=user_id).first()
 

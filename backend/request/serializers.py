@@ -61,6 +61,7 @@ class RequestSerializer(serializers.ModelSerializer):
         return representation
 
 class RequestUpdateSerializer(RequestSerializer):
+    """Serialize the update requests"""
     changes_decisions = ['Pending', 'Approved', 'Rejected']
     update_reason = serializers.CharField()
 
@@ -74,28 +75,3 @@ class RequestUpdateSerializer(RequestSerializer):
         status = obj.accept_changes
         changes_decisions = ['Pending', 'Accepted', 'Rejected']
         return changes_decisions[status]
-    
-"""
-
-The Request Update API needs to show a dropdown menu that allows the manager
-to choose weather to accept or reject the current changes.
-
-If these changes are accepted, the request object should override the details
-in the pipeline object that it has attached to it. This update will also make
-the simple_history plugin update the history of the object.
-
-Right now the problem is that the UpdateAPIView is not including the extra field
-to actually update the model itself. 
-
-Also the RequestUpdateSerializer model probably shouldn't use __all__ as the fields
-option. This is including duplicate fields such as "id": 9 and "request_id": 9.
-
-After all of the previous steps are done and Pipelines can finally be updated using
-the API, create test cases for all the API endpoints. This doesn't have to be done
-anytime soon.
-
-After all of that is done: Go through the code and remove any unused imports.
-Comment the code more and get some better documentation so it's easier to read
-for everyone else.
-
-"""

@@ -7,7 +7,7 @@ class PositionAdminModel(admin.ModelAdmin):
         'pipeline',
     ]
 
-# Register your models here.
+# Register all postions on the admin site
 admin.site.register(Viewer, PositionAdminModel)
 admin.site.register(Uploader, PositionAdminModel)
 admin.site.register(Manager, PositionAdminModel)
