@@ -43,7 +43,7 @@ class PipelineDetailAPIView(generics.RetrieveAPIView):
         # Set update_reason to None so PipelineUpdateSerializer can
         # match all the required added fields on a Pipeline
         # Without this line update requests will always be 405 response code
-        pipeline.update_reason = None
+        pipeline.update_reason = None  # type: ignore
         return Response(PipelineSerializer(pipeline).data)
 
 class PipelineCreateAPIView(generics.CreateAPIView):
@@ -86,9 +86,12 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
 
     def perform_update_now(self, request, *args, **kwargs):
         pipeline_id = self.kwargs['pk_pipeline']
-        instance = Pipeline.objects.filter(pk=pipeline_id).first()
+        try:
+            instance = Pipeline.objects.filter(pk=pipeline_id)[0]
+        except IndexError:
+            return Response(status.HTTP_304_NOT_MODIFIED)
         # Set update_reason to None so it becomes a required field
-        instance.update_reason = None
+        instance.update_reason = None  # type: ignore
 
         # Perform super update with modified instance
         # super.update() will pull pipeline instance without additional field
@@ -129,7 +132,7 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         # Set update_reason to None so PipelineUpdateSerializer can
         # match all the required added fields on a Pipeline
         # Without this line update requests will always be 405 response code
-        pipeline.update_reason = None
+        pipeline.update_reason = None  # type: ignore
         return Response(PipelineSerializer(pipeline).data)
 
 class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
