@@ -1,0 +1,22 @@
+[
+    {
+        "id": 1,
+        "title": "Shane's Pipeline",
+        "created": "2023-03-06T19:44:19.738038Z",
+        "last_modified": "2023-03-07T03:22:53.627623Z",
+        "upload_frequency": "5 00:00:00",
+        "is_active": false,
+        "approved": false,
+        "approved_date": null
+    },
+    {
+        "id": 2,
+        "title": "New pipeline",
+        "created": "2023-03-08T20:02:41.880960Z",
+        "last_modified": "2023-03-08T20:02:41.880745Z",
+        "upload_frequency": "00:00:00",
+        "is_active": true,
+        "approved": true,
+        "approved_date": "2023-03-08T20:02:41.880757Z"
+    }
+]
