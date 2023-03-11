@@ -36,7 +36,6 @@ class PipelineDetailAPIView(generics.RetrieveAPIView):
         pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
         if pipeline is None:
             raise Http404
-
         # Check to see if a user is allowed to update this pipeline
         check_user_permissions(request, pk_pipeline, Viewer)
 
@@ -80,6 +79,7 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
             return self.perform_update_now(request, args, kwargs)
 
         # User must be an uploader to request changes to a pipeline
+        print("Check User Permissions Pipeline ID:", pipeline_id)
         check_user_permissions(request, pipeline_id, Uploader)
 
         return self.create(request, instance=instance)
