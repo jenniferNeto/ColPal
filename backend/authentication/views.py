@@ -14,6 +14,7 @@ class UsersListAPIView(generics.ListAPIView):
     """Expose all users to the API"""
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [AllowAny]
 
 
 class UsersDetailAPIView(generics.RetrieveAPIView):
@@ -47,6 +48,7 @@ class UserLoginAPIView(generics.CreateAPIView):
 
 class UserLogoutAPIView(APIView):
     """Log a user out"""
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         # Don't need any validation or serialization here
