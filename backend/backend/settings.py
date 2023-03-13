@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'simple_history',
     'drf_multiple_model',
     'backend',
+    'corsheaders',
     'authentication',
     'pipeline',
     'positions',
@@ -60,6 +61,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -127,6 +130,13 @@ TIME_ZONE = 'America/New_York'
 USE_I18N = True
 
 USE_TZ = True
+
+# Allowed host & CORS
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost'
+]
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 # Static files (CSS, JavaScript, Images)

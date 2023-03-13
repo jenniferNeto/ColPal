@@ -1,4 +1,5 @@
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
+import axios from "axios"
 
 const UserContext = React.createContext()
 
@@ -31,7 +32,9 @@ export function UserProvider({ children }) {
   const login = (session) => {
 
     setSessionStorage('session', session)
+
     setCurrentUser(getSessionStorage('session', null))
+
   }
 
   const logout = () => {
@@ -44,6 +47,21 @@ export function UserProvider({ children }) {
     login,
     logout
   }
+
+  useEffect(() => {
+    const backend_login = async () => {
+      if(currentUser == null) return
+      let data = new FormData();
+      data.append("user", currentUser['id'])
+
+      const loginres = await axios.post("http://127.0.0.1:8000/users/login/", data)
+      console.log('backend_login', loginres)
+    }
+
+    backend_login()
+
+  }, [currentUser])
+
 
 
   return (
