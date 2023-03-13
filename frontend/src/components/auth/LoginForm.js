@@ -22,9 +22,11 @@ export default function LoginForm() {
   useEffect(() => {
     if(sessionStorage.getItem("session") != null) navigate("/")
     getAllUsers().then(res => {
+      console.log('users', res)
       setUsers(res.data)
     })
   }, [])
+  
   return (
     <Container fluid>
 

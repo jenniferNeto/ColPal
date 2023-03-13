@@ -25,7 +25,6 @@ SECRET_KEY = 'django-insecure-b-g5spgh%v2+ny!l)t64_6p$agb)!cs#r$j@24!ql8wv_ui*kw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -41,6 +40,7 @@ INSTALLED_APPS = [
     'simple_history',
     'drf_multiple_model',
     'backend',
+    'corsheaders',
     'authentication',
     'pipeline',
     'positions',
@@ -56,6 +56,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -120,6 +122,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Allowed host & CORS
+ALLOWED_HOSTS = ['127.0.0.1']
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
