@@ -36,14 +36,13 @@ class PipelineDetailAPIView(generics.RetrieveAPIView):
         pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
         if pipeline is None:
             raise Http404
-
         # Check to see if a user is allowed to update this pipeline
         check_user_permissions(request, pk_pipeline, Viewer)
 
         # Set update_reason to None so PipelineUpdateSerializer can
         # match all the required added fields on a Pipeline
         # Without this line update requests will always be 405 response code
-        pipeline.update_reason = None
+        pipeline.update_reason = None  # type: ignore
         return Response(PipelineSerializer(pipeline).data)
 
 class PipelineCreateAPIView(generics.CreateAPIView):
@@ -75,31 +74,32 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         # If history is queried then updated the query will be off by one
         instance = Pipeline.objects.filter(pk=pipeline_id).first()
 
+        if instance is None:
+            return Response(status.HTTP_404_NOT_FOUND)
+
         # User is manager and doesn't need to create an update request
         if is_user_allowed(request, pipeline_id, Manager):
-            return self.perform_update_now(request, args, kwargs)
+            return self.perform_update_now(request, pipeline_id)
 
         # User must be an uploader to request changes to a pipeline
         check_user_permissions(request, pipeline_id, Uploader)
 
         return self.create(request, instance=instance)
 
-    def perform_update_now(self, request, *args, **kwargs):
-        pipeline_id = self.kwargs['pk_pipeline']
-        instance = Pipeline.objects.filter(pk=pipeline_id).first()
+    def perform_update_now(self, request, pipeline_id):
+        instance = Pipeline.objects.filter(pk=pipeline_id)[0]
         # Set update_reason to None so it becomes a required field
-        instance.update_reason = None
+        instance.update_reason = None  # type: ignore
 
         # Perform super update with modified instance
         # super.update() will pull pipeline instance without additional field
-        partial = kwargs.pop('partial', False)
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
         # Update change reason in history on model
-        update_request = request.data["update_reason"]
-        update_change_reason(instance, update_request)
+        update_reason = request.data["update_reason"]
+        update_change_reason(instance, update_reason)
 
         return Response(serializer.data)
 
@@ -129,7 +129,7 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         # Set update_reason to None so PipelineUpdateSerializer can
         # match all the required added fields on a Pipeline
         # Without this line update requests will always be 405 response code
-        pipeline.update_reason = None
+        pipeline.update_reason = None  # type: ignore
         return Response(PipelineSerializer(pipeline).data)
 
 class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):

@@ -22,7 +22,7 @@ class PipelineTestCase(TestCase):
         self.assertEquals(pipeline.is_approved, False)
         self.assertEquals(pipeline.is_active, True)
         self.assertEquals(pipeline.approved_date, None)
-        self.assertEquals(pipeline.history.all().count(), 1)
+        self.assertEquals(pipeline.history.all().count(), 1)  # type: ignore
 
     def test_pipeline_save_title(self):
         """Test updating Pipeline title"""
@@ -32,7 +32,7 @@ class PipelineTestCase(TestCase):
 
         self.assertEquals(pipeline.title, 'New Title')
         self.assertNotEquals(pipeline.last_modified, None)
-        self.assertEquals(pipeline.history.all().count(), 2)
+        self.assertEquals(pipeline.history.all().count(), 2)  # type: ignore
 
     def test_pipeline_save_upload_frequency(self):
         """Test updating pipeline upload_frequency"""
@@ -42,7 +42,7 @@ class PipelineTestCase(TestCase):
 
         self.assertEquals(pipeline.upload_frequency, timedelta(days=1))
         self.assertNotEquals(pipeline.last_modified, None)
-        self.assertEquals(pipeline.history.all().count(), 2)
+        self.assertEquals(pipeline.history.all().count(), 2)  # type: ignore
 
     def test_pipeline_save_is_approved(self):
         """Test updating pipeline is_approved"""
@@ -53,7 +53,7 @@ class PipelineTestCase(TestCase):
         self.assertEquals(pipeline.is_approved, True)
         self.assertNotEquals(pipeline.last_modified, None)
         self.assertNotEquals(pipeline.approved_date, None)
-        self.assertEquals(pipeline.history.all().count(), 2)
+        self.assertEquals(pipeline.history.all().count(), 2)  # type: ignore
 
     def test_pipeline_save_is_active(self):
         """Test updating pipeline is_active"""
@@ -63,4 +63,4 @@ class PipelineTestCase(TestCase):
 
         self.assertEquals(pipeline.is_active, False)
         self.assertNotEquals(pipeline.last_modified, None)
-        self.assertEquals(pipeline.history.all().count(), 2)
+        self.assertEquals(pipeline.history.all().count(), 2)  # type: ignore

@@ -3,7 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-
 # Distribution / packaging
 .Python
 build/
@@ -40,6 +39,7 @@ target/
 
 # Environments
 .venv/
+.env
 
 # mypy
 .mypy_cache/
