@@ -74,35 +74,32 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         # If history is queried then updated the query will be off by one
         instance = Pipeline.objects.filter(pk=pipeline_id).first()
 
+        if instance is None:
+            return Response(status.HTTP_404_NOT_FOUND)
+
         # User is manager and doesn't need to create an update request
         if is_user_allowed(request, pipeline_id, Manager):
-            return self.perform_update_now(request, args, kwargs)
+            return self.perform_update_now(request, pipeline_id)
 
         # User must be an uploader to request changes to a pipeline
-        print("Check User Permissions Pipeline ID:", pipeline_id)
         check_user_permissions(request, pipeline_id, Uploader)
 
         return self.create(request, instance=instance)
 
-    def perform_update_now(self, request, *args, **kwargs):
-        pipeline_id = self.kwargs['pk_pipeline']
-        try:
-            instance = Pipeline.objects.filter(pk=pipeline_id)[0]
-        except IndexError:
-            return Response(status.HTTP_304_NOT_MODIFIED)
+    def perform_update_now(self, request, pipeline_id):
+        instance = Pipeline.objects.filter(pk=pipeline_id)[0]
         # Set update_reason to None so it becomes a required field
         instance.update_reason = None  # type: ignore
 
         # Perform super update with modified instance
         # super.update() will pull pipeline instance without additional field
-        partial = kwargs.pop('partial', False)
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
         # Update change reason in history on model
-        update_request = request.data["update_reason"]
-        update_change_reason(instance, update_request)
+        update_reason = request.data["update_reason"]
+        update_change_reason(instance, update_reason)
 
         return Response(serializer.data)
 
