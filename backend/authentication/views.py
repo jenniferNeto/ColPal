@@ -48,7 +48,6 @@ class UserLoginAPIView(generics.CreateAPIView):
 
 class UserLogoutAPIView(APIView):
     """Log a user out"""
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         # Don't need any validation or serialization here

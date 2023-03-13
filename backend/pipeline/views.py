@@ -59,6 +59,7 @@ class PipelineCreateAPIView(generics.CreateAPIView):
 
         # Whoever creates a pipeline is automatically a viewer and manager of that pipeline
         Manager.objects.create(user=request.user, pipeline=pipeline)
+        Uploader.objects.create(user=request.user, pipeline=pipeline)
         Viewer.objects.create(user=request.user, pipeline=pipeline)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -134,6 +135,8 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
 
 class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
     """View pipeline historical instances"""
+    serializer_class = PipelineHistorySeralizer
+
     def get_queryset(self):
         pipeline_id = self.kwargs['pk_pipeline']
         pipeline = Pipeline.objects.filter(pk=pipeline_id)
@@ -146,9 +149,6 @@ class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         check_user_permissions(request, kwargs['pk_pipeline'], Viewer)
         return super().get(request, *args, **kwargs)
-
-    serializer_class = PipelineHistorySeralizer
-
 
 """
 
