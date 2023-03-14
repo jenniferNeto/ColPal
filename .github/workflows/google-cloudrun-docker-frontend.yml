@@ -77,7 +77,7 @@ jobs:
       - name: Build docker Image
         run: |-
           cd frontend
-          docker build -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" 
+          docker build -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" .
           
 
       # Authenticate Docker to Google Cloud Artifact Registry
