@@ -75,8 +75,9 @@ jobs:
           service_account: 'github-actions@dataplatformcolgate.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
     
       - name: Build docker Image
-        run: 
-          docker build -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" ColPal/frontend/.
+        run: |-
+          cd ColPal/frontend
+          docker build -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" 
           
 
       # Authenticate Docker to Google Cloud Artifact Registry
