@@ -57,19 +57,21 @@ env:
 jobs:
   buid-push-gcr:
     name: Build and Push to GCP
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME : frontend-image
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-
+        uses: 'actions/checkout@v3'
+#configure workload Identity Federation via a credentials file
       - name: Google Auth
-        id: auth
+        id: 'auth'
         uses: 'google-github-actions/auth@v1'
         with:
-          token_format: 'access_token'
-          workload_identity_provider: 'projects/671371757704/locations/global/workloadIdentityPools/githubactions/provider/github' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
+          workload_identity_provider: 'projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
           service_account: 'github-actions@dataplatformcolgate.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
     
       - name: Build docker Image
