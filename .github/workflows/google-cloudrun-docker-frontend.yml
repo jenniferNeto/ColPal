@@ -76,7 +76,7 @@ jobs:
     
       - name: Build docker Image
         run: |-
-          cd ColPal/frontend
+          cd frontend
           docker build -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" 
           
 
