@@ -164,8 +164,15 @@ class UserPipelinesListAPIView(generics.ListAPIView):
         return Pipeline.objects.filter(pk__in=pipeline_ids)
 
     def get(self, request, pk):
-        if User.objects.filter(pk=pk).count() == 0:
+        current_user = User.objects.filter(pk=pk)
+
+        # Check if user exists
+        if current_user.count() == 0:
             raise Http404
+
+        # Check if current user is viewing their own information
+        if not (request.user is None or request.user == current_user.first()):
+            return Response(status=status.HTTP_403_FORBIDDEN)
         return super().get(request)
 """
 
