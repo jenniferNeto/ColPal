@@ -55,12 +55,8 @@ env:
   REGION: Northern Virginia # TODO: update Cloud Run service region
 
 jobs:
-  deploy:
-    # Add 'id-token' with the intended permissions for workload identity federation
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-
+  buid-push-gcr:
+    name: Build and Push to GCP
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME : frontend-image
