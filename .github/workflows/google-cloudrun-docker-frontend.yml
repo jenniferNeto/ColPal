@@ -42,17 +42,17 @@
 #   Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
 #   Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
 
-name: Build and Deploy to Cloud Run
+name: Build Front and Push it to Registry
 
 on:
   push:
     branches: [ "main" ]
 
 env:
-  PROJECT_ID: YOUR_PROJECT_ID # TODO: update Google Cloud project id
-  GAR_LOCATION: YOUR_GAR_LOCATION # TODO: update Artifact Registry location
-  SERVICE: YOUR_SERVICE_NAME # TODO: update Cloud Run service name
-  REGION: YOUR_SERVICE_REGION # TODO: update Cloud Run service region
+  PROJECT_ID: dataplatformcolgate # TODO: update Google Cloud project id
+  GAR_LOCATION: us-east4 	 # TODO: update Artifact Registry location
+  SERVICE: colgate-repo  # TODO: update Cloud Run service name
+  REGION: Northern Virginia # TODO: update Cloud Run service region
 
 jobs:
   deploy:
