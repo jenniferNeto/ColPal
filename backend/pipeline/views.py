@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework import status
 
 from django.http import Http404
+from django.contrib.auth import get_user_model
 
 from simple_history.utils import update_change_reason
 
@@ -13,6 +14,8 @@ from request.utils import createRequest
 
 from .models import Pipeline
 from .serializers import PipelineSerializer, PipelineHistorySeralizer, PipelineUpdateSerializer
+
+User = get_user_model()
 
 
 class PipelineListAPIView(generics.ListAPIView):
@@ -150,6 +153,20 @@ class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
         check_user_permissions(request, kwargs['pk_pipeline'], Viewer)
         return super().get(request, *args, **kwargs)
 
+class UserPipelinesListAPIView(generics.ListAPIView):
+    """View pipeline's a user can upload to"""
+    serializer_class = PipelineSerializer
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        uploaders = Uploader.objects.filter(user__pk=pk).values_list('pipeline_id')
+        pipeline_ids = [pipe[0] for pipe in uploaders]
+        return Pipeline.objects.filter(pk__in=pipeline_ids)
+
+    def get(self, request, pk):
+        if User.objects.filter(pk=pk).count() == 0:
+            raise Http404
+        return super().get(request)
 """
 
 As of now the API has the following problems:
