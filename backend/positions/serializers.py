@@ -1,8 +1,10 @@
 from rest_framework import serializers
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 from .models import Viewer, Uploader, Manager
+
+User = get_user_model()
 
 
 class PipelineUserSerializer(serializers.ModelSerializer):
@@ -35,10 +37,10 @@ class ManagerSerializer(PipelineUserSerializer):
 
 class PositionCreateSerializer(serializers.ModelSerializer):
     # Show the userid instead of the user itself for post purposes
-    user = serializers.ChoiceField(choices=User.objects.all().values().values_list('pk', flat=True))
+    id = serializers.IntegerField(read_only=True, source="user.pk")
 
     class Meta:
-        fields = ['user']
+        fields = ['id']
 
     def get_pipeline(self, obj):
         return obj.pipeline

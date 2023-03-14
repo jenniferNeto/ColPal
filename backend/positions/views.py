@@ -2,7 +2,7 @@ from rest_framework import generics, views
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 
 from pipeline.models import Pipeline
@@ -10,6 +10,8 @@ from authentication.utils import check_user_permissions
 
 from .models import Viewer, Uploader, Manager
 from . import serializers
+
+User = get_user_model()
 
 
 class IsViewerRequired(generics.ListAPIView):
@@ -50,7 +52,7 @@ class ViewerCreateAPIView(generics.CreateAPIView):
         # Check user is a manager
         check_user_permissions(request, pk_pipeline, Manager)
 
-        user = User.objects.filter(pk=request.data['user']).first()
+        user = User.objects.filter(pk=request.data['id']).first()
         pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
 
         # Attempt to create a Viewer on the pipeline which requires a unique instance
@@ -70,7 +72,7 @@ class UploaderCreateAPIView(generics.CreateAPIView):
         # Check user is a manager
         check_user_permissions(request, pk_pipeline, Manager)
 
-        user = User.objects.filter(pk=request.data['user']).first()
+        user = User.objects.filter(pk=request.data['id']).first()
         pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
 
         # Attempt to create a Uploader on the pipeline which requires a unique instance
@@ -96,7 +98,7 @@ class ManagerCreateAPIView(generics.CreateAPIView):
         # Check user is a manager
         check_user_permissions(request, pk_pipeline, Manager)
 
-        user = User.objects.filter(pk=request.data['user']).first()
+        user = User.objects.filter(pk=request.data['id']).first()
         pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
 
         # Attempt to create a Manager on the pipeline which requires a unique instance
