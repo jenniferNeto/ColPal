@@ -77,7 +77,6 @@ jobs:
       - name: Build docker Image
         run: |-
           cd frontend
-          sudo chown runner:docker /var/run/docker.sock
           docker build -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" .
           
 
