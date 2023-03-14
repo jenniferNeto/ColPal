@@ -7,7 +7,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     """Serialize base user accounts"""
     class Meta:
-        model = get_user_model
+        model = User
         fields = [
             'id',
             'username',
@@ -16,10 +16,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserLoginSerializer(serializers.ModelSerializer):
     # Users can only login to created accounts using the api view
-    id = serializers.IntegerField()
+    user = serializers.IntegerField()
 
     class Meta:
-        model = get_user_model
+        model = User
         fields = [
-            'id'
+            'user'
         ]

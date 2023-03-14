@@ -3,15 +3,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
-from django.contrib.auth import get_user_model
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, get_user_model
 from django.http import Http404
 
-from .serializers import UserSerializer
-from .serializers import UserLoginSerializer
-
+from .serializers import UserSerializer, UserLoginSerializer
 
 User = get_user_model()
+
 
 class UsersListAPIView(generics.ListAPIView):
     """Expose all users to the API"""
@@ -33,7 +31,7 @@ class UserLoginAPIView(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         # Get a user based on the login info of the user
-        user_id = request.data['id']
+        user_id = request.data['user']
         user = User.objects.filter(id=user_id).first()
 
         # 404 is user not found
