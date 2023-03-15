@@ -11,10 +11,10 @@ services:
     environment:
       - SECRET_KEY=development_secret
       - DEBUG=1
-      - DB_HOST=db
-      - DB_NAME=postgres
-      - DB_USER=postgres
-      - DB_PASS=postgres
+      - DB_HOST=${{ secrets.HOST }}
+      - DB_NAME=${{ secrets.NAME }}
+      - DB_USER=${{ secrets.USER }}
+      - DB_PASS=${{ secrets.PASSWORD }}
     depends_on:
       - db
     networks:
@@ -40,9 +40,9 @@ services:
     ports: 
       - 5432:5432
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${{ secrets.NAME }}
+      - POSTGRES_USER=${{ secrets.USER }}
+      - POSTGRES_PASSWORD=${{ secrets.PASSWORD }}
     networks:
       - backend
     expose:
