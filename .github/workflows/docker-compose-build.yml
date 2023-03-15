@@ -27,4 +27,4 @@ jobs:
       - name: Set up docker compose
         run: docker-compose up -d
       - name: Run Django tests
-        run: docker exec django python manage.py test
+        run: docker exec $(docker container ls  | grep 'django' | awk '{print $1}') python manage.py test
