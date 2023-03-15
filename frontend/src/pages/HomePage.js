@@ -13,7 +13,7 @@ export default function HomePage() {
     getUserPipelines(currentUser['id']).then(res => {
       console.log(res)
     })
-  })
+  }, [])
 
   return (
     <div className='row py-2 h-100'>
