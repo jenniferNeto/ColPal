@@ -1,0 +1,53 @@
+services:
+  django:
+    build:
+      context: ./backend
+      dockerfile: dev.Dockerfile
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend:/backend
+    environment:
+      - SECRET_KEY=development_secret
+      - DEBUG=1
+      - DB_HOST=db
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASS=postgres
+    depends_on:
+      - db
+    networks:
+      - backend
+    command: >
+      bash -c "python manage.py migrate
+      && python manage.py runserver 0.0.0.0:8000"
+  nodejs:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - db
+    networks:
+      - backend
+
+  db:
+    image: postgres
+    ports: 
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - backend
+    expose:
+      - "5432"
+
+networks:
+  backend:
+    name: colgate_network
+    driver: bridge

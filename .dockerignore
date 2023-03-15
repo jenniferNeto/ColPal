@@ -1,0 +1,9 @@
+#Git
+.git
+.gitignore
+
+#Python
+backend/__pycahce__/
+backend/*/__pycahce__/
+.venv
+.env
