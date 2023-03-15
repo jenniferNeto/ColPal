@@ -1,33 +1,53 @@
 services:
-  db:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_DB: ${NAME}
-      POSTGRES_USER: ${USER}
-      POSTGRES_PASSWORD: ${PASSWORD}
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: /usr/bin/pg_isready
-      interval: 5s
-      timeout: 10s
-      retries: 120
-  backend:
-    container_name: python
+  django:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    depends_on:
-      db:
-        condition: service_healthy
+      dockerfile: dev.Dockerfile
     ports:
-      - "8000:8000"
-  frontend:
-    container_name: nodejs
+      - 8000:8000
+    volumes:
+      - ./backend:/backend
+    environment:
+      - SECRET_KEY=development_secret
+      - DEBUG=1
+      - DB_HOST=db
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASS=postgres
+    depends_on:
+      - db
+    networks:
+      - backend
+    command: >
+      bash -c "python manage.py migrate
+      && python manage.py runserver 0.0.0.0:8000"
+  nodejs:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+    networks:
+      - backend
+
+  db:
+    image: postgres
+    ports: 
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - backend
+    expose:
+      - "5432"
+
+networks:
+  backend:
+    name: colgate_network
+    driver: bridge
