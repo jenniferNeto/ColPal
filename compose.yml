@@ -27,7 +27,7 @@ services:
   nodejs:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
     ports:
       - 3000:3000
     volumes:
@@ -37,6 +37,9 @@ services:
         condition: service_healthy
     networks:
       - backend
+    command: >
+      npm install
+      npm run start
 
   db:
     image: postgres
