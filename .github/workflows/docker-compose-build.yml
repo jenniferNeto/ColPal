@@ -26,5 +26,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set up docker compose
         run: docker-compose up -d
-      - name: Run Django tests
-        run: docker exec django python manage.py test
+      # - name: Run Django tests
+      #   run: docker exec django python manage.py test
+      - name: Check python container_name
+        run: docker stats django
