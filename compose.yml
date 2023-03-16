@@ -1,6 +1,7 @@
 services:
   django:
     hostname: django
+    container_name: django
     build:
       context: ./backend
       dockerfile: dev.Dockerfile
