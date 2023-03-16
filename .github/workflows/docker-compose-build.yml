@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up docker compose
-        run: docker-compose up -d
+        run: docker-compose up
       - name: Run Django tests
         run: docker exec django python manage.py test
 
