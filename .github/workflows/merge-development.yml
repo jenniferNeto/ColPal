@@ -2,10 +2,8 @@
 name: Merge development into main
 
 on:
-  workflow_run:
-    workflows: ["Project CI"]
-    types:
-      - completed
+  check_run:
+    types: [completed]
 
 jobs:
   main:
