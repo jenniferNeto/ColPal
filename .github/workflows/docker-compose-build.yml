@@ -2,13 +2,11 @@ name: Django CI
 
 on:
   push:
-    branches:
-      - development
-      - dev/**
   pull_request:
     branches:
       - development
       - dev/**
+      - main
 
 jobs:
   build:
@@ -30,4 +28,6 @@ jobs:
         run: docker-compose up -d
       - name: Run Django tests
         run: docker exec django python manage.py test
+
+  
 
