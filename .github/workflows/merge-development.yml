@@ -1,5 +1,5 @@
 # https://www.jessesquires.com/blog/2022/03/26/gh-action-merge-release-to-main/
-name: Merge development Into main
+name: Merge development Into Main
 
 on:
   push:
@@ -14,9 +14,8 @@ jobs:
       - name: git checkout
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      # https://github.com/marketplace/actions/github-pull-request-action
       - name: Create pull request
         id: open-pr
         uses: repo-sync/pull-request@v2
