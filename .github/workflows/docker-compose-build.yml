@@ -36,6 +36,27 @@ jobs:
           workflow: merge-development.yml
           ref: ${{ github.ref_name }}
 
+      - name: Call frontend push
+        uses: benc-uk/workflow-dispatch@v1
+        if: ${{ github.ref_name == 'main' }}
+        with:
+          workflow: google-cloudrun-docker-frontend.yml
+          ref: ${{ github.ref_name }}
+
+      - name: Call backend push
+        uses: benc-uk/workflow-dispatch@v1
+        if: ${{ github.ref_name == 'main' }}
+        with:
+          workflow: google-cloudrun-docker-backend.yml
+          ref: ${{ github.ref_name }}
+
+      - name: Call deploy
+        uses: benc-uk/workflow-dispatch@v1
+        if: ${{ github.ref_name == 'main' }}
+        with:
+          workflow: google-cloudrun-start.yml
+          ref: ${{ github.ref_name }}
+
       # - name: git checkout
       #   uses: actions/checkout@v3
       #   with:
