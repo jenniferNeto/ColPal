@@ -1,5 +1,4 @@
 name: Project CI
-
 on:
   push:
   pull_request:
@@ -23,20 +22,28 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up containers
         run: docker-compose up -d
+
       - name: Run Django tests
         run: docker exec django python manage.py test
-        
-      - name: git checkout
-        uses: actions/checkout@v3
+
+      - name: Call merge workflow
+        uses: benc-uk/workflow-dispatch@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create pull request
-        id: open-pr
-        uses: repo-sync/pull-request@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          destination_branch: ${{ github.event.repository.default_branch }}
-          pr_title: "[Automated] Merge ${{ github.ref_name }} into ${{ github.event.repository.default_branch }}"
-          pr_body: "Automated Pull Request"
+          workflow: merge-development.yml
+          ref: ${{ github.ref_name }}
+
+      # - name: git checkout
+      #   uses: actions/checkout@v3
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Create pull request
+      #   id: open-pr
+      #   uses: repo-sync/pull-request@v2
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     destination_branch: ${{ github.event.repository.default_branch }}
+      #     pr_title: "[Automated] Merge ${{ github.ref_name }} into ${{ github.event.repository.default_branch }}"
+      #     pr_body: "Automated Pull Request"
