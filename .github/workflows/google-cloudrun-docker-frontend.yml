@@ -42,43 +42,46 @@
 #   Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
 #   Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
 
-name: Build Front and Push it to Registry
+name: Build Frontend and Push it to Registry
 
 on:
-  push:
-    branches: [ "deployment-patch-1" ]
+  workflow_dispatch:
+    inputs:
+      ci:
+        description: "Merge"
+        required: false
+        default: "merge-development.yml"
 
 env:
   PROJECT_ID: dataplatformcolgate # TODO: update Google Cloud project id
-  GAR_LOCATION: us-east4 	 # TODO: update Artifact Registry location
-  SERVICE: colgate-repo  # TODO: update Cloud Run service name
+  GAR_LOCATION: us-east4 # TODO: update Artifact Registry location
+  SERVICE: colgate-repo # TODO: update Cloud Run service name
   REGION: Northern Virginia # TODO: update Cloud Run service region
 
 jobs:
   buid-push-gcr:
     name: Build and Push to GCP
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: "read"
+      id-token: "write"
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME : frontend-image
+      IMAGE_NAME: frontend-image
     steps:
       - name: Checkout
-        uses: 'actions/checkout@v3'
-#configure workload Identity Federation via a credentials file
+        uses: "actions/checkout@v3"
+      #configure workload Identity Federation via a credentials file
       - name: Google Auth
-        id: 'auth'
-        uses: 'google-github-actions/auth@v1'
+        id: "auth"
+        uses: "google-github-actions/auth@v1"
         with:
-          workload_identity_provider: 'projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
-          service_account: 'github-actions@dataplatformcolgate.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
-    
+          workload_identity_provider: "projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github" # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
+          service_account: "github-actions@dataplatformcolgate.iam.gserviceaccount.com" # e.g. - my-service-account@my-project.iam.gserviceaccount.com
+
       - name: Build docker Image
         run: |-
           cd frontend
           docker build -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" .
-          
 
       # Authenticate Docker to Google Cloud Artifact Registry
       - name: Docker Auth
@@ -95,7 +98,6 @@ jobs:
           docker push $IMAGE_NAME:latest us-east4-docker.pkg.dev/$PROJECT_ID/colgate-repo/$IMAGE_NAME:latest
           docker push $IMAGE_NAME:latest us-east4-docker.pkg.dev/$PROJECT_ID/colgate-repo/$IMAGE_NAME:$GIT_TAG
 
-      
       # END - Docker auth and build
 
       - name: Deploy to Cloud Run

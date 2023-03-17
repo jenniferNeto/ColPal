@@ -21,13 +21,14 @@ services:
         condition: service_healthy
     networks:
       - backend
-    command: >
-      bash -c "python manage.py migrate
-      && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "python manage.py migrate && python manage.py createadmin && python manage.py runserver 0.0.0.0:8000"
+
   nodejs:
+    hostname: nodejs
+    container_name: nodejs
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
     ports:
       - 3000:3000
     environment:
@@ -39,9 +40,10 @@ services:
         condition: service_healthy
     networks:
       - backend
+    command: sh -c "npm install -g --unsafe-perm=true --allow-root && npm run start"
 
   db:
-    image: postgres
+    image: postgres:latest
     ports: 
       - 5432:5432
     environment:
@@ -51,9 +53,9 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 5s
-      timeout: 5s
+      timeout: 10s
       retries: 5
 
 networks:
