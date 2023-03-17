@@ -8,5 +8,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             User.objects.create_superuser(username='admin', email='', password='')
+            print("Admin account successfully created.")
         except IntegrityError:
             print('Admin account already exists: skipping')
