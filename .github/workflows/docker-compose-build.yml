@@ -32,6 +32,7 @@ jobs:
         uses: peter-evans/repository-dispatch@v1
         with:
           event-type: trigger-pull-request
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # - name: git checkout
       #   uses: actions/checkout@v3
