@@ -3,8 +3,8 @@ name: Merge development into main
 
 on:
   workflow_run:
-    workflows:
-      - "Project CI"
+    workflows: ["Project CI"]
+    branches: [development]
     types:
       - completed
 
