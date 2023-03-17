@@ -2,11 +2,8 @@
 name: Merge development into main
 
 on:
-  workflow_run:
-    workflows: ["Project CI"]
-    branches: [development]
-    types:
-      - completed
+  repository_dispatch:
+    types: [trigger-pull-request]
 
 jobs:
   main:
@@ -16,7 +13,7 @@ jobs:
       - name: git checkout
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.workflow_run.head_branch }}
+          ref: ${{ github.event.client_payload.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create pull request
