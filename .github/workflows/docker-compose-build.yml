@@ -56,16 +56,3 @@ jobs:
         with:
           workflow: google-cloudrun-start.yml
           ref: ${{ github.ref_name }}
-
-      # - name: git checkout
-      #   uses: actions/checkout@v3
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Create pull request
-      #   id: open-pr
-      #   uses: repo-sync/pull-request@v2
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     destination_branch: ${{ github.event.repository.default_branch }}
-      #     pr_title: "[Automated] Merge ${{ github.ref_name }} into ${{ github.event.repository.default_branch }}"
-      #     pr_body: "Automated Pull Request"
