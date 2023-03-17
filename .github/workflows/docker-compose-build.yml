@@ -31,6 +31,7 @@ jobs:
 
       - name: Call merge workflow
         uses: benc-uk/workflow-dispatch@v1
+        if: ${{ github.ref_name != 'main' }}
         with:
           workflow: merge-development.yml
           ref: ${{ github.ref_name }}
