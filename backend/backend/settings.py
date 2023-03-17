@@ -12,9 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
-from dotenv import dotenv_values
-
-CONFIG = dotenv_values()
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-b-g5spgh%v2+ny!l)t64_6p$agb)!cs#r$j@24!ql8wv_ui*kw'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.environ.get('DEBUG', 0)))
 
 # Application definition
 
@@ -89,11 +87,10 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': CONFIG['NAME'],
-        'USER': CONFIG['USER'],
-        'PASSWORD': CONFIG['PASSWORD'],
-        'HOST': CONFIG['HOST'],
-        'PORT': CONFIG['PORT'],
+        'HOST': os.environ.get('DB_HOST'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASS'),
     }
 }
 
@@ -129,10 +126,19 @@ USE_I18N = True
 USE_TZ = True
 
 # Allowed host & CORS
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost'
-]
+# ALLOWED_HOSTS = [
+#     '0.0.0.0',
+#     '127.0.0.1',
+#     'localhost'
+# ]
+
+ALLOWED_HOSTS = []
+ALLOWED_HOSTS.extend(
+    filter(
+        None,
+        os.environ.get('ALLOWED_HOSTS', '').split(','),
+    )
+)
 CORS_ORIGIN_ALLOW_ALL = True
 
 
