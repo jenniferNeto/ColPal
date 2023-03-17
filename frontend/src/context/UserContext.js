@@ -27,13 +27,13 @@ function setSessionStorage(key, value) {
   }
 
 export function UserProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(getSessionStorage('session', null))
+  const [currentUser, setCurrentUser] = useState(getSessionStorage('user', null))
 
-  const login = (session) => {
+  const login = async (user) => {
+    
+    setSessionStorage('user', user)
 
-    setSessionStorage('session', session)
-
-    setCurrentUser(getSessionStorage('session', null))
+    setCurrentUser(getSessionStorage('user', null))
 
   }
 
@@ -49,16 +49,17 @@ export function UserProvider({ children }) {
   }
 
   useEffect(() => {
-    const backend_login = async () => {
+    const get_jwt = async () => {
       if(currentUser == null) return
       let data = new FormData();
-      data.append("user", currentUser['id'])
-
-      const loginres = await axios.post("http://127.0.0.1:8000/users/login/", data)
-      console.log('backend_login', loginres)
+      data.append("user", currentUser['username'])
+      
+      await axios.post("http://127.0.0.1:8000/users/obtain/")
+      console.log("login_jwt", res)
+  
     }
 
-    backend_login()
+    get_jwt()
 
   }, [currentUser])
 
