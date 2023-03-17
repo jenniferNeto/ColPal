@@ -13,7 +13,6 @@ jobs:
       - name: git checkout
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.client_payload.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create pull request
