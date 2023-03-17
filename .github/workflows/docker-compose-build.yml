@@ -28,8 +28,6 @@ jobs:
         run: docker-compose up -d
       - name: Run Django tests
         run: docker exec django python manage.py test
-      - name: Clean up node modules
-        run: docker exec nodejs npm uninstall
       - name: git checkout
         uses: actions/checkout@v3
         with:
