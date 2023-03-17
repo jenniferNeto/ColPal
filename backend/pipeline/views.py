@@ -171,7 +171,8 @@ class UserPipelinesListAPIView(generics.ListAPIView):
             raise Http404
 
         # Check if current user is viewing their own information
-        if not (request.user is None or request.user == current_user.first()):
+        ## request == current_user.first()
+        if not (request.user is None or request.user != current_user.first()):
             return Response(status=status.HTTP_403_FORBIDDEN)
         return super().get(request)
 """
