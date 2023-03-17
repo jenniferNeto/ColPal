@@ -24,6 +24,8 @@ services:
     command: sh -c "python manage.py migrate && python manage.py createadmin && python manage.py runserver 0.0.0.0:8000"
 
   nodejs:
+    hostname: nodejs
+    container_name: nodejs
     build:
       context: ./frontend
       dockerfile: dev.Dockerfile
