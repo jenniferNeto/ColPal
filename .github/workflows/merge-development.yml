@@ -19,7 +19,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Inject slug/short variables
+      - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
 
       - name: Check CI status
