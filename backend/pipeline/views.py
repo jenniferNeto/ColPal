@@ -5,6 +5,7 @@ from rest_framework import status
 
 from django.http import Http404
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 
 from simple_history.utils import update_change_reason
 
@@ -15,7 +16,7 @@ from request.utils import createRequest
 from .models import Pipeline
 from .serializers import PipelineSerializer, PipelineHistorySeralizer, PipelineUpdateSerializer
 
-User = get_user_model()
+Users = get_user_model()
 
 
 class PipelineListAPIView(generics.ListAPIView):
@@ -164,16 +165,19 @@ class UserPipelinesListAPIView(generics.ListAPIView):
         return Pipeline.objects.filter(pk__in=pipeline_ids)
 
     def get(self, request, pk):
-        current_user = User.objects.filter(pk=pk)
+        # Get the user reference
+        searched_user = User.objects.filter(pk=pk)
 
         # Check if user exists
-        if current_user.count() == 0:
+        if searched_user.count() == 0:
             raise Http404
-
-        # Check if current user is viewing their own information
-        ## request == current_user.first()
-        if not (request.user is None or request.user != current_user.first()):
-            return Response(status=status.HTTP_403_FORBIDDEN)
+        user: User = searched_user[0]
+        
+        # Check if logged in user is admin
+        if not request.user.is_superuser:
+            # Check if requested user does not equal logged in user
+            if not (user == request.user):
+                return Response(status=status.HTTP_403_FORBIDDEN)
         return super().get(request)
 """
 
