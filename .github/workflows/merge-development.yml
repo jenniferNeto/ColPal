@@ -2,9 +2,10 @@
 name: Merge development into Main
 
 on:
-  push:
-    branches:
-      - "development"
+  workflow_run:
+    workflows: ["Project CI"]
+    types:
+      - completed
 
 jobs:
   main:
