@@ -1,5 +1,4 @@
 name: Project CI
-
 on:
   push:
   pull_request:
@@ -23,16 +22,12 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up containers
         run: docker-compose up -d
+
       - name: Run Django tests
         run: docker exec django python manage.py test
-      - name: Trigger pull request
-        if: success()
-        uses: peter-evans/repository-dispatch@v1
-        with:
-          event-type: trigger-pull-request
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       # - name: git checkout
       #   uses: actions/checkout@v3
