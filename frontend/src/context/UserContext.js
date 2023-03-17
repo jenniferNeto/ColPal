@@ -50,7 +50,7 @@ export function UserProvider({ children }) {
 
   useEffect(() => {
     const backend_login = async () => {
-      if(currentUser == null) return
+      if (currentUser == null) return
       let data = new FormData();
       data.append("user", currentUser['id'])
 
