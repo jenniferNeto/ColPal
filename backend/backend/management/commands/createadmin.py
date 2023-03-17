@@ -9,4 +9,4 @@ class Command(BaseCommand):
         try:
             User.objects.create_superuser(username='admin', email='', password='')
         except IntegrityError:
-            raise CommandError('Default admin already exists')
+            print('Admin account already exists: skipping')
