@@ -44,7 +44,7 @@ export default function LoginForm() {
 
           <div className="d-grid gap-2 mt-3">
             <Button type="submit" variant="primary">
-              login
+              Login
             </Button>
 
           </div>

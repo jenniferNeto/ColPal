@@ -126,11 +126,11 @@ USE_I18N = True
 USE_TZ = True
 
 # Allowed host & CORS
-# ALLOWED_HOSTS = [
-#     '0.0.0.0',
-#     '127.0.0.1',
-#     'localhost'
-# ]
+#ALLOWED_HOSTS = [
+#    '0.0.0.0',
+#    '127.0.0.1',
+#    'localhost'
+#]
 
 ALLOWED_HOSTS = []
 ALLOWED_HOSTS.extend(
