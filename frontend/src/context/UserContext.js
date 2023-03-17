@@ -54,7 +54,7 @@ export function UserProvider({ children }) {
       let data = new FormData();
       data.append("user", currentUser['id'])
 
-      const loginres = await axios.post("http://127.0.0.1:8080/users/login/", data)
+      const loginres = await axios.post("http://127.0.0.1:8000/users/login/", data)
       console.log('backend_login', loginres)
     }
 
