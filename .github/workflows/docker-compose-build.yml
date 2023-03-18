@@ -34,8 +34,8 @@ jobs:
         run: |
           pwd
           ls -a
-          ls ./workflows
-          cat ./.gitub/workflows/docker-compose-build.yml
+          ls ./.github/workflows
+          cat ./.github/workflows/docker-compose-build.yml
           cat ./.github/workflows/merge-development.yml
 
       - name: Call merge workflow
