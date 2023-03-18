@@ -5,6 +5,7 @@ on:
     branches:
       - development
       - main
+      - dev/**
 
 jobs:
   build:
@@ -29,12 +30,21 @@ jobs:
       - name: Run Django tests
         run: docker exec django python manage.py test
 
-      - name: Call merge workflow
-        uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name != 'main' }}
-        with:
-          workflow: merge-development.yml
-          ref: ${{ github.ref_name }}
+      - name: Search for file
+        run: |
+          pwd
+          ls -a
+          ls ./.github/workflows
+          cat ./.github/workflows/docker-compose-build.yml
+          cat ./.github/workflows/merge-development.yml
+
+      # - name: Call merge workflow
+      #   uses: benc-uk/workflow-dispatch@v1
+      #   # TODO: Change this to == development when done testing
+      #   if: ${{ github.ref_name != 'main' }}
+      #   with:
+      #     workflow: ./merge-development.yml
+      #     ref: ${{ github.ref_name }}
 
       - name: Call frontend push
         uses: benc-uk/workflow-dispatch@v1
