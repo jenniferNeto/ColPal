@@ -13,6 +13,9 @@ jobs:
           - ./merge-development.yml
           - ./.github/workflows/merge-development.yml
     runs-on: ubuntu-latest
+      env:
+        ACTIONS_RUNNER_DEBUG: true
+        ACTIONS_STEP_DEBUG: true
     steps:
       - name: git checkout
         uses: actions/checkout@v3
