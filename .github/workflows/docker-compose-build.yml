@@ -25,26 +25,17 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up containers
-        run: docker-compose up -d
+        run: docker-compose up -d --build
 
       - name: Run Django tests
         run: docker exec django python manage.py test
 
-      - name: Search for file
-        run: |
-          pwd
-          ls -a
-          ls ./.github/workflows
-          cat ./.github/workflows/docker-compose-build.yml
-          cat ./.github/workflows/merge-development.yml
-
-      # - name: Call merge workflow
-      #   uses: benc-uk/workflow-dispatch@v1
-      #   # TODO: Change this to == development when done testing
-      #   if: ${{ github.ref_name != 'main' }}
-      #   with:
-      #     workflow: ./merge-development.yml
-      #     ref: ${{ github.ref_name }}
+      - name: Call merge workflow
+        uses: benc-uk/workflow-dispatch@v1
+        if: ${{ github.ref_name == 'development' }}
+        with:
+          workflow: ./merge-development.yml
+          ref: ${{ github.ref_name }}
 
       - name: Call frontend push
         uses: benc-uk/workflow-dispatch@v1
