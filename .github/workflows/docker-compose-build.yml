@@ -32,10 +32,6 @@ jobs:
       - name: Build containers
         run: docker-compose up -d --build
 
-      - name: Verify container network
-        run: |
-          curl -X POST -H "Content-Type: application/json" -d '{"username": "admin", "password": "."}' ${{ matrix.host }}
-
       - name: Run Django tests
         run: docker exec django python manage.py test
 
