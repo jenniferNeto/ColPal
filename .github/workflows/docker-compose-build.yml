@@ -7,6 +7,14 @@ on:
       - dev/**
 
 jobs:
+  strategy:
+    matrix:
+      host:
+        - http://localhost:8000/users/obtain/
+        - localhost:8000/users/obtain/
+        - django:8000/users/obtain/
+        - http://0.0.0.0:8000/users/obtain/
+        - http://127.0.0.1:8000/users/obtain/
   build:
     runs-on: ubuntu-latest
     env:
@@ -29,7 +37,7 @@ jobs:
 
       - name: Verify container network
         run: |
-          curl -X POST -H "Content-Type: application/json" -d '{"username": "admin", "password": "."}' http://localhost:8000/users/obtain/
+          curl -X POST -H "Content-Type: application/json" -d '{"username": "admin", "password": "."}' ${{ matrix.host }}
 
       - name: Run Django tests
         run: docker exec django python manage.py test
