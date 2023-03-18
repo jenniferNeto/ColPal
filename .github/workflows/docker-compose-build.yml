@@ -21,39 +21,32 @@ jobs:
       POSTGRES_DB: ${{ secrets.NAME }}
       POSTGRES_USER: ${{ secrets.USER }}
       POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
+
+    strategy:
+      matrix:
+        deploy:
+          - google-cloudrun-docker-backend.yml
+          - google-cloudrun-docker-frontend.yml
+          - google-cloudrun-start.yml
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up containers
+      - name: Build containers
         run: docker-compose up -d --build
 
       - name: Run Django tests
         run: docker exec django python manage.py test
 
-      - name: Call merge workflow
+      - name: Merge workflow
         uses: benc-uk/workflow-dispatch@v1
         if: ${{ github.ref_name == 'development' }}
         with:
           workflow: merge-development.yml
           ref: ${{ github.ref_name }}
 
-      - name: Call frontend push
+      - name: Deploy workflow
         uses: benc-uk/workflow-dispatch@v1
         if: ${{ github.ref_name == 'main' }}
         with:
-          workflow: google-cloudrun-docker-frontend.yml
-          ref: ${{ github.ref_name }}
-
-      - name: Call backend push
-        uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name == 'main' }}
-        with:
-          workflow: google-cloudrun-docker-backend.yml
-          ref: ${{ github.ref_name }}
-
-      - name: Call deploy
-        uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name == 'main' }}
-        with:
-          workflow: google-cloudrun-start.yml
+          workflow: ${{ matrix.deploy }}
           ref: ${{ github.ref_name }}
