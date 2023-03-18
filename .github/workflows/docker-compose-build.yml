@@ -8,11 +8,6 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        host:
-          - http://localhost:8000/users/obtain/
-          - http://127.0.0.1:8000/users/obtain/
     runs-on: ubuntu-latest
     env:
       SECRET_KEY: development_secret
