@@ -5,8 +5,6 @@ import Sidebar from "../commons/Sidebar"
 
 export default function AuthLayout() {
   const {currentUser} = useAuth()
-
-  console.log(currentUser)
  
   return (
     
