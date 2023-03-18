@@ -1,0 +1,26 @@
+name: Project CI
+on:
+  push:
+  pull_request:
+    branches:
+      - dev/**
+
+jobs:
+  path_matrix:
+    strategy:
+      matrix:
+        path:
+          [
+            merge-development.yml,
+            ./merge-development.yml,
+            ./.github/workflows/merge-development.yml,
+          ]
+  build1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call merge workflow
+        uses: benc-uk/workflow-dispatch@v1
+        if: ${{ github.ref_name != 'main' }}
+        with:
+          workflow: ${{ matrix.path }}
+          ref: ${{ github.ref_name }}

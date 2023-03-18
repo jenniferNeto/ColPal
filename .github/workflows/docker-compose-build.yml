@@ -38,13 +38,13 @@ jobs:
           cat ./.github/workflows/docker-compose-build.yml
           cat ./.github/workflows/merge-development.yml
 
-      - name: Call merge workflow
-        uses: benc-uk/workflow-dispatch@v1
-        # TODO: Change this to == development when done testing
-        if: ${{ github.ref_name != 'main' }}
-        with:
-          workflow: ./merge-development.yml
-          ref: ${{ github.ref_name }}
+      # - name: Call merge workflow
+      #   uses: benc-uk/workflow-dispatch@v1
+      #   # TODO: Change this to == development when done testing
+      #   if: ${{ github.ref_name != 'main' }}
+      #   with:
+      #     workflow: ./merge-development.yml
+      #     ref: ${{ github.ref_name }}
 
       - name: Call frontend push
         uses: benc-uk/workflow-dispatch@v1
