@@ -45,7 +45,6 @@ export function UserProvider({ children }) {
       setSessionStorage('refresh', refresh)
       setSessionStorage('user', user)
       setCurrentUser(user)
-      setAccessToken(access)
 
     } catch (err) {
       console.log(err)
@@ -62,7 +61,7 @@ export function UserProvider({ children }) {
   
   const value = {
     currentUser,
-    accessToken,
+    getAccessToken: () => getSessionStorage('access', null),
     login,
     logout,
   }

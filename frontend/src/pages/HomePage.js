@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { getAllUserPipelines } from '../utils/endpoints'
+import { get_user_pipelines } from '../utils/endpoints'
 
 import Dashboard from '../components/home/Dashboard'
 import MessageQueue from '../components/home/MessageQueue'
@@ -11,12 +11,12 @@ export default function HomePage() {
 
   const { 
     response: pipelines, 
-    doRequest: getUserPipelines
-  } = useRequest(`/pipelines/user/${currentUser['id']}/`)
+    doRequest: userPipelinesRequest
+  } = useRequest(get_user_pipelines(currentUser['id']))
 
   useEffect(() => {
-    getUserPipelines()
-  }, [getUserPipelines])
+    userPipelinesRequest()
+  }, [userPipelinesRequest])
 
 
   return (

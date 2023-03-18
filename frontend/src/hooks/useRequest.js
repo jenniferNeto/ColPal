@@ -12,26 +12,27 @@ function formalize(data){
     return form_data
 }
 
-const useRequest = (endpoint, isAuth=false) => {
+const useRequest = (endpoint) => {
     const [response, setResponse] = useState(null);
     const [loading, setloading] = useState(true);
     const [error, seterror] = useState(null);
-    const {accessToken} = useAuth()
+    const {getAccessToken} = useAuth()
 
     const doRequest = useCallback(
         async (data={}) => {
         try {
             
-            const res = await axios({
+            const client = axios.create({
                 baseURL: 'http://127.0.0.1:8000/',
-                url: endpoint, 
-                method: 'get',
+                method: endpoint.method,
                 data: formalize(data),
-                headers: isAuth ? {Authorization: 'Bearer ' +  accessToken} : {}
+                headers: endpoint.isAuth ? {Authorization: 'Bearer ' +  getAccessToken()} : {}
                 
             })
 
-            console.log(endpoint, res)
+            const res = await client.request(endpoint.url)
+
+            console.log(endpoint.url, res)
             setResponse(res)
 
         } catch (err) {
@@ -41,7 +42,7 @@ const useRequest = (endpoint, isAuth=false) => {
 
         setloading(false)
 
-    }, [endpoint, accessToken])
+    }, [getAccessToken])
 
  
 

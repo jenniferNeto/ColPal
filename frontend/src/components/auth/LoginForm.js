@@ -4,13 +4,14 @@ import Card from "react-bootstrap/Card"
 import Container from "react-bootstrap/Container"
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button'
-import { getAllUsers } from '../../utils/endpoints';
+import { get_all_users } from '../../utils/endpoints';
 import { useAuth } from '../../context/UserContext';
+import useRequest from '../../hooks/useRequest';
 
 export default function LoginForm() {
-  const [users, setUsers] = useState([])
   const [selectedUser, setSelectedUser] = useState(null)
   const { currentUser, login } = useAuth()
+  const {response: users, doRequest: allUsersRequest} = useRequest(get_all_users())
   const navigate = useNavigate()
 
   const handleLogin = async (e) => {
@@ -18,7 +19,7 @@ export default function LoginForm() {
 
     if (selectedUser == null) return;
 
-    const userData = users.find(user => user['username'] == selectedUser)
+    const userData = users.data.find(user => user['username'] == selectedUser)
     
     await login(userData)
 
@@ -29,10 +30,8 @@ export default function LoginForm() {
   useEffect(() => {
     if (currentUser != null) navigate("/")
 
-    getAllUsers().then(res => {
-      setUsers(res.data)
-    })
-  }, [])
+    allUsersRequest()
+  }, [allUsersRequest])
 
   return (
     <Container fluid>
@@ -43,7 +42,7 @@ export default function LoginForm() {
           <Form onSubmit={handleLogin}>
             <Form.Select aria-label="Default select example" onChange={e => setSelectedUser(e.target.value)}>
               <option>Log in as</option>
-              {users.map(user =>
+              {users && users.data.map(user =>
                 <option key={user['id']} value={user['username']}>{user['username']}</option>)
               }
 
