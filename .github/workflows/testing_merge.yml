@@ -18,6 +18,11 @@ jobs:
   build1:
     runs-on: ubuntu-latest
     steps:
+      - name: git checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Call merge workflow
         uses: benc-uk/workflow-dispatch@v1
         if: ${{ github.ref_name != 'main' }}
