@@ -20,7 +20,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Call merge workflow
         uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name != 'main' }}
+        if: ${{ github.ref_name != 'development' }}
         with:
           workflow: ${{ matrix.path }}
           ref: ${{ github.ref_name }}
