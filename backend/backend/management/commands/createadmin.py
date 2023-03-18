@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 class Command(BaseCommand):
     # Create a superuser account
-    def handle(self, *args, **options):
+    def handle(self):
         try:
             User.objects.create_superuser(username='admin', email='', password='')
             print("Admin account successfully created.")
