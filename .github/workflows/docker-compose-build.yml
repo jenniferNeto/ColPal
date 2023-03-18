@@ -45,7 +45,6 @@ jobs:
         with:
           workflow: ./merge-development.yml
           ref: ${{ github.ref_name }}
-        run: pwd && ls -a
 
       - name: Call frontend push
         uses: benc-uk/workflow-dispatch@v1
