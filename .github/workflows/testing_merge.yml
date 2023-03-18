@@ -10,8 +10,6 @@ jobs:
       matrix:
         path:
           - merge-development.yml
-          - ./merge-development.yml
-          - ./.github/workflows/merge-development.yml
           - .github/workflows/merge-development.yml
     runs-on: ubuntu-latest
     env:
