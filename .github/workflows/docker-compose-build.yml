@@ -1,7 +1,6 @@
 name: Project CI
 on:
   push:
-  pull_request:
     branches:
       - development
       - main
