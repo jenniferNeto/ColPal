@@ -27,6 +27,10 @@ jobs:
       - name: Build containers
         run: docker-compose up -d --build
 
+      - name: Verify container network
+        run: |
+          if [[ $(curl --silent --output /dev/null --write-out "%{http_code}" -X POST -H "Content-Type: application/json" -d '{"username": "admi", "password": "."}' django:8000/users/obtain/) == 200 ]]; then echo "Connection successful"; else exit 1; fi
+
       - name: Run Django tests
         run: docker exec django python manage.py test
 
