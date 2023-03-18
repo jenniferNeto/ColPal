@@ -29,7 +29,7 @@ jobs:
 
       - name: Verify container network
         run: |
-          curl -v -X POST -H "Content-Type: application/json" -d '{"username": "admin", "password": "."}' django:8000/users/obtain/
+          curl -X POST -H "Content-Type: application/json" -d '{"username": "admin", "password": "."}' http://localhost:8000/users/obtain/
 
       - name: Run Django tests
         run: docker exec django python manage.py test
