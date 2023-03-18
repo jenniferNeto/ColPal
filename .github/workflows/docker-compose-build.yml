@@ -31,14 +31,19 @@ jobs:
         run: docker exec django python manage.py test
 
       - name: Search for file
-        run: pwd && ls
-        
+        run: |
+          pwd
+          ls -a
+          ls ./workflows
+          cat ./workflows/docker-compose-build.yml
+          cat ./workflows/merge-development.yml
+
       - name: Call merge workflow
         uses: benc-uk/workflow-dispatch@v1
         # TODO: Change this to == development when done testing
         if: ${{ github.ref_name != 'main' }}
         with:
-          workflow: merge-development.yml
+          workflow: ./merge-development.yml
           ref: ${{ github.ref_name }}
 
       - name: Call frontend push
