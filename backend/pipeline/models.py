@@ -5,8 +5,14 @@ from datetime import datetime, timedelta
 
 from simple_history.models import HistoricalRecords
 
-from backend.models import TimeStamp
 
+class TimeStamp(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(null=True, blank=True)
+
+    # To generate a single table
+    class Meta:
+        abstract = True
 
 class Pipe(TimeStamp):
     title = models.CharField(max_length=40)

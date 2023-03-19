@@ -3,11 +3,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
-from django.contrib.auth.models import User
-from django.contrib.auth import login, logout
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from django.contrib.auth import login, logout, get_user_model
 from django.http import Http404
 
 from .serializers import UserSerializer, UserLoginSerializer
+
+User = get_user_model()
 
 
 class UsersListAPIView(generics.ListAPIView):
@@ -42,9 +45,23 @@ class UserLoginAPIView(generics.CreateAPIView):
         # required attribute is the users' id number
         login(request, user)
 
+        # Generate JWT
+        user_tokens = RefreshToken.for_user(user)
+
+        # Get individual tokens
+        refresh_token = str(user_tokens)
+        access_token = str(user_tokens.access_token)
+
+        # Validate serializer data
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # Add token to response
+        data = serializer.data
+        data['refresh'] = refresh_token
+        data['access'] = access_token
+
+        return Response(data, status=status.HTTP_200_OK)
 
 class UserLogoutAPIView(APIView):
     """Log a user out"""
