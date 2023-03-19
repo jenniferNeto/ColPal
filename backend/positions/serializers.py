@@ -37,13 +37,12 @@ class ManagerSerializer(PipelineUserSerializer):
 
 class PositionCreateSerializer(serializers.ModelSerializer):
     # Show the userid instead of the user itself for post purposes
-    id = serializers.IntegerField(read_only=True, source="user.pk")
+    id = serializers.IntegerField()
 
     class Meta:
-        fields = ['id']
-
-    def get_pipeline(self, obj):
-        return obj.pipeline
+        fields = [
+            'id',
+        ]
 
 class ViewerCreateSerializer(PositionCreateSerializer):
     class Meta(PositionCreateSerializer.Meta):
