@@ -10,10 +10,7 @@ django-simple-history==3.2.0
 django-types==0.17.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.2.2
-<<<<<<< HEAD
-=======
 idna==3.4
->>>>>>> a1d85f894a3df9dad1cc5b309f2cfde084a30a27
 isort==5.12.0
 lazy-object-proxy==1.9.0
 mccabe==0.7.0
