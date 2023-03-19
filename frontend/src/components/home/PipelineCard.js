@@ -1,13 +1,17 @@
 import React from 'react'
-import Card from 'react-bootstrap/Card'
 import { Link } from 'react-router-dom'
-export default function PipelineCard(props) {
-  const {id} = props
+export default function PipelineCard({id, title,upload_frequency}) {
+
   return (
     <Link to={"/pipeline/"+id}>
-      <Card style={{border: 'none', background: '#E9E7FD'}}>
-          <Card.Body>Pipeline</Card.Body>
-      </Card>
+      <div className='card' style={{border: 'none', background: '#E9E7FD'}} >
+          <div className='card-body'>
+          <h5 class="card-title align-center">{title}</h5>
+          </div>
+          <div className='card-footer'>
+            {upload_frequency}
+          </div>
+      </div>
     </Link>
   )
 }

@@ -1,10 +1,10 @@
 name: Project CI
 on:
   push:
-  pull_request:
     branches:
       - development
       - main
+      - dev/**
 
 jobs:
   build:
@@ -20,37 +20,38 @@ jobs:
       POSTGRES_DB: ${{ secrets.NAME }}
       POSTGRES_USER: ${{ secrets.USER }}
       POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
+
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up containers
-        run: docker-compose up -d
+      - name: Build containers
+        run: docker-compose up -d --build
 
       - name: Run Django tests
         run: docker exec django python manage.py test
 
-      - name: Call merge workflow
+      - name: Merge workflow
         uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name != 'main' }}
+        if: ${{ github.ref_name == 'development' }}
         with:
           workflow: merge-development.yml
           ref: ${{ github.ref_name }}
 
-      - name: Call frontend push
-        uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name == 'main' }}
-        with:
-          workflow: google-cloudrun-docker-frontend.yml
-          ref: ${{ github.ref_name }}
-
-      - name: Call backend push
+      - name: Push backend container
         uses: benc-uk/workflow-dispatch@v1
         if: ${{ github.ref_name == 'main' }}
         with:
           workflow: google-cloudrun-docker-backend.yml
           ref: ${{ github.ref_name }}
 
-      - name: Call deploy
+      - name: Push frontend container
+        uses: benc-uk/workflow-dispatch@v1
+        if: ${{ github.ref_name == 'main' }}
+        with:
+          workflow: google-cloudrun-docker-frontend.yml
+          ref: ${{ github.ref_name }}
+
+      - name: Deploy containers
         uses: benc-uk/workflow-dispatch@v1
         if: ${{ github.ref_name == 'main' }}
         with:

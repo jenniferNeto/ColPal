@@ -34,11 +34,11 @@ export function UserProvider({ children }) {
 
     try {
       let data = new FormData();
-      data.append("username", user['username'])
-      data.append("password", '.')
+      data.append("user", user['id'])
 
-      const res = await axios.post("http://127.0.0.1:8000/users/obtain/", data)
+      const res = await axios.post("http://127.0.0.1:8000/users/login/", data)
 
+      console.log('login', res)
       const { access, refresh } = res.data
 
       setSessionStorage('access', access)

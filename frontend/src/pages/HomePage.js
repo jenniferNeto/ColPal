@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { get_user_pipelines } from '../utils/endpoints'
 
 import Dashboard from '../components/home/Dashboard'
@@ -10,9 +10,13 @@ export default function HomePage() {
   const { currentUser } = useAuth()
 
   const { 
-    response: pipelines, 
+    response: pipelinesRes, 
     doRequest: userPipelinesRequest
   } = useRequest(get_user_pipelines(currentUser['id']))
+
+  const pipelines = useMemo(() => pipelinesRes?.data ?? null,
+    [pipelinesRes]
+  )
 
   useEffect(() => {
     userPipelinesRequest()
@@ -20,9 +24,10 @@ export default function HomePage() {
 
 
   return (
+    
     <div className='row py-2 h-100'>
       <div className='col-sm-9'>
-        <Dashboard pipelines={pipelines?.data}/>
+        <Dashboard pipelines={pipelines}/>
       </div>
       <div className='col-sm-3'>
         <MessageQueue />
