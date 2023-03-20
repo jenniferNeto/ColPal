@@ -15,6 +15,8 @@ class PipelineSerializer(serializers.ModelSerializer):
     approved = serializers.SerializerMethodField(read_only=True)
     approved_date = serializers.SerializerMethodField(read_only=True)
 
+    upload_frequency = serializers.DurationField()
+
     class Meta:
         model = Pipeline
 
@@ -42,6 +44,9 @@ class PipelineSerializer(serializers.ModelSerializer):
 
     def get_approved(self, obj):
         return obj.is_approved
+
+    def get_upload_frequency(self, obj):
+        return str(obj.upload_frequency.total_seconds())
 
 class PipelineHistorySeralizer(PipelineSerializer):
     """

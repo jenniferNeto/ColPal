@@ -90,9 +90,6 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
         if instance is None:
             return
 
-        # Update the change reason field of the history object
-        update_change_reason(instance, kwargs['update_reason'])
-
         # Update instance based on any found fields
         # Update needs to be after update_change_reason or NoneType error reported
         instance.title = kwargs['title']
@@ -102,3 +99,6 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
         # Save changes on the instance
         # This will also generate a historical model of the changes
         instance.save()
+
+        # Update the change reason field of the history object
+        update_change_reason(instance, kwargs['update_reason'])
