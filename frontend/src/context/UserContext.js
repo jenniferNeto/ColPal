@@ -28,7 +28,6 @@ function setSessionStorage(key, value) {
 
 export function UserProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(getSessionStorage('user', null))
-  const [accessToken, setAccessToken] = useState(getSessionStorage('access', null))
 
   const login = async (user) => {
 

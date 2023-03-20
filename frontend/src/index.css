@@ -1,0 +1,16 @@
+.dot {
+  height: 15px;
+  width: 15px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.active {
+  background-color: #00ff00;
+  
+}
+
+.dot.inactive {
+  background-color: #ff1919;
+}

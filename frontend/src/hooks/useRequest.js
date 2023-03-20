@@ -11,7 +11,7 @@ function formalize(data){
 
     return form_data
 }
-
+/*
 const onTokenExpire = async (error) => {
     const originalRequest = error.config;
     if (error.response.status === 401) {
@@ -34,7 +34,7 @@ const onTokenExpire = async (error) => {
     }
     return Promise.reject(error);
   };
-  
+  */
 
 const useRequest = (endpoint) => {
     const [response, setResponse] = useState(null);
@@ -54,7 +54,7 @@ const useRequest = (endpoint) => {
                 
             })
 
-            client.interceptors.response.use((response) => response, onTokenExpire);
+            //client.interceptors.response.use((response) => response, onTokenExpire);
 
             const res = await client.request(endpoint.url)
 
