@@ -90,7 +90,6 @@ class PipelineEndpointTestCase(APITestCase):
         # Only create user accounts if not anonymous
         if self.authenticate:
             # Clear all user objects and create initial accounts
-            User.objects.all().delete()
             User.objects.create_superuser(username=self.super_user, email='', password='', pk=1)
             User.objects.create_user(self.regular_user, email='', password='', pk=2)
 
@@ -132,6 +131,7 @@ class PipelineEndpointTestCase(APITestCase):
         """Test the pipelines get update endpoint"""
         token = self.login(regular=False)
 
+        # Create and send request
         data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
         self.assertNotEquals(Pipeline.objects.count(), 0)
         pipeline_id = Pipeline.objects.all()[0].pk
@@ -143,8 +143,8 @@ class PipelineEndpointTestCase(APITestCase):
         """Test the pipelines put update endpoint"""
         token = self.login()
         pipeline_id = Pipeline.objects.all()[0].pk
-        Manager.objects.create(user=User.objects.filter(username=self.regular_user)[0],
-                               pipeline=Pipeline.objects.filter(pk=pipeline_id)[0])
+        Manager.objects.create(user=User.objects.get(username=self.regular_user),
+                               pipeline=Pipeline.objects.get(pk=pipeline_id))
         data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
         self.assertNotEquals(Pipeline.objects.count(), 0)
 

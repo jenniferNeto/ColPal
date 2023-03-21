@@ -54,12 +54,12 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
             return Response(status.HTTP_208_ALREADY_REPORTED)
 
         # Update the Request model
-        instance.accept_changes = request.data['accept_changes']
+        instance.accept_changes = int(request.data['accept_changes'])
         instance.response = request.data['response']
         instance.save()
 
         # Check if request is accepted
-        if instance.accept_changes == '1':
+        if instance.accept_changes == 1:
             # Update pipeline with requested changes
             self.update_instance(pipeline_id=instance.pipeline_id,
                                  title=instance.title,
