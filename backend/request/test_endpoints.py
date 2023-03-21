@@ -60,7 +60,7 @@ class RequestEndpointTestCase(APITestCase):
         token, pipeline = self.make_update_request()
 
         # Get the request object and add user as a manager
-        request = Request.objects.all().last()
+        request = Request.objects.last()
         if request is None:
             self.assertNotEqual(request, None)
             return
@@ -90,7 +90,7 @@ class RequestEndpointTestCase(APITestCase):
         token = self.login(regular=False)
 
         # Get request
-        request = Request.objects.all().last()
+        request = Request.objects.last()
         if request is None:
             self.assertNotEqual(request, None)
             return
