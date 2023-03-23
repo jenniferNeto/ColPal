@@ -172,7 +172,7 @@ class UserPipelinesListAPIView(generics.ListAPIView):
         if searched_user.count() == 0:
             raise Http404
         user: User = searched_user[0]
-        
+
         # Check if logged in user is admin
         if not request.user.is_superuser:
             # Check if requested user does not equal logged in user

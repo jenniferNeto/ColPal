@@ -54,12 +54,12 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
             return Response(status.HTTP_208_ALREADY_REPORTED)
 
         # Update the Request model
-        instance.accept_changes = request.data['accept_changes']
+        instance.accept_changes = int(request.data['accept_changes'])
         instance.response = request.data['response']
         instance.save()
 
         # Check if request is accepted
-        if instance.accept_changes == '1':
+        if instance.accept_changes == 1:
             # Update pipeline with requested changes
             self.update_instance(pipeline_id=instance.pipeline_id,
                                  title=instance.title,
@@ -90,9 +90,6 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
         if instance is None:
             return
 
-        # Update the change reason field of the history object
-        update_change_reason(instance, kwargs['update_reason'])
-
         # Update instance based on any found fields
         # Update needs to be after update_change_reason or NoneType error reported
         instance.title = kwargs['title']
@@ -102,3 +99,6 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
         # Save changes on the instance
         # This will also generate a historical model of the changes
         instance.save()
+
+        # Update the change reason field of the history object
+        update_change_reason(instance, kwargs['update_reason'])

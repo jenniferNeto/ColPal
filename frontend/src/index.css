@@ -1,0 +1,35 @@
+.dot {
+  height: 15px;
+  width: 15px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.active {
+  background-color: #00ff00;
+  
+}
+
+.dot.inactive {
+  background-color: #ff1919;
+}
+
+.upload-btn{
+  border: 3px dashed #605CA8;
+  padding: 1rem;
+  text-align: center;
+  border-radius: 10px;
+  color: #605CA8;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.upload-btn:hover {
+  color: #fff;
+  background: #605CA8;
+}
+
+.bg-main{
+  background: #605CA8;
+}
