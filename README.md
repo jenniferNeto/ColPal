@@ -13,7 +13,7 @@
   <a href="https://github.com/jenniferNeto/ColPal/stargazers" alt="Stars">
     <img src="https://img.shields.io/github/stars/jenniferNeto/ColPal?style=for-the-badge">
   </a>
-  <a href="https://github.com/jenniferNeto/ColPal/blob/main/LICENSE.txt" alt="License">
+  <a href="https://github.com/jenniferNeto/ColPal/blob/main/LICENSE" alt="License">
     <img src="https://img.shields.io/github/license/jenniferNeto/ColPal.svg?style=for-the-badge">
   </a>
 </p>
@@ -38,7 +38,7 @@
 
 <h3 align="center">Stable Data</h3>
 
-  <p align="center">
+<p align="center">
     Stable data is a full stack web app that allows users to create and manage data upload pipelines to meet their specific requirements. Stable Data allows users to specify data constraints, upload frequency requirements, and pipeline viewers, uploaders, and managers.
     <br />
     <a href="https://github.com/jenniferNeto/ColPal"><strong>Explore the docs »</strong></a>
@@ -53,6 +53,7 @@
 </div>
 
 <!-- TABLE OF CONTENTS -->
+
 <details>
   <summary>Table of Contents</summary>
   <ol>
@@ -79,11 +80,13 @@
 </details>
 
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 ![Product Name Screen Shot](https://i.imgur.com/IoVCmEJ.png)
 
 <!-- GETTING STARTED -->
+
 ## Getting Started
 
 This is an example of how you may give instructions on setting up your project locally.
@@ -96,41 +99,46 @@ This project requires docker and docker-compose to build
 ### Installation
 
 1. Clone the repo
+
    ```sh
    git clone https://github.com/jenniferNeto/ColPal.git
    ```
 2. Create a .env file in the root directory
    Required attributes are:
+
    ```sh
    DB_HOST
    DB_NAME
    DB_USER
    DB_PASS
-   
+
    POSTGRES_DB
    POSTGRES_USER
    POSTGRES_PASSWORD
    ```
+
    * DB_HOST must be 'db'
    * DB_x must match POSTGRES_x
-   
 3. Build the docker containers
+
    ```sh
    docker-compose up --build
    ```
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 <!-- ROADMAP -->
+
 ## Roadmap
 
-- [x] Pipeline create
-  - [x] Create pipeline groups: viewer, uploader, manager
-    - [x] Add groups to pipelines
-- [x] Pipeline update, admin/manager vs uploader
-- [x] Django test cases for actions
-- [x] Basic file upload
+- [X] Pipeline create
+  - [X] Create pipeline groups: viewer, uploader, manager
+    - [X] Add groups to pipelines
+- [X] Pipeline update, admin/manager vs uploader
+- [X] Django test cases for actions
+- [X] Basic file upload
   - [ ] Upload temporary file to cloud storage
   - [ ] Generate schema for csv files
     - [ ] Generate schema for google sheets
@@ -140,6 +148,7 @@ This project requires docker and docker-compose to build
 See the [open issues](https://github.com/jenniferNeto/ColPal/issues) for a full list of proposed features (and known issues).
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
