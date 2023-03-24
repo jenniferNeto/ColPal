@@ -137,7 +137,7 @@ This project requires docker and docker-compose to build
   - [ ] Validate file against pipeline constraints
   - [ ] Upload approved file to snowflake
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/jenniferNeto/ColPal/issues) for a full list of proposed features (and known issues).
 
 <!-- LICENSE -->
 ## License
