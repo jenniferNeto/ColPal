@@ -92,3 +92,11 @@ class PipelineUpdateSerializer(PipelineHistorySeralizer):
             'update_reason',
             'is_active',
         ]
+
+class FileUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
+
+    class Meta:
+        fields = [
+            'file',
+        ]

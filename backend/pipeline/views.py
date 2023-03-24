@@ -1,7 +1,7 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
-from rest_framework import status
+from rest_framework.viewsets import ViewSet
 
 from django.http import Http404
 from django.contrib.auth import get_user_model
@@ -14,7 +14,12 @@ from positions.models import Viewer, Uploader, Manager
 from request.utils import createRequest
 
 from .models import Pipeline
-from .serializers import PipelineSerializer, PipelineHistorySeralizer, PipelineUpdateSerializer
+from .serializers import (
+    PipelineSerializer,
+    PipelineHistorySeralizer,
+    PipelineUpdateSerializer,
+    FileUploadSerializer
+)
 
 Users = get_user_model()
 
@@ -179,14 +184,16 @@ class UserPipelinesListAPIView(generics.ListAPIView):
             if not (user == request.user):
                 return Response(status=status.HTTP_403_FORBIDDEN)
         return super().get(request)
-"""
 
-As of now the API has the following problems:
+class FileUploadViewSet(ViewSet):
+    serializer_class = FileUploadSerializer
 
-Upload frequency should be converted into the amount of seconds in the pipeline
-model like it described in history.
+    def create(self, request, pk_pipeline):
+        file = request.FILES.get('file')
+        content_type = file.content_type
 
-The history_change_reason is not being set when the pipeline object is updating through
-an approved request. This feature does work however if the pipeline is updated by a manager.
-
-"""
+        print('Upload File Title:', file)
+        print('Type:', type(file))
+        print('Content Type:', content_type)
+        data = {'title': str(file), 'content_type': content_type}
+        return Response(status=status.HTTP_201_CREATED, data=data)
