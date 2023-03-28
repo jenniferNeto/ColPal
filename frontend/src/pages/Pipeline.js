@@ -1,18 +1,28 @@
-import React from 'react'
+import {useState} from 'react'
 import { useParams } from "react-router-dom";
 import PipelineUpload from '../components/pipelines/PipelineUpload';
 import PipelineHistory from '../components/pipelines/PipelineHistory';
 import PipelineChangeLog from '../components/pipelines/PipelineChangeLog';
 import PipelineTimeTrack from "../components/pipelines/PipelineTimeTrack"
+import useRequest from '../hooks/useRequest';
 export default function Pipeline() {
   const params = useParams()
+  const [fileUpload, setFileUpload] = useState(null)
+  const uploadRequest = useRequest(`/pipelines/${params['pipeline_id']}/upload/`)
 
-  console.log(params)
+  const handleFileUpload = (file) => {
+    setFileUpload(file)
+    //Open review modal
+    
+  }
+
+  console.log(fileUpload)
+  
   return (
     <div className='row h-100'>
       <div className="row col-sm-8">
         <div className='col-sm-12 h-25'>
-          <PipelineUpload />
+          <PipelineUpload upload={handleFileUpload}/>
         </div>
         <div className='col-sm-12 py-2 h-50'>
           <PipelineHistory />
