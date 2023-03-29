@@ -25,6 +25,11 @@
   cursor: pointer;
 }
 
+.scroll {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
 .upload-btn:hover {
   color: #fff;
   background: #605CA8;

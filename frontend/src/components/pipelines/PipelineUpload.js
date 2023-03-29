@@ -10,6 +10,10 @@ export default function PipelineUpload({upload}) {
   const handleFileSelect = (e) => {
     const uploadedFile = e.target.files[0]
     setFile(uploadedFile)
+    //TBD: Add file size check
+    //TBD: Add file type check (csv only)
+    //TBB: Add file name check
+
   }
 
   const handleFileConfirm = (e) => {
