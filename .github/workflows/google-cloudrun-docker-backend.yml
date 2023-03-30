@@ -112,7 +112,6 @@ jobs:
 
       - name: Start frontend workflow
         uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name == 'dev/cloud-run' }}
         with:
           workflow: google-cloudrun-docker-frontend.yml
           ref: ${{ github.ref_name }}
