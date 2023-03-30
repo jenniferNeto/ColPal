@@ -1,5 +1,7 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import Card from 'react-bootstrap/Card'
+import { faEye } from "@fortawesome/free-solid-svg-icons"
 export default function PipelineHistory() {
   return (
     <Card className="shadow-sm bg-white h-100">
@@ -14,11 +16,13 @@ export default function PipelineHistory() {
               </tr>
             </thead>
             <tbody>
-              {[...Array(20).keys()].map((row) => (
+              {[...Array(5).keys()].map((row) => (
                 <tr>
-                  <td scope="col">File Name</td>
-                  <td scope="col">Upload Date</td>
-                  <td scope="col">View</td>
+                  <td scope="col">File {row}</td>
+                  <td scope="col">____</td>
+                  <td scope="col">
+                    <FontAwesomeIcon icon={faEye} className="view-btn" />
+                  </td>
 
                 </tr>
               ))}

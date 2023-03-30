@@ -35,6 +35,11 @@
   background: #605CA8;
 }
 
+.view-btn {
+  color: #605CA8;
+  cursor: pointer;
+}
+
 .bg-main{
   background: #605CA8;
 }
