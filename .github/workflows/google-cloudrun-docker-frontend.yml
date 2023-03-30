@@ -42,76 +42,74 @@
 #   Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
 #   Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
 
-name: Build Frontend and Push it to Registry
+name: Build frontend and push to registry
 
 on:
   workflow_dispatch:
     inputs:
       cd:
-        description: "cd"
+        description: cd
         required: false
-        default: "google-cloudrun-docker-backend.yml"
+        default: google-cloudrun-docker-backend.yml
 
 env:
   PROJECT_ID: dataplatformcolgate # TODO: update Google Cloud project id
   GAR_LOCATION: us-east4 # TODO: update Artifact Registry location
   SERVICE: colgate-repo # TODO: update Cloud Run service name
   REGION: Northern Virginia # TODO: update Cloud Run service region
+  REPOSITORY: colgate-repo
 
 jobs:
   buid-push-gcr:
-    name: Build and Push to GCP
+    permissions:
+      contents: read
+      id-token: write
+      actions: write
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: frontend-image
+      GIT_TAG: v0.1.0
     steps:
       - name: Checkout
-        uses: "actions/checkout@v3"
+        uses: actions/checkout@v3
         #configure workload Identity Federation via a credentials file
       - name: Google Auth
-        id: "auth"
-        uses: "google-github-actions/auth@v1"
+        id: auth
+        uses: google-github-actions/auth@v1
         with:
-          workload_identity_provider: "projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github" # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
-          service_account: "github-actions@dataplatformcolgate.iam.gserviceaccount.com" # e.g. - my-service-account@my-project.iam.gserviceaccount.com
+          workload_identity_provider: projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github
+          service_account: github-actions@dataplatformcolgate.iam.gserviceaccount.com
 
-      - name: Build docker Image
+      - name: Build docker image
         run: |-
           cd frontend
           docker build -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" .
 
       # Authenticate Docker to Google Cloud Artifact Registry
-      - name: Docker Auth
+      - name: Authenticate docker to cloud registry
         run: |-
           gcloud auth configure-docker --quiet
           gcloud auth configure-docker us-east4-docker.pkg.dev --quiet
 
       - name: Build and Push Container
-        env:
-          GIT_TAG: v0.1.0
-        run: |-
-          docker tag $IMAGE_NAME:latest us-east4-docker.pkg.dev/$PROJECT_ID/colgate-repo/$IMAGE_NAME:latest
-          docker tag $IMAGE_NAME:latest us-east4-docker.pkg.dev/$PROJECT_ID/colgate-repo/$IMAGE_NAME:$GIT_TAG
-          docker push $IMAGE_NAME:latest us-east4-docker.pkg.dev/$PROJECT_ID/colgate-repo/$IMAGE_NAME:latest
-          docker push $IMAGE_NAME:latest us-east4-docker.pkg.dev/$PROJECT_ID/colgate-repo/$IMAGE_NAME:$GIT_TAG
+        run: docker push -a us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME
 
       # END - Docker auth and build
 
-      - name: Deploy to Cloud Run
+      - name: Deploy container to cloud run
         id: deploy
-        uses: google-github-actions/deploy-cloudrun@v0
+        uses: google-github-actions/deploy-cloudrun@v1
         with:
-          service: colgate-repo
-          region: Northern Virginia
-          # NOTE: If using a pre-built image, update the image name here
-          image: $IMAGE_NAME:latest us-east4-docker.pkg.dev/$PROJECT_ID/colgate-repo/$IMAGE_NAME:latest
+          flags: --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com --port=3000
+          service: frontend-image
+          gcloud_component: beta
+          platform: managed
+          # NOTE: If required, update to the appropriate source folder
+          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
 
-      # If required, use the Cloud Run url output in later steps
-      - name: Show Output
-        run: echo ${{ steps.deploy.outputs.url }}
-
-      - name: Deploy containers
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: google-cloudrun-start.yml
-          ref: ${{ github.ref_name }}
+      # - name: Start cloud run workflow
+      #   uses: benc-uk/workflow-dispatch@v1
+      #   if: ${{ github.ref_name == 'dev/cloud-run' }}
+      #   with:
+      #     workflow: google-cloudrun-start.yml
+      #     ref: ${{ github.ref_name }}
