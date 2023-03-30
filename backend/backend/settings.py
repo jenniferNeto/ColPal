@@ -99,9 +99,6 @@ if os.environ.get('ENV', 'cloud') != 'local':
     global DEFAULT_FILE_STORAGE
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
-    # global GS_CREDENTIALS
-    # GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.environ.get('credentials_file_path'))
-
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -159,18 +156,11 @@ USE_TZ = True
 
 # Allowed host & CORS
 ALLOWED_HOSTS = [
-    '0.0.0.0',
-    '127.0.0.1',
-    'localhost',
-    'django',
+    '*'
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    'http://127.0.0.1:3000',
-    'http://localhost:3000',
 
-]
-
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
