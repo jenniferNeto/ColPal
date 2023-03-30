@@ -21,6 +21,8 @@ jobs:
       POSTGRES_USER: ${{ secrets.USER }}
       POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
 
+      ENV: local
+
     steps:
       - uses: actions/checkout@v3
 
@@ -39,7 +41,7 @@ jobs:
 
       - name: Push backend container
         uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name == 'dev/cloud-run' }}
+        if: ${{ github.ref_name == 'main' }}
         with:
           workflow: google-cloudrun-docker-backend.yml
           ref: ${{ github.ref_name }}

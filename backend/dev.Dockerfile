@@ -10,6 +10,7 @@ RUN apt-get update \
     && apt-get -y --no-install-recommends install \
     gcc \
     libpq-dev \
+    libc6-dev \
     python3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*

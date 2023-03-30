@@ -49,43 +49,43 @@ on:
       cd:
         description: "cd"
         required: false
-        default: "google-cloudrun-docker-backend.yml"
-
+        default: "docker-compose-build.yml"
 
 env:
   PROJECT_ID: dataplatformcolgate # TODO: update Google Cloud project id
-  GAR_LOCATION: us-east4 	 # TODO: update Artifact Registry location
-  SERVICE: colgate-repo  # TODO: update Cloud Run service name
-  REGION: us-east4  # TODO: update Cloud Run service region
+  GAR_LOCATION: us-east4 # TODO: update Artifact Registry location
+  SERVICE: colgate-repo # TODO: update Cloud Run service name
+  REGION: us-east4 # TODO: update Cloud Run service region
   REPOSITORY: colgate-repo
+  GOOGLE_HOST: ${{ secrets.GOOGLE_HOST }}
+  ENV: cloud
 
 jobs:
   buid-push-gcr:
     name: Build and Push to GCP
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: "read"
+      id-token: "write"
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME : backend-image
+      IMAGE_NAME: backend-image
       GIT_TAG: v0.1.0
     steps:
       - name: Checkout
-        uses: 'actions/checkout@v3'
-#configure workload Identity Federation via a credentials file
+        uses: "actions/checkout@v3"
+      #configure workload Identity Federation via a credentials file
       - name: Google Auth
-        id: 'auth'
-        uses: 'google-github-actions/auth@v1'
+        id: "auth"
+        uses: "google-github-actions/auth@v1"
         with:
-          workload_identity_provider: 'projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
-          service_account: 'github-actions@dataplatformcolgate.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
-    
+          workload_identity_provider: "projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github" # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
+          service_account: "github-actions@dataplatformcolgate.iam.gserviceaccount.com" # e.g. - my-service-account@my-project.iam.gserviceaccount.com
+          export_environment_variables: "true"
+
       - name: Build docker Image
         run: |-
           cd backend
-          docker build -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:$GIT_TAG" .
-
-          
+          docker buildx build --platform linux/amd64 -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:$GIT_TAG" .
 
       # Authenticate Docker to Google Cloud Artifact Registry
       - name: Docker Auth
@@ -94,24 +94,24 @@ jobs:
           gcloud auth configure-docker us-east4-docker.pkg.dev --quiet
 
       - name: Build and Push Container
-        run:
-          docker push -a us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME
+        run: docker push -a us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME
 
-      
       # END - Docker auth and build
 
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v1
         with:
-          flags: --service-account=cloudrun@dataplatformcolgate.iam.gserviceaccount.com
-          service: ${{ env.SERVICE }}
+          flags: --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com --port=8000
+          service: colgate-repo-backend
           gcloud_component: beta
           allow: unauthenticated
           platform: managed
           # NOTE: If required, update to the appropriate source folder
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
 
-      # If required, use the Cloud Run url output in later steps
-      - name: 'Use output'
-        run: 'curl "${{ steps.deploy.outputs.url }}"'
+      - name: Push frontend container
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: google-cloudrun-docker-frontend.yml
+          ref: ${{ github.ref_name }}

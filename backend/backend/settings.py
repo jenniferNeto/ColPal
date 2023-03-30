@@ -16,6 +16,8 @@ import os
 
 from datetime import timedelta
 
+from google.oauth2 import service_account
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -87,17 +89,43 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+DATABASES = {}
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'HOST': os.environ.get('DB_HOST'),
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASS'),
+if os.environ.get('ENV', 'cloud') != 'local':
+    print("Using Cloud database")
+    global GS_BUCKET_NAME
+    GS_BUCKET_NAME = 'dataplatformcolgate_cloudbuild'
+
+    global DEFAULT_FILE_STORAGE
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
+    # global GS_CREDENTIALS
+    # GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.environ.get('credentials_file_path'))
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'HOST': '/cloudsql/dataplatformcolgate:us-central1:colgate-database',
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASS'),
+        }
     }
-}
+else:
+    # print("Using Local database")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'HOST': os.environ.get('DB_HOST'),
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASS'),
+        }
+    }
+# MEDIA_URL = 'gs://dataplatformcolgate_cloudbuild/'
+MEDIA_URL = '/media/'
 
+GS_BLOB_CHUNK_SIZE = 1024 * 256 * 40
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
