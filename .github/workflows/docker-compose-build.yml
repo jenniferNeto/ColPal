@@ -21,8 +21,10 @@ jobs:
       POSTGRES_USER: ${{ secrets.USER }}
       POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
 
+      ENV: local
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Build containers
         run: docker-compose up -d --build
@@ -42,18 +44,4 @@ jobs:
         if: ${{ github.ref_name == 'main' }}
         with:
           workflow: google-cloudrun-docker-backend.yml
-          ref: ${{ github.ref_name }}
-
-      - name: Push frontend container
-        uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name == 'main' }}
-        with:
-          workflow: google-cloudrun-docker-frontend.yml
-          ref: ${{ github.ref_name }}
-
-      - name: Deploy containers
-        uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name == 'main' }}
-        with:
-          workflow: google-cloudrun-start.yml
           ref: ${{ github.ref_name }}
