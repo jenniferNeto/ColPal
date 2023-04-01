@@ -4,11 +4,6 @@ from .models import Pipeline
 
 
 class PipelineSerializer(serializers.ModelSerializer):
-    # Creator needs to be null for now because people who aren't logged in
-    # can view the pipelines. Need to set up authentication before allowing
-    # people to view pipelines
-
-    # creator = serializers.SerializerMethodField('_user')
     created = serializers.SerializerMethodField(read_only=True)
     last_modified = serializers.SerializerMethodField(read_only=True)
 
