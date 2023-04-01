@@ -43,3 +43,6 @@ target/
 
 # mypy
 .mypy_cache/
+
+# development logs
+dev_log.md

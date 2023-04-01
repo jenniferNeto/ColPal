@@ -1,0 +1,16 @@
+[
+    {
+        "pipeline_id": 1,
+        "upload_time": "2023-01-01 10:00:00",
+        "past_due": true,
+        "filename": "addresses.csv",
+        "file": "./files/addresses.csv"
+    },
+    {
+        "pipeline_id": 1,
+        "upload_time": "2023-03-01 13:00:00",
+        "past_due": false,
+        "filename": "example.csv",
+        "file": "./files/example.csv"
+    }
+]
