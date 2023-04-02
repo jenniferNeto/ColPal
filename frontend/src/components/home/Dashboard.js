@@ -25,7 +25,7 @@ export default function Dashboard({pipelines}) {
             {
                 pipelines.map(pipeline => (
                     <div key={pipeline.id} className='col-md-4 col-sm-12 my-3'>
-                        <PipelineCard {...pipeline}/>
+                        <PipelineCard data={pipeline}/>
                     </div>
                 ))
             }

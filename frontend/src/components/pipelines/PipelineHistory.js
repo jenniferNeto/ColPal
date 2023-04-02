@@ -1,8 +1,10 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React from 'react'
 import Card from 'react-bootstrap/Card'
 import { faEye } from "@fortawesome/free-solid-svg-icons"
-export default function PipelineHistory() {
+import axios from 'axios'
+
+export default function PipelineHistory({uploadHistory}) {
+ 
   return (
     <Card className="shadow-sm bg-white h-100">
         <Card.Body className='scroll'>
@@ -10,16 +12,16 @@ export default function PipelineHistory() {
             <thead>
               <tr>
                 <th scope="col">File Name</th>
-                <th scope="col">Upload Date</th>
+                <th scope="col">Upload Time</th>
                 <th scope="col">View</th>
 
               </tr>
             </thead>
             <tbody>
-              {[...Array(5).keys()].map((row) => (
+              {uploadHistory.map((upload) => (
                 <tr>
-                  <td scope="col">File {row}</td>
-                  <td scope="col">____</td>
+                  <td scope="col">{upload['filename']}</td>
+                  <td scope="col">{upload['upload_time']}</td>
                   <td scope="col">
                     <FontAwesomeIcon icon={faEye} className="view-btn" />
                   </td>

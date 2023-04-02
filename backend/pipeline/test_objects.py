@@ -10,7 +10,7 @@ class PipelineTestCase(TestCase):
     .all() warnings can be ignored
     """
     def setUp(self):
-        Pipeline.objects.all().delete()
+        Pipeline.objects.all().delete()  # type: ignore
         Pipeline.objects.create(title='Test Pipeline')
 
     def test_pipeline_create(self):
