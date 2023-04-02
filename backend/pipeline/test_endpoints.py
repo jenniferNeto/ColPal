@@ -85,7 +85,7 @@ class PipelineEndpointTestCase(APITestCase):
 
     def setUp(self):
         # Clear all pipeline objects and create initial pipeline
-        Pipeline.objects.create(title='Test Pipeline', pk=1)
+        Pipeline.objects.create(title='Test Pipeline', pk=1)  # type: ignore
 
         # Only create user accounts if not anonymous
         if self.authenticate:
