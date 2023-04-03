@@ -16,6 +16,8 @@ import os
 
 from datetime import timedelta
 
+from google.oauth2 import service_account
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,8 +25,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = os.environ.get('SECRET_KEY')
-SECRET_KEY = 'secret_key'
+SECRET_KEY = 'debug_secret'
+AUTHENTICATION = os.environ.get('AUTHENTICATION')
+
+
+# Override default secret key if one is injected
+if AUTHENTICATION:
+    SECRET_KEY = AUTHENTICATION
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.environ.get('DEBUG', 0)))
@@ -87,15 +94,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 DATABASES = {}
-
-if os.environ.get('ENV', 'cloud') != 'local':
-    print("Using Cloud database")
-    global GS_BUCKET_NAME
-    GS_BUCKET_NAME = 'dataplatformcolgate_cloudbuild'
-
-    global DEFAULT_FILE_STORAGE
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-
+if os.environ.get('ENVIRONMENT', 'production') == 'production':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -106,7 +105,6 @@ if os.environ.get('ENV', 'cloud') != 'local':
         }
     }
 else:
-    # print("Using Local database")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -116,10 +114,27 @@ else:
             'PASSWORD': os.environ.get('DB_PASS'),
         }
     }
-# MEDIA_URL = 'gs://dataplatformcolgate_cloudbuild/'
-MEDIA_URL = '/media/'
 
+# Use local credentials if debug is on
+if DEBUG:
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+        './backend/credentials.json'
+    )
+else:
+    pass
+    # TODO: Credentials json isn't loading properly
+    # GS_CREDENTIALS = service_account.Credentials.from_service_account_info(os.environ.get('CREDENTIALS'))
+
+# Set file storage to use google cloud bucket
+GS_BUCKET_NAME = 'dataplatformcolgate_cloudbuild'
+DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+GS_PROJECT_ID = 'dataplatformcolgate'
+MEDIA_URL = 'gs://dataplatformcolgate_cloudbuild/'
+
+GS_EXPIRATION = timedelta(minutes=5)
 GS_BLOB_CHUNK_SIZE = 1024 * 256 * 40
+
+FILE_PATH = os.environ.get('LOCAL_URL') if os.environ.get('ENVIRONMENT') == 'local' else os.environ.get('CLOUD_URL')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

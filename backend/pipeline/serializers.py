@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Pipeline
+from .models import Pipeline, PipelineFile
 
 
 class PipelineSerializer(serializers.ModelSerializer):
@@ -92,6 +92,8 @@ class FileUploadSerializer(serializers.Serializer):
     file = serializers.FileField()
 
     class Meta:
+        model = PipelineFile
+
         fields = [
-            'file',
+            'file'
         ]

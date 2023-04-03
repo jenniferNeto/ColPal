@@ -5,6 +5,9 @@ from datetime import datetime, timedelta
 
 from simple_history.models import HistoricalRecords
 
+from storages.backends.gcloud import GoogleCloudStorage
+storage = GoogleCloudStorage()
+
 
 class TimeStamp(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -66,3 +69,10 @@ class Pipeline(Pipe):
         finally:
             del self.skip_history_when_saving
         return ret
+
+class PipelineFile(models.Model):
+    """Allows users to upload files to specific"""
+    pipeline = models.ForeignKey(Pipeline, on_delete=models.CASCADE, null=False)
+    file = models.FileField(storage=storage)
+    path = models.FilePathField(null=True)
+    upload_date = models.DateTimeField(default=timezone.now)

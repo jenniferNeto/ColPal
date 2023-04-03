@@ -9,8 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      SECRET_KEY: development_secret
-      DEBUG: 1
+      AUTHENTICATION: ${{ secrets.AUTHENTICATION }}
+      DEBUG: 0
       DB_HOST: ${{ secrets.HOST }}
       DB_NAME: ${{ secrets.NAME }}
       DB_USER: ${{ secrets.USER }}
@@ -18,7 +18,8 @@ jobs:
       POSTGRES_DB: ${{ secrets.NAME }}
       POSTGRES_USER: ${{ secrets.USER }}
       POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
-      ENV: local
+      ENVIRONMENT: development
+      CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
     steps:
       - uses: actions/checkout@v3
       - name: Build containers

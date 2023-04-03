@@ -46,3 +46,6 @@ target/
 
 # development logs
 dev_log.md
+
+# Credentials
+credentials.json
