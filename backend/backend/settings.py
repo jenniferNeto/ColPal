@@ -14,9 +14,11 @@ from pathlib import Path
 
 import os
 
+import json
+
 from datetime import timedelta
 
-from google.oauth2 import service_account
+from google.oauth2 import service_account as sa
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +29,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'debug_secret'
 AUTHENTICATION = os.environ.get('AUTHENTICATION')
-
 
 # Override default secret key if one is injected
 if AUTHENTICATION:
@@ -90,7 +91,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 DATABASES = {}
@@ -117,13 +117,11 @@ else:
 
 # Use local credentials if debug is on
 if DEBUG:
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-        './backend/credentials.json'
-    )
+    GS_CREDENTIALS = sa.Credentials.from_service_account_file('./backend/credentials.json')
 else:
-    pass
-    # TODO: Credentials json isn't loading properly
-    # GS_CREDENTIALS = service_account.Credentials.from_service_account_info(os.environ.get('CREDENTIALS'))
+    # Use injected credentials in cloud environments
+    credentials = json.loads(os.environ.get('CREDENTIALS', default=''))
+    GS_CREDENTIALS = sa.Credentials.from_service_account_info(dict(credentials))
 
 # Set file storage to use google cloud bucket
 GS_BUCKET_NAME = 'dataplatformcolgate_cloudbuild'
@@ -133,8 +131,6 @@ MEDIA_URL = 'gs://dataplatformcolgate_cloudbuild/'
 
 GS_EXPIRATION = timedelta(minutes=5)
 GS_BLOB_CHUNK_SIZE = 1024 * 256 * 40
-
-FILE_PATH = os.environ.get('LOCAL_URL') if os.environ.get('ENVIRONMENT') == 'local' else os.environ.get('CLOUD_URL')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -153,7 +149,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
