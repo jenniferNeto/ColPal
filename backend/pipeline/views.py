@@ -21,6 +21,7 @@ from django.utils import timezone
 from .models import Pipeline, PipelineFile
 from .serializers import (
     PipelineSerializer,
+    PipelineStatusSerializer,
     PipelineHistorySeralizer,
     PipelineUpdateSerializer,
     FileUploadSerializer
@@ -147,6 +148,47 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         pipeline.update_reason = None  # type: ignore
         return Response(PipelineSerializer(pipeline).data)
 
+class PipelineStatusAPIView(generics.ListAPIView):
+    """View pipeline approval status"""
+    serializer_class = PipelineStatusSerializer
+
+    def get(self, request, pk_pipeline):
+        check_user_permissions(request, pk_pipeline, Manager)
+        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+
+        # Check pipeline
+        if not pipeline:
+            raise Http404
+
+        return Response(status=status.HTTP_200_OK, data={'approved': pipeline.is_approved})
+
+    def put(self, request, pk_pipeline):
+        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        user = User.objects.get(pk=int(request.user.pk))
+
+        # User needs to be admin to update the approval status of a pipeline
+        if not user.is_superuser:
+            return Response(
+                status=status.HTTP_401_UNAUTHORIZED,
+                data={
+                    'message': 'Must be an admin to update the status'
+                }
+            )
+
+        # Check pipeline
+        if not pipeline:
+            raise Http404
+
+        approval_status = request.POST.get('approved')
+
+        # Update pipeline
+        print("Pipeline Status:", pipeline.is_approved)
+        print("Type:", type(pipeline.is_approved))
+        pipeline.is_approved = bool(approval_status)
+        pipeline.save()
+
+        return Response(status=status.HTTP_200_OK, data={'id': pk_pipeline, 'approved': pipeline.is_approved})
+
 class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
     """View pipeline historical instances"""
     serializer_class = PipelineHistorySeralizer
@@ -165,7 +207,7 @@ class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
 class UserPipelinesListAPIView(generics.ListAPIView):
-    """View pipeline's a user can upload to"""
+    """View pipelines a user can upload to"""
     serializer_class = PipelineSerializer
 
     def get_queryset(self):
@@ -191,6 +233,7 @@ class UserPipelinesListAPIView(generics.ListAPIView):
         return super().get(request)
 
 class PipelineFileUpload(generics.CreateAPIView):
+    """Upload files to an active and approved pipeline"""
     serializer_class = FileUploadSerializer
 
     def create(self, request, pk_pipeline):
@@ -200,6 +243,15 @@ class PipelineFileUpload(generics.CreateAPIView):
         # Get the uploaded file from the request
         file = request.FILES.get('file')
         pipeline = Pipeline.objects.get(pk=pk_pipeline)
+
+        # User can only upload files if pipeline is active and approved
+        if not (pipeline.is_active and pipeline.is_approved):
+            return Response(
+                status=status.HTTP_403_FORBIDDEN,
+                data={
+                    'message': 'Pipeline must be approved and active to upload files'
+                }
+            )
 
         # Generate path to store file
         target_path = f'pipeline/{pk_pipeline}/{str(timezone.now().replace(tzinfo=None))}/{file}'
