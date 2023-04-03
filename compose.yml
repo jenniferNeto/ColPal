@@ -10,13 +10,14 @@ services:
     volumes:
       - ./backend:/backend
     environment:
-      - SECRET_KEY=development_secret
-      - DEBUG=1
+      - AUTHENTICATION=${AUTHENTICATION}
+      - DEBUG=${DEBUG}
       - DB_HOST=${DB_HOST}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
-      - ENV=${ENV}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - CREDENTIALS=${CREDENTIALS}
     depends_on:
       db:
         condition: service_healthy

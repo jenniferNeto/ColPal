@@ -5,6 +5,8 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import simple_history.models
+import storages.backends.gcloud
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -57,4 +59,14 @@ class Migration(migrations.Migration):
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
         ),
+        migrations.CreateModel(
+            name='PipelineFile',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(), upload_to='')),
+                ('path', models.FilePathField(null=True)),
+                ('upload_date', models.DateTimeField(default=django.utils.timezone.now)),
+                ('pipeline', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pipeline.pipeline')),
+            ],
+        )
     ]

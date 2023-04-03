@@ -1,9 +1,10 @@
 from rest_framework import serializers
 
-from .models import Pipeline
+from .models import Pipeline, PipelineFile
 
 
 class PipelineSerializer(serializers.ModelSerializer):
+    """Serialize an entire user pipeline"""
     created = serializers.SerializerMethodField(read_only=True)
     last_modified = serializers.SerializerMethodField(read_only=True)
 
@@ -72,7 +73,7 @@ class PipelineHistorySeralizer(PipelineSerializer):
 
 class PipelineUpdateSerializer(PipelineHistorySeralizer):
     """
-    Serialize the entier Pipeline object but include the
+    Serialize the entire Pipeline object but include the
     reason for updating a pipeline. This field will be used
     in place of the history.history_change_reason field
     """
@@ -88,10 +89,24 @@ class PipelineUpdateSerializer(PipelineHistorySeralizer):
             'is_active',
         ]
 
+class PipelineStatusSerializer(serializers.ModelSerializer):
+    """Serialize the approval status of a pipeline"""
+    approved = serializers.BooleanField()
+
+    class Meta:
+        model = Pipeline
+
+        fields = [
+            'approved',
+        ]
+
 class FileUploadSerializer(serializers.Serializer):
+    """Serialize an uploaded file for a pipeline"""
     file = serializers.FileField()
 
     class Meta:
+        model = PipelineFile
+
         fields = [
-            'file',
+            'file'
         ]

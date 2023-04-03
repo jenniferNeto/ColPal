@@ -19,7 +19,8 @@ RUN apt-get update \
 
 # Set work directory
 WORKDIR /code
-ENV 'ENV' 'cloud'
+
+RUN python3 -m pip install --upgrade pip
 
 # Install Python dependencies
 COPY requirements.txt /code/
@@ -30,11 +31,5 @@ COPY . /code/
 
 EXPOSE 8000
 
-# Start server
-# CMD ["python", "manage.py", "runserver"]
-# RUN python manage.py runserver
-
-# Run migrations
-# RUN python manage.py migrate
 RUN ["chmod", "+x", "/code/docker/docker-entrypoint.sh"]
 ENTRYPOINT ["/code/docker/docker-entrypoint.sh"]

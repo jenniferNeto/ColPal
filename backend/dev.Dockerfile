@@ -15,6 +15,8 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+RUN python3 -m pip install --upgrade pip
+
 
 # Copy project
 COPY . /backend/

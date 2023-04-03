@@ -9,13 +9,19 @@ from django.contrib.auth.models import User
 
 from simple_history.utils import update_change_reason
 
+from storages.backends.gcloud import GoogleCloudStorage
+storage = GoogleCloudStorage()
+
 from authentication.utils import check_user_permissions, is_user_allowed
 from positions.models import Viewer, Uploader, Manager
 from request.utils import createRequest
 
-from .models import Pipeline
+from django.utils import timezone
+
+from .models import Pipeline, PipelineFile
 from .serializers import (
     PipelineSerializer,
+    PipelineStatusSerializer,
     PipelineHistorySeralizer,
     PipelineUpdateSerializer,
     FileUploadSerializer
@@ -142,6 +148,47 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         pipeline.update_reason = None  # type: ignore
         return Response(PipelineSerializer(pipeline).data)
 
+class PipelineStatusAPIView(generics.ListAPIView):
+    """View pipeline approval status"""
+    serializer_class = PipelineStatusSerializer
+
+    def get(self, request, pk_pipeline):
+        check_user_permissions(request, pk_pipeline, Manager)
+        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+
+        # Check pipeline
+        if not pipeline:
+            raise Http404
+
+        return Response(status=status.HTTP_200_OK, data={'approved': pipeline.is_approved})
+
+    def put(self, request, pk_pipeline):
+        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        user = User.objects.get(pk=int(request.user.pk))
+
+        # User needs to be admin to update the approval status of a pipeline
+        if not user.is_superuser:
+            return Response(
+                status=status.HTTP_401_UNAUTHORIZED,
+                data={
+                    'message': 'Must be an admin to update the status'
+                }
+            )
+
+        # Check pipeline
+        if not pipeline:
+            raise Http404
+
+        approval_status = request.POST.get('approved')
+
+        # Update pipeline
+        print("Pipeline Status:", pipeline.is_approved)
+        print("Type:", type(pipeline.is_approved))
+        pipeline.is_approved = bool(approval_status)
+        pipeline.save()
+
+        return Response(status=status.HTTP_200_OK, data={'id': pk_pipeline, 'approved': pipeline.is_approved})
+
 class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
     """View pipeline historical instances"""
     serializer_class = PipelineHistorySeralizer
@@ -160,7 +207,7 @@ class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
 class UserPipelinesListAPIView(generics.ListAPIView):
-    """View pipeline's a user can upload to"""
+    """View pipelines a user can upload to"""
     serializer_class = PipelineSerializer
 
     def get_queryset(self):
@@ -185,15 +232,46 @@ class UserPipelinesListAPIView(generics.ListAPIView):
                 return Response(status=status.HTTP_403_FORBIDDEN)
         return super().get(request)
 
-class FileUploadViewSet(ViewSet):
+class PipelineFileUpload(generics.CreateAPIView):
+    """Upload files to an active and approved pipeline"""
     serializer_class = FileUploadSerializer
 
     def create(self, request, pk_pipeline):
-        file = request.FILES.get('file')
-        content_type = file.content_type
+        # Check to see if a user is allowed to update this pipeline
+        check_user_permissions(request, pk_pipeline, Uploader)
 
-        print('Upload File Title:', file)
-        print('Type:', type(file))
-        print('Content Type:', content_type)
-        data = {'title': str(file), 'content_type': content_type}
+        # Get the uploaded file from the request
+        file = request.FILES.get('file')
+        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+
+        # User can only upload files if pipeline is active and approved
+        if not (pipeline.is_active and pipeline.is_approved):
+            return Response(
+                status=status.HTTP_403_FORBIDDEN,
+                data={
+                    'message': 'Pipeline must be approved and active to upload files'
+                }
+            )
+
+        # Generate path to store file
+        target_path = f'pipeline/{pk_pipeline}/{str(timezone.now().replace(tzinfo=None))}/{file}'
+        saved_location = storage.save(target_path, file)
+
+        # Connect uploaded file to pipeline using intermediary model
+        pipeline_file = PipelineFile.objects.create(pipeline=pipeline, file=file, path=saved_location)
+
+        # Get the date of the last uploaded file to the current pipeline
+        latest_upload = PipelineFile.objects.filter(pipeline=pipeline).last()
+        start_date = pipeline.created if latest_upload is None else latest_upload.upload_date
+
+        # Calculate if the file is overdue and generate response data
+        past_due = start_date + pipeline.upload_frequency < timezone.now()
+        data = {
+            'pipeline_id': pk_pipeline,
+            'upload_date': pipeline_file.upload_date,
+            'past_due': past_due,
+            'filename': str(file),
+            'file': saved_location
+        }
+
         return Response(status=status.HTTP_201_CREATED, data=data)
