@@ -35,7 +35,7 @@ if AUTHENTICATION:
     SECRET_KEY = AUTHENTICATION
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(int(os.environ.get('DEBUG', 0)))
+DEBUG = bool(int(os.environ.get('DEBUG', 1)))
 
 # Application definition
 

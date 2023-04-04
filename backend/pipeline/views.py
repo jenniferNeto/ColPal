@@ -24,7 +24,9 @@ from .serializers import (
     PipelineStatusSerializer,
     PipelineHistorySeralizer,
     PipelineUpdateSerializer,
-    FileUploadSerializer
+    PipelineFileSerializer,
+    FileUploadSerializer,
+    
 )
 
 Users = get_user_model()
@@ -160,7 +162,7 @@ class PipelineStatusAPIView(generics.ListAPIView):
         if not pipeline:
             raise Http404
 
-        return Response(status=status.HTTP_200_OK, data={'approved': pipeline.is_approved})
+        return Response(PipelineStatusSerializer(pipeline).data)
 
     def put(self, request, pk_pipeline):
         pipeline = Pipeline.objects.get(pk=pk_pipeline)
@@ -168,20 +170,14 @@ class PipelineStatusAPIView(generics.ListAPIView):
 
         # User needs to be admin to update the approval status of a pipeline
         if not user.is_superuser:
-            return Response(
-                status=status.HTTP_401_UNAUTHORIZED,
-                data={
-                    'message': 'Must be an admin to update the status'
-                }
-            )
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         # Check pipeline
         if not pipeline:
             raise Http404
 
+        # Get and update pipeline status
         approval_status = request.POST.get('approved')
-
-        # Update pipeline
         pipeline.is_approved = bool(approval_status)
         pipeline.save()
 
@@ -230,7 +226,7 @@ class UserPipelinesListAPIView(generics.ListAPIView):
                 return Response(status=status.HTTP_403_FORBIDDEN)
         return super().get(request)
 
-class PipelineFileUpload(generics.CreateAPIView):
+class PipelineFileUploadAPIView(generics.CreateAPIView):
     """Upload files to an active and approved pipeline"""
     serializer_class = FileUploadSerializer
 
@@ -244,12 +240,7 @@ class PipelineFileUpload(generics.CreateAPIView):
 
         # User can only upload files if pipeline is active and approved
         if not (pipeline.is_active and pipeline.is_approved):
-            return Response(
-                status=status.HTTP_403_FORBIDDEN,
-                data={
-                    'message': 'Pipeline must be approved and active to upload files'
-                }
-            )
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         # Generate path to store file
         target_path = f'pipeline/{pk_pipeline}/{str(timezone.now().replace(tzinfo=None))}/{file}'
@@ -273,3 +264,18 @@ class PipelineFileUpload(generics.CreateAPIView):
         }
 
         return Response(status=status.HTTP_201_CREATED, data=data)
+
+class PipelineFileListAPIView(generics.ListAPIView):
+    """View uploaded files for a specific pipeline"""
+    serializer_class = PipelineFileSerializer
+    queryset = PipelineFile.objects.all()
+
+    def get(self, request, pk_pipeline):
+        # Check to see if a user is allowed to view this pipeline
+        check_user_permissions(request, pk_pipeline, Uploader)
+
+        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        instance = PipelineFile.objects.filter(pipeline=pipeline)
+        print("PipelineFiles:", instance)
+
+        return Response(PipelineFileSerializer(instance, many=True).data)
