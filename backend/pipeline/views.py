@@ -276,6 +276,5 @@ class PipelineFileListAPIView(generics.ListAPIView):
 
         pipeline = Pipeline.objects.get(pk=pk_pipeline)
         instance = PipelineFile.objects.filter(pipeline=pipeline)
-        print("PipelineFiles:", instance)
 
         return Response(PipelineFileSerializer(instance, many=True).data)
