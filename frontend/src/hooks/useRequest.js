@@ -19,7 +19,7 @@ const useRequest = (endpoint) => {
         async (data = {}) => {
             try {
                 const res = await axios({
-                    url: 'https://colgate-repo-backend-kxeiooj4ra-uc.a.run.app'+endpoint.url,
+                    url: 'https://colgate-repo-backend-kxeiooj4ra-uc.a.run.app' + endpoint.url,
                     method: endpoint.method,
                     data: formalize(data),
                     headers: endpoint.isAuth ?

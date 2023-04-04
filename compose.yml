@@ -4,11 +4,9 @@ services:
     container_name: django
     build:
       context: ./backend
-      dockerfile: dev.Dockerfile
+      dockerfile: Dockerfile
     ports:
       - 8000:8000
-    volumes:
-      - ./backend:/backend
     environment:
       - AUTHENTICATION=${AUTHENTICATION}
       - DEBUG=${DEBUG}
@@ -30,7 +28,7 @@ services:
     container_name: nodejs
     build:
       context: ./frontend
-      dockerfile: dev.Dockerfile
+      dockerfile: Dockerfile
     ports:
       - 3000:3000
     environment:
