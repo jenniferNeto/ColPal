@@ -182,8 +182,6 @@ class PipelineStatusAPIView(generics.ListAPIView):
         approval_status = request.POST.get('approved')
 
         # Update pipeline
-        print("Pipeline Status:", pipeline.is_approved)
-        print("Type:", type(pipeline.is_approved))
         pipeline.is_approved = bool(approval_status)
         pipeline.save()
 
