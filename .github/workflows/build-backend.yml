@@ -1,18 +1,17 @@
-name: Build backend and push to registry
+name: Build and push backend to registry
 on:
   workflow_dispatch:
     inputs:
       cd:
         description: cd
         required: false
-        default: docker-compose-build.yml
+        default: compose-build.yml
 env:
   PROJECT_ID: dataplatformcolgate
   GAR_LOCATION: us-east4
   SERVICE: colgate-repo
   REGION: us-east4
   REPOSITORY: colgate-repo
-  ENV: cloud
 jobs:
   buid-push-gcr:
     permissions:
@@ -34,7 +33,6 @@ jobs:
           service_account: github-actions@dataplatformcolgate.iam.gserviceaccount.com
           export_environment_variables: true
       - name: Build docker image
-        if: ${{ github.ref_name == 'development' }}
         run: |-
           cd backend
           docker buildx build --platform linux/amd64 -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:$GIT_TAG" .
@@ -43,20 +41,9 @@ jobs:
           gcloud auth configure-docker --quiet
           gcloud auth configure-docker us-east4-docker.pkg.dev --quiet
       - name: Push container to cloud registry
-        if: ${{ github.ref_name == 'development' }}
         run: docker push -a us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME
-      - name: Deploy container to cloud run
-        if: ${{ github.ref_name == 'main' }}
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v1
-        with:
-          flags: --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com --port=8000
-          service: colgate-repo-backend
-          gcloud_component: beta
-          platform: managed
-          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
       - name: Start frontend workflow
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: google-cloudrun-docker-frontend.yml
+          workflow: build-frontend.yml
           ref: ${{ github.ref_name }}

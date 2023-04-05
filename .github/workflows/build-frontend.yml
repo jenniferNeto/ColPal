@@ -1,0 +1,48 @@
+name: Build and push frontend to registry
+on:
+  workflow_dispatch:
+    inputs:
+      cd:
+        description: cd
+        required: false
+        default: google-cloudrun-docker-backend.yml
+env:
+  PROJECT_ID: dataplatformcolgate
+  GAR_LOCATION: us-east4
+  SERVICE: colgate-repo
+  REGION: Northern Virginia
+  REPOSITORY: colgate-repo
+jobs:
+  buid-push-gcr:
+    permissions:
+      contents: read
+      id-token: write
+      actions: write
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: frontend-image
+      GIT_TAG: v0.1.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Authenticate google cloud service
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github
+          service_account: github-actions@dataplatformcolgate.iam.gserviceaccount.com
+      - name: Build docker image
+        run: |-
+          cd frontend
+          docker build -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" .
+      - name: Authenticate docker to cloud registry
+        run: |-
+          gcloud auth configure-docker --quiet
+          gcloud auth configure-docker us-east4-docker.pkg.dev --quiet
+      - name: Build and Push Container
+        run: docker push -a us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME
+      - name: Merge workflow
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: merge-development.yml
+          ref: ${{ github.ref_name }}

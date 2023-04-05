@@ -1,4 +1,4 @@
-name: Project CI
+name: Testcases
 on:
   push:
     branches:
@@ -26,9 +26,15 @@ jobs:
         run: docker-compose up -d --build
       - name: Run Django tests
         run: docker exec django python manage.py test
-      - name: Push backend container
+      - name: Start backend build workflow
         uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name == 'main' }} || ${{ github.ref_name == 'development' }}
+        if: ${{ github.ref_name == 'development' }}
         with:
-          workflow: google-cloudrun-docker-backend.yml
+          workflow: build-backend.yml
+          ref: ${{ github.ref_name }}
+      - name: Start backend deploy workflow
+        uses: benc-uk/workflow-dispatch@v1
+        if: ${{ github.ref_name == 'main' }}
+        with:
+          workflow: deploy-backend.yml
           ref: ${{ github.ref_name }}
