@@ -1,4 +1,4 @@
-name: Build frontend and push to registry
+name: Build and push frontend to registry
 on:
   workflow_dispatch:
     inputs:
@@ -32,7 +32,6 @@ jobs:
           workload_identity_provider: projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github
           service_account: github-actions@dataplatformcolgate.iam.gserviceaccount.com
       - name: Build docker image
-        if: ${{ github.ref_name == 'development' }}
         run: |-
           cd frontend
           docker build -t "us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME:latest" .
@@ -41,21 +40,10 @@ jobs:
           gcloud auth configure-docker --quiet
           gcloud auth configure-docker us-east4-docker.pkg.dev --quiet
       - name: Build and Push Container
-        if: ${{ github.ref_name == 'development' }}
         run: docker push -a us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME
       - name: Deploy container to cloud run
-        if: ${{ github.ref_name == 'main' }}
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v1
-        with:
-          flags: --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com --port=3000
-          service: frontend-image
-          gcloud_component: beta
-          platform: managed
-          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
       - name: Merge workflow
         uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name == 'development' }}
         with:
           workflow: merge-development.yml
           ref: ${{ github.ref_name }}
