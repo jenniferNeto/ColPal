@@ -29,4 +29,5 @@ COPY . .
 EXPOSE 8000
 
 # Run entrypoint script
+RUN chmod +x ./docker/backend-docker-entrypoint.sh
 ENTRYPOINT ["./docker/backend-docker-entrypoint.sh"]
