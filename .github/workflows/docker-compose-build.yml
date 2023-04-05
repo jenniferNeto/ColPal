@@ -26,15 +26,9 @@ jobs:
         run: docker-compose up -d --build
       - name: Run Django tests
         run: docker exec django python manage.py test
-      - name: Merge workflow
-        uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name == 'development' }}
-        with:
-          workflow: merge-development.yml
-          ref: ${{ github.ref_name }}
       - name: Push backend container
         uses: benc-uk/workflow-dispatch@v1
-        if: ${{ github.ref_name == 'main' }}
+        if: ${{ github.ref_name == 'main' }} || ${{ github.ref_name == 'development' }}
         with:
           workflow: google-cloudrun-docker-backend.yml
           ref: ${{ github.ref_name }}
