@@ -1,0 +1,34 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: frontend-image
+  annotations:
+    run.googleapis.com/client-name: cloud-console
+    run.googleapis.com/ingress: all
+    run.googleapis.com/ingress-status: all
+    run.googleapis.com/operation-id: cd4df585-8c3f-4ae3-9db1-12889e4a3125
+    serving.knative.dev/creator: cae26@njit.edu
+    serving.knative.dev/lastModifier: cae26@njit.edu
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: '1000'
+        run.googleapis.com/client-name: cloud-console
+    spec:
+      containers:
+      - name: frontend-image
+        image: "{{.GAR_LOCATION}}-docker.pkg.dev/{{.PROJECT_ID}}/{{.REPOSITORY}}/frontend-image:latest"
+        ports:
+        - containerPort: 8080
+          name: http1
+        resources:
+          limits:
+            cpu: 4000m
+            memory: 8Gi
+      serviceAccountName: github-actions@dataplatformcolgate.iam.gserviceaccount.com
+      containerConcurrency: 80
+      timeoutSeconds: 300
+  traffic:
+  - percent: 100
+    latestRevision: true
