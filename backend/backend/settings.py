@@ -118,16 +118,21 @@ else:
 # Use local credentials if debug is on
 if DEBUG:
     GS_CREDENTIALS = sa.Credentials.from_service_account_file('./backend/credentials.json')
+
+    # Use development bucket for file upload
+    GS_BUCKET_NAME = 'colgate-data-storage'
 else:
     # Use injected credentials in cloud environments
     credentials = json.loads(os.environ.get('CREDENTIALS', default=''))
     GS_CREDENTIALS = sa.Credentials.from_service_account_info(dict(credentials))
 
+    # Use production bucket for file upload
+    GS_BUCKET_NAME = 'dataplatformcolgate_cloudbuild'
+
 # Set file storage to use google cloud bucket
-GS_BUCKET_NAME = 'dataplatformcolgate_cloudbuild'
+
 DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 GS_PROJECT_ID = 'dataplatformcolgate'
-MEDIA_URL = 'gs://dataplatformcolgate_cloudbuild/'
 
 GS_EXPIRATION = timedelta(minutes=5)
 GS_BLOB_CHUNK_SIZE = 1024 * 256 * 40

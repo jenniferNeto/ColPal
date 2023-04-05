@@ -91,7 +91,7 @@ class PipelineUpdateSerializer(PipelineHistorySeralizer):
 
 class PipelineStatusSerializer(serializers.ModelSerializer):
     """Serialize the approval status of a pipeline"""
-    approved = serializers.SerializerMethodField()
+    approved = serializers.BooleanField(source='is_approved')
 
     class Meta:
         model = Pipeline
@@ -100,7 +100,7 @@ class PipelineStatusSerializer(serializers.ModelSerializer):
             'approved',
         ]
 
-    def get_approved(self, obj):
+    def is_approved(self, obj):
         return obj.is_approved
 
 class FileUploadSerializer(serializers.Serializer):
