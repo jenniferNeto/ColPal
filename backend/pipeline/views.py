@@ -1,7 +1,6 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
-from rest_framework.viewsets import ViewSet
 
 from django.http import Http404
 from django.contrib.auth import get_user_model
@@ -26,7 +25,6 @@ from .serializers import (
     PipelineUpdateSerializer,
     PipelineFileSerializer,
     FileUploadSerializer,
-    
 )
 
 Users = get_user_model()
@@ -150,7 +148,7 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         pipeline.update_reason = None  # type: ignore
         return Response(PipelineSerializer(pipeline).data)
 
-class PipelineStatusAPIView(generics.ListAPIView):
+class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
     """View pipeline approval status"""
     serializer_class = PipelineStatusSerializer
 
@@ -263,7 +261,7 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
             'file': saved_location
         }
 
-        return Response(status=status.HTTP_201_CREATED, data=data)
+        return Response(status=status.HTTP_200_OK, data=data)
 
 class PipelineFileListAPIView(generics.ListAPIView):
     """View uploaded files for a specific pipeline"""
@@ -274,7 +272,29 @@ class PipelineFileListAPIView(generics.ListAPIView):
         # Check to see if a user is allowed to view this pipeline
         check_user_permissions(request, pk_pipeline, Uploader)
 
+        # Use the pipeline to filter the file objects
         pipeline = Pipeline.objects.get(pk=pk_pipeline)
         instance = PipelineFile.objects.filter(pipeline=pipeline)
 
         return Response(PipelineFileSerializer(instance, many=True).data)
+
+class PipelineFileRetrieveAPIView(generics.RetrieveAPIView):
+    """View uploaded file for a specific pipeline"""
+    serializer_class = PipelineFileSerializer
+    queryset = PipelineFile.objects.all()
+
+    def get(self, request, pk_pipeline, pk_pipelinefile):
+        # Check to see if a user is allowed to view this pipeline
+        check_user_permissions(request, pk_pipeline, Uploader)
+
+        # Use the pipeline to filter the file objects
+        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        instance = PipelineFile.objects.filter(pipeline=pipeline)
+
+        # Get the specific uploaded file from the pipeline
+        try:
+            uploaded_file = instance.get(pk=pk_pipelinefile)
+        except PipelineFile.DoesNotExist:
+            raise Http404
+
+        return Response(PipelineFileSerializer(uploaded_file).data)
