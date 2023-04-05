@@ -153,17 +153,24 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = PipelineStatusSerializer
 
     def get(self, request, pk_pipeline):
-        check_user_permissions(request, pk_pipeline, Manager)
-        pipeline = Pipeline.objects.get(pk=pk_pipeline)
-
-        # Check pipeline
-        if not pipeline:
+        # Check to make sure pipeline exists
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        except Pipeline.DoesNotExist:
             raise Http404
 
+        # Check user has permissions to view status
+        check_user_permissions(request, pk_pipeline, Viewer)
         return Response(PipelineStatusSerializer(pipeline).data)
 
     def put(self, request, pk_pipeline):
-        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        # Check to make sure pipeline exists
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        except Pipeline.DoesNotExist:
+            raise Http404
+
+        # Get user object
         user = User.objects.get(pk=int(request.user.pk))
 
         # User needs to be admin to update the approval status of a pipeline
@@ -229,12 +236,17 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
     serializer_class = FileUploadSerializer
 
     def create(self, request, pk_pipeline):
+        # Check to make sure pipeline exists
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        except Pipeline.DoesNotExist:
+            raise Http404
+
         # Check to see if a user is allowed to update this pipeline
         check_user_permissions(request, pk_pipeline, Uploader)
 
         # Get the uploaded file from the request
         file = request.FILES.get('file')
-        pipeline = Pipeline.objects.get(pk=pk_pipeline)
 
         # User can only upload files if pipeline is active and approved
         if not (pipeline.is_active and pipeline.is_approved):
@@ -272,8 +284,11 @@ class PipelineFileListAPIView(generics.ListAPIView):
         # Check to see if a user is allowed to view this pipeline
         check_user_permissions(request, pk_pipeline, Uploader)
 
-        # Use the pipeline to filter the file objects
-        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        # Check to make sure pipeline exists
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        except Pipeline.DoesNotExist:
+            raise Http404
         instance = PipelineFile.objects.filter(pipeline=pipeline)
 
         return Response(PipelineFileSerializer(instance, many=True).data)
@@ -287,8 +302,11 @@ class PipelineFileRetrieveAPIView(generics.RetrieveAPIView):
         # Check to see if a user is allowed to view this pipeline
         check_user_permissions(request, pk_pipeline, Uploader)
 
-        # Use the pipeline to filter the file objects
-        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        # Check to make sure pipeline exists
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        except Pipeline.DoesNotExist:
+            raise Http404
         instance = PipelineFile.objects.filter(pipeline=pipeline)
 
         # Get the specific uploaded file from the pipeline
