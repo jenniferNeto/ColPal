@@ -25,8 +25,8 @@ jobs:
           service_account: 'github-actions@dataplatformcolgate.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
       - name: Restart Cloud Run service
         run: |
-          gcloud run services update colgate-repo front\ p
-          gcloud replace with the path of the custom file 
+          gcloud run services update colgate-repo frontend-image \ 
+          gcloud replace .github/workflows/service.yml
             --platform=managed \
             --region=us-central1 \
             --quiet
