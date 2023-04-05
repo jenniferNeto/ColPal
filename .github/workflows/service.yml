@@ -38,6 +38,6 @@ spec:
               memory: 8Gi
       serviceAccountName: github-actions@dataplatformcolgate.iam.gserviceaccount.com
       timeoutSeconds: 300
-  traffic:
+traffic:
   - latestRevision: true
     percent: 100
