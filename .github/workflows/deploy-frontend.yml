@@ -35,7 +35,6 @@ jobs:
         run: |-
           gcloud auth configure-docker --quiet
           gcloud auth configure-docker us-east4-docker.pkg.dev --quiet
-      - name: Build and Push Container
       - name: Deploy container to cloud run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v1

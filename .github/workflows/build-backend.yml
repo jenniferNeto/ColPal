@@ -42,7 +42,6 @@ jobs:
           gcloud auth configure-docker us-east4-docker.pkg.dev --quiet
       - name: Push container to cloud registry
         run: docker push -a us-east4-docker.pkg.dev/$PROJECT_ID/$SERVICE/$IMAGE_NAME
-      - name: Deploy container to cloud run
       - name: Start frontend workflow
         uses: benc-uk/workflow-dispatch@v1
         with:
