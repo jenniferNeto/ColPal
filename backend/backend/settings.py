@@ -168,7 +168,10 @@ USE_TZ = True
 
 # Allowed host & CORS
 ALLOWED_HOSTS = [
-    '*'
+    'www.stabledata.net',
+    'frontend-image-kxeiooj4ra-uc.a.run.app',
+    '127.0.0.1',
+    'localhost'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
