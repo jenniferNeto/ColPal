@@ -6,7 +6,7 @@ on:
       - deployment-test
     paths:
       - '.github/workflows/deploy-frontend.yml'
-      - ''.github/workflows/deploy-backend.yml''  
+      - '.github/workflows/deploy-backend.yml'  
 jobs:
   start_service:
     permissions:
@@ -30,7 +30,7 @@ jobs:
             --platform=managed \
             --region=us-central1 \
             --quiet
-          gcloud run services update colgate-repo backend \
+          gcloud run services update colgate-repo colgate-repo-backend \
             --platform=managed \
             --region=us-central1 \
             --quiet
