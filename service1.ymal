@@ -6,9 +6,6 @@ metadata:
     run.googleapis.com/client-name: cloud-console
     run.googleapis.com/ingress: all
     run.googleapis.com/ingress-status: all
-    run.googleapis.com/operation-id: cd4df585-8c3f-4ae3-9db1-12889e4a3125
-    serving.knative.dev/creator: cae26@njit.edu
-    serving.knative.dev/lastModifier: cae26@njit.edu
 spec:
   template:
     metadata:
