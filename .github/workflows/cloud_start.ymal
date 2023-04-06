@@ -26,11 +26,12 @@ jobs:
       - name: Restart Cloud Run service
         run: |
           gcloud run services update colgate-repo frontend-image \ 
-          gcloud replace /service.ymal
+          gcloud run services replace service1.yaml
             --platform=managed \
             --region=us-central1 \
             --quiet
           gcloud run services update colgate-repo colgate-repo-backend \
+          gcloud run services replace service2.yaml
             --platform=managed \
             --region=us-central1 \
             --quiet
