@@ -41,3 +41,8 @@ jobs:
           gcloud_component: beta
           platform: managed
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Start frontend workflow
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: cloud-start.yml
+          ref: ${{ github.ref_name }}
