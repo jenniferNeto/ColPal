@@ -3,10 +3,7 @@ name: Start Cloud Run Service
 on:
   push:
     branches:
-      - deployment-test
-    paths:
-      - '.github/workflows/deploy-frontend.yml'
-      - '.github/workflows/deploy-backend.yml'  
+      - deployment-test 
 jobs:
   start_service:
     permissions:
