@@ -1,7 +1,11 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
+substitutions:
+  _GAR_LOCATION: service
+  _PROJECT_ID: dataplatformcolgate
+  _IMAGE_NAME: frontend-image
+  _REPOSITORY: colgate-repo
 metadata:
-  name: frontend-image
   annotations:
     run.googleapis.com/client-name: cloud-console
     run.googleapis.com/ingress: all
