@@ -1,72 +1,72 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
-substitutions:
-  _GAR_LOCATION: us-east4
-  _PROJECT_ID: dataplatformcolgate
-  _IMAGE_NAME: backend-image
-  _REPOSITORY: colgate-repo
 metadata:
+  name: backend-test
   annotations:
-    client.knative.dev/user-image: {{.GAR_LOCATION}}-docker.pkg.dev/{{.PROJECT_ID}}/{{.REPOSITORY}}/backend-image:latest
     run.googleapis.com/client-name: cloud-console
     run.googleapis.com/ingress: all
     run.googleapis.com/ingress-status: all
-
   labels:
     cloud.googleapis.com/location: us-central1
     managed-by: github-actions
-  name: colgate-repo-backend
 spec:
   template:
     metadata:
       annotations:
         autoscaling.knative.dev/maxScale: '100'
         autoscaling.knative.dev/minScale: '1'
-        client.knative.dev/user-image: {{.GAR_LOCATION}}-docker.pkg.dev/{{.PROJECT_ID}}/{{.REPOSITORY}}/backend-image:latest
         run.googleapis.com/client-name: cloud-console
         run.googleapis.com/cloudsql-instances: dataplatformcolgate:us-central1:colgate-database
       labels:
-        managed-by: github-actions  
+        managed-by: github-actions
     spec:
       containerConcurrency: 80
       containers:
-      - env:
-        - name: DB_NAME
-          value: colgate
-        - name: DB_USER
-          value: colgate
-        - name: ENVIRONMENT
-          value: production
-        - name: DEBUG
-          value: '0'
-        - name: CREDENTIALS
-          valueFrom:
-            secretKeyRef:
-              key: '1'
-              name: CREDENTIALS
-        - name: DB_PASS
-          valueFrom:
-            secretKeyRef:
-              key: latest
-              name: DB_PASS
-
-        - name: backend-image
-        image: "{{.GAR_LOCATION}}-docker.pkg.dev/{{.PROJECT_ID}}/{{.REPOSITORY}}/backend-image:latest"
-        ports:
-        - containerPort: 8000
-          name: http1
-        resources:
-          limits:
-            cpu: 4000m
-            memory: 8Gi
-        startupProbe:
-          failureThreshold: 1
-          periodSeconds: 240
-          tcpSocket:
-            port: 8000
-          timeoutSeconds: 240
+        - name: backend-test
+          env:
+            - name: GAR_LOCATION
+              value: us-east4
+            - name: PROJECT_ID
+              value: dataplatformcolgate
+            - name: REPOSITORY
+              value: colgate-repo
+            - name: IMAGE_NAME
+              value: backend-image
+            - name: DB_NAME
+              value: colgate
+            - name: DB_USER
+              value: colgate
+            - name: ENVIRONMENT
+              value: production
+            - name: DEBUG
+              value: '0'
+            - name: CREDENTIALS
+              valueFrom:
+                secretKeyRef:
+                  key: '1'
+                  name: CREDENTIALS
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: DB_PASS
+          image: "{{.GAR_LOCATION}}-docker.pkg.dev/{{.PROJECT_ID}}/{{.REPOSITORY}}/backend-image:latest"
+          ports:
+            - containerPort: 8000
+              name: http1
+          resources:
+            limits:
+              cpu: 4000m
+              memory: 8Gi
+          startupProbe:
+            failureThreshold: 1
+            periodSeconds: 240
+            tcpSocket:
+              port: 8000
+            timeoutSeconds: 240
       serviceAccountName: github-actions@dataplatformcolgate.iam.gserviceaccount.com
       timeoutSeconds: 300
   traffic:
-  - latestRevision: true
-    percent: 100
+    - latestRevision: true
+      percent: 100
+
