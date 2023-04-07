@@ -168,13 +168,17 @@ USE_TZ = True
 
 # Allowed host & CORS
 ALLOWED_HOSTS = [
-    'stabledata.net',
-    'frontend-image-kxeiooj4ra-uc.a.run.app',
+    'colgate-repo-backend-kxeiooj4ra-uc.a.run.app',
+    'localhost',
     '127.0.0.1',
-    'localhost'
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    'https://stabledata.net',
+    'https://frontend-image-kxeiooj4ra-uc.a.run.app',
+    'http://localhost:3000',
+    'http://localhost:8000',
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
