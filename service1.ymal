@@ -1,35 +1,32 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
-substitutions:
-  _GAR_LOCATION: us-east4
-  _PROJECT_ID: dataplatformcolgate
-  _IMAGE_NAME: frontend-image
-  _REPOSITORY: colgate-repo
 metadata:
-  annotations:
-    run.googleapis.com/client-name: cloud-console
-    run.googleapis.com/ingress: all
-    run.googleapis.com/ingress-status: all
+  name: frontend-test
 spec:
   template:
-    metadata:
-      annotations:
-        autoscaling.knative.dev/maxScale: '1000'
-        run.googleapis.com/client-name: cloud-console
     spec:
       containers:
-      - name: frontend-image
-        image: "{{.GAR_LOCATION}}-docker.pkg.dev/{{.PROJECT_ID}}/{{.REPOSITORY}}/frontend-image:latest"
-        ports:
-        - containerPort: 8080
-          name: http1
-        resources:
-          limits:
-            cpu: 4000m
-            memory: 8Gi
+        - name: frontend-test
+          env:
+            - name: GAR_LOCATION
+              value: us-east4
+            - name: PROJECT_ID
+              value: dataplatformcolgate
+            - name: REPOSITORY
+              value: colgate-repo
+            - name: IMAGE_NAME
+              value: frontend-image
+          image: "{{.GAR_LOCATION}}-docker.pkg.dev/{{.PROJECT_ID}}/{{.REPOSITORY}}/{{.IMAGE_NAME}}:latest"
+          ports:
+            - containerPort: 3000
+          resources:
+            limits:
+              cpu: 4000m
+              memory: 8Gi
       serviceAccountName: github-actions@dataplatformcolgate.iam.gserviceaccount.com
       containerConcurrency: 80
       timeoutSeconds: 300
   traffic:
-  - percent: 100
-    latestRevision: true
+    - percent: 100
+      latestRevision: true
+
