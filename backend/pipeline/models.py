@@ -8,6 +8,8 @@ from simple_history.models import HistoricalRecords
 from storages.backends.gcloud import GoogleCloudStorage
 storage = GoogleCloudStorage()
 
+from constraints.models import Constraint
+
 
 class TimeStamp(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -76,3 +78,31 @@ class PipelineFile(models.Model):
     file = models.FileField(storage=storage)
     path = models.FilePathField(null=True)
     upload_date = models.DateTimeField(default=timezone.now)
+    template_file = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        # Need to save the object before creating constraints
+        saved_object = super().save(*args, **kwargs)
+
+        # TODO: Get rid of the not: this is just for testing purposes
+        if not self.template_file:
+            # Open the uploaded file in read mode
+            file = self.file.open('r')
+
+            # Get all column names and strip special characters
+            # Can split using comma as files will be csv
+            columns = file.readline().decode("UTF-8").strip().split(",")
+
+            # Create new constraint objects
+            for column in columns:
+                Constraint.objects.create(pipeline_file=self, column_title=column)
+
+            print("Contraints:", Constraint.objects.all())
+
+            print("Columns:", columns)
+            # TODO: Generate constraints for the file
+            print("A constraint needs to be generated")
+        else:
+            print("No contraints needed")
+
+        return saved_object

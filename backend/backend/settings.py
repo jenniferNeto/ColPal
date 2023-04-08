@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'pipeline',
     'positions',
     'request',
+    'constraints',
 ]
 
 MIDDLEWARE = [

@@ -119,6 +119,7 @@ class PipelineFileSerializer(serializers.Serializer):
     file_id = serializers.SerializerMethodField()
     path = serializers.SerializerMethodField()
     upload_date = serializers.SerializerMethodField()
+    template = serializers.SerializerMethodField()
 
     class Meta:
         model = PipelineFile
@@ -128,7 +129,8 @@ class PipelineFileSerializer(serializers.Serializer):
             'file_id',
             'file',
             'path',
-            'upload_date'
+            'upload_date',
+            'template'
         ]
 
     def get_pipeline_id(self, obj):
@@ -142,3 +144,6 @@ class PipelineFileSerializer(serializers.Serializer):
 
     def get_upload_date(self, obj):
         return obj.upload_date
+    
+    def get_template(self, obj):
+        return obj.template_file
