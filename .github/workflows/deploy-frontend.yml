@@ -1,8 +1,11 @@
 name: Deploy frontend
 on:
-  push:
-    branches:
-      - deployment-test
+  workflow_dispatch:
+    inputs:
+      cd:
+        description: cd
+        required: false
+        default: deploy-backend.yml
 env:
   PROJECT_ID: dataplatformcolgate
   GAR_LOCATION: us-east4

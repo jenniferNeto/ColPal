@@ -44,5 +44,5 @@ jobs:
       - name: Merge workflow
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: merge-development.yml
+          workflow: cloud-start.yml
           ref: ${{ github.ref_name }}

@@ -1,0 +1,30 @@
+name: Start Cloud Run Service
+
+on:
+  push:
+    branches:
+      - deployment-test
+jobs:
+  start_service:
+    permissions:
+      contents: "read"
+      id-token: "write"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: "actions/checkout@v3"
+      #configure workload Identity Federation via a credentials file
+      - name: Authenticate google cloud service
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github
+          service_account: github-actions@dataplatformcolgate.iam.gserviceaccount.com
+      - name: Restart Backend Cloud Run service
+        run: |-
+          gcloud run services update colgate-repo --image=colgate-repo-backend --region=us-central1 --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com
+          gcloud run services replace ../../serve-backend.yml --platform=managed --region=us-central1 --quiet --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com
+      - name: Restart Backend Cloud Run service
+        run: |-
+          gcloud run services update frontend-test --image=frontend-image --region=us-central1 --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com
+          gcloud run services replace ../../serve-frontend.yml --platform=managed --region=us-central1 --quiet --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com
