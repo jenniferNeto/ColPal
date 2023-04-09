@@ -175,7 +175,7 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
 
         # User needs to be admin to update the approval status of a pipeline
         if not user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'detail': "Must be an admin account"})
 
         # Check pipeline
         if not pipeline:
@@ -250,7 +250,7 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
 
         # User can only upload files if pipeline is active and approved
         if not (pipeline.is_active and pipeline.is_approved):
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(status=status.HTTP_403_FORBIDDEN, data={'detail': "Pipeline must be active and approved"})
 
         # Generate path to store file
         target_path = f'pipeline/{pk_pipeline}/{str(timezone.now().replace(tzinfo=None))}/{file}'
@@ -270,7 +270,8 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
             'upload_date': pipeline_file.upload_date,
             'past_due': past_due,
             'filename': str(file),
-            'file': saved_location
+            'file': saved_location,
+            'template': pipeline_file.template_file
         }
 
         return Response(status=status.HTTP_200_OK, data=data)

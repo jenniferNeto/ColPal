@@ -80,12 +80,28 @@ class PipelineFile(models.Model):
     upload_date = models.DateTimeField(default=timezone.now)
     template_file = models.BooleanField(default=False)
 
+    def is_template(self):
+        """Determine if a file is a template file"""
+        line_count = 0
+
+        # Instead of reading the entire file and returning line count
+        # Just check to see if there's more than one line and return O(n) -> O(1)
+        for _ in self.file.open('r'):
+            line_count += 1
+
+            if line_count > 1:
+                return False
+        return True
+
     def save(self, *args, **kwargs):
+        # Mark file as a template file if it only includes headers
+        # Need to do this before saving the object or it won't update
+        self.template_file = self.is_template()
+
         # Need to save the object before creating constraints
         saved_object = super().save(*args, **kwargs)
 
-        # TODO: Get rid of the not: this is just for testing purposes
-        if not self.template_file:
+        if self.template_file:
             # Open the uploaded file in read mode
             file = self.file.open('r')
 
@@ -98,10 +114,7 @@ class PipelineFile(models.Model):
                 Constraint.objects.create(pipeline_file=self, column_title=column)
 
             print("Contraints:", Constraint.objects.all())
-
             print("Columns:", columns)
-            # TODO: Generate constraints for the file
-            print("A constraint needs to be generated")
         else:
             print("No contraints needed")
 
