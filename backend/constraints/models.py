@@ -11,7 +11,7 @@ class Constraint(models.Model):
         ENUM = 6
 
     # Need to use module.model name to avoid circular import
-    pipeline_file = models.ForeignKey("pipeline.PipelineFile", on_delete=models.CASCADE, null=False)
+    pipeline = models.ForeignKey("pipeline.Pipeline", on_delete=models.CASCADE, null=False)
     column_title = models.TextField(blank=False, null=False)
     attribute_type = models.PositiveSmallIntegerField(choices=Attributes.choices, default=Attributes.NONE)
     nullable = models.BooleanField(default=False)

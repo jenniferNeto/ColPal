@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('column_title', models.TextField()),
                 ('attribute_type', models.PositiveSmallIntegerField(choices=[(0, 'None'), (1, 'Varchar'), (2, 'Int'), (3, 'Date'), (4, 'Boolean'), (5, 'Datetime'), (6, 'Enum')], default=0)),
                 ('nullable', models.BooleanField(default=False)),
-                ('pipeline_file', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pipeline.pipelinefile')),
+                ('pipeline', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pipeline.pipeline')),
                 ('valid', models.BooleanField(default=True)),
             ],
         ),

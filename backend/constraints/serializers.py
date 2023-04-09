@@ -23,7 +23,7 @@ class ConstraintSerializer(serializers.Serializer):
         ]
 
     def get_pipeline_id(self, obj):
-        return obj.pipeline_file.pipeline.pk
+        return obj.pipeline.pk
 
     def get_constraint_id(self, obj):
         return obj.pk

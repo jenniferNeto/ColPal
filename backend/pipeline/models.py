@@ -111,7 +111,7 @@ class PipelineFile(models.Model):
 
             # Create new constraint objects
             for column in columns:
-                Constraint.objects.create(pipeline_file=self, column_title=column)
+                Constraint.objects.create(pipeline=self.pipeline, column_title=column)
 
             print("Contraints:", Constraint.objects.all())
             print("Columns:", columns)

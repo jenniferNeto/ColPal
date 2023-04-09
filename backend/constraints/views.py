@@ -12,16 +12,15 @@ class ConstraintsListAPIView(generics.ListAPIView):
     serializer_class = ConstraintSerializer
     queryset = Constraint.objects.all()
 
-    def get(self, request, pk_pipeline, pk_pipelinefile):
+    def get(self, request, pk_pipeline):
         # Verify pipeline exists
         try:
-            Pipeline.objects.get(pk=pk_pipeline)
-            pipeline_file = PipelineFile.objects.get(pk=pk_pipelinefile)
-        except (Pipeline.DoesNotExist, PipelineFile.DoesNotExist):
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        except (Pipeline.DoesNotExist):
             raise Http404
 
         # Validate the serializer data
-        instance = Constraint.objects.filter(pipeline_file=pipeline_file)
+        instance = Constraint.objects.filter(pipeline=pipeline)
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
 
