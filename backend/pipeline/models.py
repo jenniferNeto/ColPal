@@ -109,13 +109,7 @@ class PipelineFile(models.Model):
             # Can split using comma as files will be csv
             columns = file.readline().decode("UTF-8").strip().split(",")
 
-            # Create new constraint objects
+            # Create new default constraint objects
             for column in columns:
                 Constraint.objects.create(pipeline=self.pipeline, column_title=column)
-
-            print("Contraints:", Constraint.objects.all())
-            print("Columns:", columns)
-        else:
-            print("No contraints needed")
-
         return saved_object

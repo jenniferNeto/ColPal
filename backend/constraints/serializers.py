@@ -2,13 +2,11 @@ from rest_framework import serializers
 
 from .models import Constraint
 
-class ConstraintSerializer(serializers.Serializer):
+class ConstraintSerializer(serializers.ModelSerializer):
     pipeline_id = serializers.SerializerMethodField()
     constraint_id = serializers.SerializerMethodField()
     constraint_title = serializers.SerializerMethodField()
     constraint_type = serializers.SerializerMethodField()
-    nullable = serializers.SerializerMethodField()
-    valid = serializers.SerializerMethodField()
 
     class Meta:
         model = Constraint
@@ -34,8 +32,14 @@ class ConstraintSerializer(serializers.Serializer):
     def get_constraint_type(self, obj):
         return obj.VALUES[obj.attribute_type][1]
 
-    def get_nullable(self, obj):
-        return obj.nullable
+class ConstraintUpdateSerializer(serializers.ModelSerializer):
+    """Update a constraint's default state"""
 
-    def get_valid(self, obj):
-        return obj.valid
+    attribute_type = serializers.ChoiceField(choices=Constraint.VALUES)
+
+    class Meta:
+        model = Constraint
+
+        fields = [
+            'attribute_type'
+        ]
