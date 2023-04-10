@@ -16,18 +16,20 @@ export default function PipelineUpload({upload}) {
 
   }
 
-  const handleFileConfirm = (e) => {
+  const handleFileConfirm = () => {
     upload(file)
+    setFileInput("")
+    setFile(null)
   }
 
-  const handleFileCancel = (e) => {
+  const handleFileCancel = () => {
     setFileInput("")
     setFile(null)
   }
 
 
   return (
-    <div class="card shadow-sm bg-white h-150">
+    <div class="card shadow bg-white">
       <div className='card-body'>
         {file ? (
           <div className='d-flex justify-content-between'>

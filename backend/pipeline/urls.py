@@ -13,6 +13,7 @@ urlpatterns = [
     path('<int:pk_pipeline>/upload/', views.PipelineFileUploadAPIView.as_view()),
     path('<int:pk_pipeline>/status/', views.PipelineStatusAPIView.as_view()),
     path('<int:pk_pipeline>/files/', views.PipelineFileListAPIView.as_view()),
+    path('<int:pk_pipeline>/due/', views.PipelineNextFileUploadAPIView.as_view()),
     path('<int:pk_pipeline>/files/<int:pk_pipelinefile>/', views.PipelineFileRetrieveAPIView.as_view()),
     path('user/<int:pk>/', views.UserPipelinesListAPIView.as_view()),
 ]

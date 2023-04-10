@@ -1,6 +1,5 @@
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
-import useParser from '../../hooks/useParser';
 import CSVDisplay from '../commons/CSVDisplay';
 export default function UploadCheckout({ show, file, checkout, close }) {
 

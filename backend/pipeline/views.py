@@ -298,3 +298,37 @@ class PipelineFileRetrieveAPIView(generics.RetrieveAPIView):
             raise Http404
 
         return Response(PipelineFileSerializer(uploaded_file).data)
+
+class PipelineNextFileUploadAPIView(generics.CreateAPIView):
+    """Retrieve due date of next file to be uploaded"""
+    serializer_class = PipelineFileSerializer
+    queryset = PipelineFile.objects.all()
+
+    def get(self, request, pk_pipeline):
+        # Check to see if a user is allowed to update this pipeline
+        check_user_permissions(request, pk_pipeline, Uploader)
+
+        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+
+        # User can only upload files if pipeline is active and approved
+        if not (pipeline.is_active and pipeline.is_approved):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        # Use the pipeline to filter the file objects
+        pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        instance = PipelineFile.objects.filter(pipeline=pipeline)
+
+        # Get the date of the last uploaded file to the current pipeline
+        latest_upload = PipelineFile.objects.filter(pipeline=pipeline).last()
+        start_date = pipeline.created if latest_upload is None else latest_upload.upload_date
+
+        # Calculate if the file is overdue and generate response data
+        past_due = start_date + pipeline.upload_frequency < timezone.now()
+
+        data = {
+            'last_upload': start_date,
+            'next_upload': start_date + pipeline.upload_frequency,
+            'past_due': past_due,
+        }
+
+        return Response(status=status.HTTP_200_OK, data=data)

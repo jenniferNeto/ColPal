@@ -1,5 +1,7 @@
 import React from 'react'
 import useParser from '../../hooks/useParser'
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 
 export default function CSVDisplay({csv}) {
 const { columns, rows } = useParser(csv)
@@ -28,5 +30,26 @@ const { columns, rows } = useParser(csv)
 
     </div>
   </div>
+  )
+}
+
+export const CSVModal = ({ show, file, close }) => {
+
+  return (
+    <Modal show={show} fullscreen={true} onHide={close}>
+      <Modal.Header closeButton>
+        <Modal.Title>{file && file.name}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+
+      <CSVDisplay csv={file} />
+        
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={close}>
+          Go Back
+        </Button>
+      </Modal.Footer>
+    </Modal>
   )
 }
