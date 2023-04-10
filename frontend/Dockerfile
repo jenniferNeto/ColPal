@@ -15,5 +15,6 @@ COPY . .
 EXPOSE 3000
 
 # Run entrypoint script
+RUN chmod +x ./docker/frontend-docker-entrypoint.sh
 ENTRYPOINT ["./docker/frontend-docker-entrypoint.sh"]
 
