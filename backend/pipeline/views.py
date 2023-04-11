@@ -264,11 +264,6 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
         latest_upload = PipelineFile.objects.filter(pipeline=pipeline).last()
         start_date = pipeline.created if latest_upload is None else latest_upload.upload_date
 
-        """TESTING"""
-        validator = CSVFileValidator(file=pipeline_file)
-        print(validator.validate())
-        """TESTING"""
-
         # Calculate if the file is overdue and generate response data
         past_due = start_date + pipeline.upload_frequency < timezone.now()
         data = {
@@ -323,3 +318,19 @@ class PipelineFileRetrieveAPIView(generics.RetrieveAPIView):
             raise Http404
 
         return Response(PipelineFileSerializer(uploaded_file).data)
+
+class ValidateFileAPIView(generics.ListAPIView):
+    serializer_class = PipelineFile
+    queryset = PipelineFile.objects.all()
+
+    def get(self, request, pk_pipeline, pk_pipelinefile):
+        # Verify pipeline and pipeline file exist
+        try:
+            Pipeline.objects.get(pk=pk_pipeline)
+            pipeline_file = PipelineFile.objects.get(pk=pk_pipelinefile)
+        except (Pipeline.DoesNotExist, PipelineFile.DoesNotExist):
+            raise Http404
+
+        validator = CSVFileValidator(file=pipeline_file)
+
+        return Response(data=validator.validate())
