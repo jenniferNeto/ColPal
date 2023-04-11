@@ -17,6 +17,7 @@ from request.utils import createRequest
 
 from django.utils import timezone
 
+from .validators import CSVFileValidator
 from .models import Pipeline, PipelineFile
 from .serializers import (
     PipelineSerializer,
@@ -262,6 +263,11 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
         # Get the date of the last uploaded file to the current pipeline
         latest_upload = PipelineFile.objects.filter(pipeline=pipeline).last()
         start_date = pipeline.created if latest_upload is None else latest_upload.upload_date
+
+        """TESTING"""
+        validator = CSVFileValidator(file=pipeline_file)
+        print(validator.validate())
+        """TESTING"""
 
         # Calculate if the file is overdue and generate response data
         past_due = start_date + pipeline.upload_frequency < timezone.now()

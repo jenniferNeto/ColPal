@@ -17,6 +17,7 @@ class ConstraintSerializer(serializers.ModelSerializer):
             'constraint_title',
             'constraint_type',
             'nullable',
+            'blank',
             'valid',
         ]
 
