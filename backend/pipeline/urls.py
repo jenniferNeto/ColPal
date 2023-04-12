@@ -1,6 +1,14 @@
 from django.urls import path
 
 from . import views
+from .utils import cron_is_stable
+
+from apscheduler.schedulers.background import BackgroundScheduler
+
+# Code is being run here since urls.py gets loaded a single time by the application
+scheduler = BackgroundScheduler()
+scheduler.start()
+scheduler.add_job(cron_is_stable, 'interval', seconds=5)
 
 # Include / at the end of endpoints or unexpected errors will be raised
 urlpatterns = [
@@ -15,5 +23,6 @@ urlpatterns = [
     path('<int:pk_pipeline>/files/', views.PipelineFileListAPIView.as_view()),
     path('<int:pk_pipeline>/files/<int:pk_pipelinefile>/', views.PipelineFileRetrieveAPIView.as_view()),
     path('<int:pk_pipeline>/files/<int:pk_pipelinefile>/validate/', views.ValidateFileAPIView.as_view()),
+    path('<int:pk_pipeline>/deadline/', views.PipelineDeadlineAPIView.as_view()),
     path('user/<int:pk>/', views.UserPipelinesListAPIView.as_view()),
 ]

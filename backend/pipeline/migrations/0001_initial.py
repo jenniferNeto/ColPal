@@ -28,6 +28,7 @@ class Migration(migrations.Migration):
                 ('upload_frequency', models.DurationField(default=datetime.timedelta)),
                 ('is_approved', models.BooleanField(default=False)),
                 ('is_stable', models.BooleanField(default=True)),
+                ('hard_deadline', models.BooleanField(default=True)),
                 ('approved_date', models.DateTimeField(blank=True, null=True)),
             ],
             options={
@@ -44,6 +45,7 @@ class Migration(migrations.Migration):
                 ('upload_frequency', models.DurationField(default=datetime.timedelta)),
                 ('is_approved', models.BooleanField(default=False)),
                 ('is_stable', models.BooleanField(default=True)),
+                ('hard_deadline', models.BooleanField(default=True)),
                 ('approved_date', models.DateTimeField(blank=True, null=True)),
                 ('history_change_reason', models.TextField(null=True)),
                 ('history_id', models.AutoField(primary_key=True, serialize=False)),

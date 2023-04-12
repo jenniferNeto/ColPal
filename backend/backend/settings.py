@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'simple_history',
     'drf_multiple_model',
+    'django_apscheduler',
     'backend',
     'corsheaders',
     'authentication',
@@ -218,3 +219,11 @@ DATE_INPUT_FORMATS = [
     '%B %d %Y', '%B %d, %Y',             # 'October 25 2006', 'October 25, 2006'
     '%d %B %Y', '%d %B, %Y',             # '25 October 2006', '25 October, 2006'
 ]
+
+EMAIL_HOST_USER = os.environ.get('EMAIL_ADDRESS')
+
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+
+EMAIL_USE_SSL = True
+
+EMAIL_SUBJECT_PREFIX = '[StableData.net] '

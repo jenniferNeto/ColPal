@@ -18,6 +18,8 @@ jobs:
       POSTGRES_DB: ${{ secrets.NAME }}
       POSTGRES_USER: ${{ secrets.USER }}
       POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
+      EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
       ENVIRONMENT: development
       CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
     steps:

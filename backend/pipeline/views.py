@@ -17,7 +17,7 @@ from request.utils import createRequest
 
 from django.utils import timezone
 
-from .utils import is_stable
+from .utils import is_stable, get_deadline
 from .validators import CSVFileValidator
 from .models import Pipeline, PipelineFile
 from .serializers import (
@@ -334,3 +334,17 @@ class ValidateFileAPIView(generics.ListAPIView):
         validator = CSVFileValidator(file=pipeline_file)
 
         return Response(data=validator.validate())
+
+class PipelineDeadlineAPIView(generics.ListAPIView):
+    """Get the remaining time for a pipeline to be stable"""
+    serializer_class = Pipeline
+    queryset = Pipeline.objects.all()
+
+    def get(self, request, pk_pipeline):
+        # Verify pipeline and pipeline file exist
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        except Pipeline.DoesNotExist:
+            raise Http404
+
+        return Response(status=status.HTTP_200_OK, data={'deadline': get_deadline(pipeline.pk)})
