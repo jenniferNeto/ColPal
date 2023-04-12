@@ -16,7 +16,7 @@ spec:
               value: colgate-repo
             - name: IMAGE_NAME
               value: frontend-image
-          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
+          image: us-east4-docker.pkg.dev/dataplatformcolgate/colgate-repo/frontend-image:latest
           ports:
             - containerPort: 3000
           resources:
@@ -29,4 +29,5 @@ spec:
   traffic:
     - percent: 100
       latestRevision: true
+
 
