@@ -57,8 +57,11 @@ def calculate_hard_deadline(pipeline_id: int) -> timedelta:
     if elapsed_time <= timedelta(0):
         return pipeline.upload_frequency
 
-    # Used to determine new cycle start time
-    elapsed_period: float = elapsed_time / pipeline.upload_frequency
+    try:
+        # Used to determine new cycle start time
+        elapsed_period: float = elapsed_time / pipeline.upload_frequency
+    except ZeroDivisionError:
+        return timedelta(0)
 
     # Calculate previous cycle start time to stop incrementing cycle when file was not uploaded previously
     previous_cycle_start_time: datetime = start_time + pipeline.upload_frequency * math.floor(elapsed_period - 1)
