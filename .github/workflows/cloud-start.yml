@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - deployment-test
+
 jobs:
   start_service:
     permissions:
@@ -13,17 +14,17 @@ jobs:
     steps:
       - name: Checkout
         uses: "actions/checkout@v3"
-      #configure workload Identity Federation via a credentials file
-      - name: Authenticate google cloud service
+      - name: Authenticate Google Cloud service
         id: auth
         uses: google-github-actions/auth@v1
         with:
           workload_identity_provider: projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github
           service_account: github-actions@dataplatformcolgate.iam.gserviceaccount.com
-      - name: Restart Frontend Cloud Run service
+      - name: Deploy Frontend Cloud Run service
         run: |-
-          gcloud run services replace serve-frontend.yml --region=us-central1
-      - name: Restart Backend Cloud Run service
+          gcloud run deploy frontend-test --region=us-central1 --platform=managed --image=us-east4-docker.pkg.dev/dataplatformcolgate/colgate-repo/frontend-image:latest --port=3000 --memory=8Gi --cpu=4000m --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com --allow-unauthenticated --source serve-frontend.yaml
+      - name: Deploy Backend Cloud Run service
         run: |-
-          gcloud run services replace serve-backend.yml --region=us-central1
+          gcloud run deploy backend-test --region=us-central1 --platform=managed --image=us-east4-docker.pkg.dev/dataplatformcolgate/colgate-repo/backend-image:latest --port=8000 --memory=8Gi --cpu=4000m --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com --allow-unauthenticated --source serve-backend.yaml
+
      
