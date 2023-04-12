@@ -21,6 +21,7 @@ jobs:
       EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
       ENVIRONMENT: development
+      IGNORE_SCHEDULER: true
       CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
     steps:
       - uses: actions/checkout@v3
