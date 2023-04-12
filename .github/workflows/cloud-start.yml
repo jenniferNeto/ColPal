@@ -22,8 +22,8 @@ jobs:
           service_account: github-actions@dataplatformcolgate.iam.gserviceaccount.com
       - name: Restart Frontend Cloud Run service
         run: |-
-          gcloud run services replace serve-frontend.yml
+          gcloud run services replace serve-frontend.yml --region=us-central1
       - name: Restart Backend Cloud Run service
         run: |-
-          gcloud run services replace serve-backend.yml 
+          gcloud run services replace serve-backend.yml --region=us-central1
      
