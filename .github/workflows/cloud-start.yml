@@ -20,9 +20,10 @@ jobs:
         with:
           workload_identity_provider: projects/671371757704/locations/global/workloadIdentityPools/githubactions/providers/github
           service_account: github-actions@dataplatformcolgate.iam.gserviceaccount.com
+      - name: Restart Frontend Cloud Run service
+        run: |-
+          gcloud run services replace serve-frontend.yml
       - name: Restart Backend Cloud Run service
         run: |-
           gcloud run services replace serve-backend.yml 
-      - name: Restart Backend Cloud Run service
-        run: |-
-          gcloud run services replace serve-frontend.yml
+     
