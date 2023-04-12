@@ -52,12 +52,12 @@ class RequestSerializer(serializers.ModelSerializer):
             representation['request_upload_frequency'] = new_upload_frequency
             representation['upload_frequency'] = old_upload_frequency
 
-        new_is_active = instance.is_active
-        old_is_active = instance.pipeline.is_active
+        new_is_stable = instance.is_stable
+        old_is_stable = instance.pipeline.is_stable
 
-        if new_is_active != old_is_active:
-            representation['request_is_active'] = new_is_active
-            representation['is_active'] = old_is_active
+        if new_is_stable != old_is_stable:
+            representation['request_is_stable'] = new_is_stable
+            representation['is_stable'] = old_is_stable
 
         return representation
 

@@ -1,50 +1,48 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faFileUpload } from "@fortawesome/free-solid-svg-icons"
+import {useState } from "react";
+
+import ConstraintForm from "../components/create-pipeline/ConstraintForm";
+import UserRoleList from "../components/create-pipeline/UserRoleList";
 
 export default function PipelineCreate() {
-  return (
-    <div className="row h-100">
+  const [title, setTitle] = useState('');
+  const [frequency, setFrequency] = useState('');
+  const [stable, setStable] = useState(true);
 
-      <div className='card shadow bg-white h-25'>
-        
+ 
+
+  return (
+
+      <div className='card shadow bg-white h-100'>
+
         <div className="card-header">
           <h5>Create a New Pipeline</h5>
         </div>
 
-        <div className="card-body">
-          <form>
+        <div className="card-body row">
+
+          <form className="col-sm-6 border-end border-2">
             <div className="row">
-              <div class="col-sm-6 my-1">
-                <input type="text" class="form-control" placeholder="Pipeline Title" />
+              <div class="col-sm-6 my-2">
+                <input type="text" class="form-control" placeholder="Pipeline Title" onChange={(e) => setTitle(e.target.value)} />
               </div>
-              <div class="col-sm-6 my-1">
-                <input type="text" class="form-control" placeholder="Upload Frequency" />
+              <div class="col-sm-6 my-2">
+                <input type="text" class="form-control" placeholder="Upload Frequency" onChange={(e) => setFrequency(e.target.value)} />
               </div>
-              <div class="col-sm-12 my-1">
-                <input type="text" class="form-control" placeholder="Upload Frequency" />
+              <hr />
+              <div class="col-sm-12">
+                <UserRoleList />
               </div>
             </div>
           </form>
-        </div>
 
-      </div>
-
-      <div className='col-sm-12 card shadow bg-white p-2 mt-3 h-75'>
-
-        <div className='card-header'>
-          <div class="d-grid gap-2">
-            <label className="m-0 mr-2 upload-btn" style={{ border: '3px dashed #605CA8' }}>
-              <FontAwesomeIcon icon={faFileUpload} /> Load Template File
-             
-            </label>
+          <div className="col-sm-6">
+            <ConstraintForm />
           </div>
-        </div>
-
-        <div className='card-body h-100'>
-
 
         </div>
+
+
       </div>
-    </div>
+
   )
 }

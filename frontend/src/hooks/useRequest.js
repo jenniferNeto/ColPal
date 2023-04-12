@@ -21,7 +21,7 @@ const useRequest = (endpoint) => {
                 const res = await axios({
                     url: 'http://127.0.0.1:8000' + endpoint.url,
                     method: endpoint.method,
-                    data: formalize(data),
+                    data: data,
                     headers: endpoint.isAuth ?
                         { ...endpoint.headers, Authorization: 'Bearer ' + getAccessToken() } :
                         endpoint.headers

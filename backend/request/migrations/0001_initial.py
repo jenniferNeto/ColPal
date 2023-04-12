@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=40)),
                 ('upload_frequency', models.DurationField(default=datetime.timedelta)),
                 ('is_approved', models.BooleanField(default=False)),
-                ('is_active', models.BooleanField(default=True)),
+                ('is_stable', models.BooleanField(default=True)),
                 ('approved_date', models.DateTimeField(blank=True, null=True)),
                 ('update_reason', models.TextField(null=True)),
                 ('accept_changes', models.IntegerField(choices=[(0, 'Pending'), (1, 'Accepted'), (2, 'Rejected')], default=0)),

@@ -17,6 +17,8 @@ from request.utils import createRequest
 
 from django.utils import timezone
 
+from .utils import is_stable
+from .validators import CSVFileValidator
 from .models import Pipeline, PipelineFile
 from .serializers import (
     PipelineSerializer,
@@ -175,7 +177,7 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
 
         # User needs to be admin to update the approval status of a pipeline
         if not user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'detail': "Must be an admin account"})
 
         # Check pipeline
         if not pipeline:
@@ -232,7 +234,7 @@ class UserPipelinesListAPIView(generics.ListAPIView):
         return super().get(request)
 
 class PipelineFileUploadAPIView(generics.CreateAPIView):
-    """Upload files to an active and approved pipeline"""
+    """Upload files to an approved pipeline"""
     serializer_class = FileUploadSerializer
 
     def create(self, request, pk_pipeline):
@@ -248,10 +250,13 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
         # Get the uploaded file from the request
         file = request.FILES.get('file')
 
-        # User can only upload files if pipeline is active and approved
-        if not (pipeline.is_active and pipeline.is_approved):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
+        """Pipeline is stable instead of active"""
+        # # User can only upload files if pipeline is active and approved
+        # if not (pipeline.is_active and pipeline.is_approved):
+        #     return Response(status=status.HTTP_403_FORBIDDEN, data={'detail': "Pipeline must be active and approved"})
+        if not pipeline.is_approved:
+            return Response(status=status.HTTP_403_FORBIDDEN,
+                            data={'detail': "Pipeline must be approved by an admin before uploading files."})
         # Generate path to store file
         target_path = f'pipeline/{pk_pipeline}/{str(timezone.now().replace(tzinfo=None))}/{file}'
         saved_location = storage.save(target_path, file)
@@ -259,18 +264,15 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
         # Connect uploaded file to pipeline using intermediary model
         pipeline_file = PipelineFile.objects.create(pipeline=pipeline, file=file, path=saved_location)
 
-        # Get the date of the last uploaded file to the current pipeline
-        latest_upload = PipelineFile.objects.filter(pipeline=pipeline).last()
-        start_date = pipeline.created if latest_upload is None else latest_upload.upload_date
-
-        # Calculate if the file is overdue and generate response data
-        past_due = start_date + pipeline.upload_frequency < timezone.now()
+        # Check if pipeline is stale
+        past_due = is_stable(pk_pipeline)
         data = {
             'pipeline_id': pk_pipeline,
             'upload_date': pipeline_file.upload_date,
             'past_due': past_due,
             'filename': str(file),
-            'file': saved_location
+            'file': saved_location,
+            'template': pipeline_file.template_file
         }
 
         return Response(status=status.HTTP_200_OK, data=data)
@@ -350,3 +352,19 @@ class PipelineNextFileUploadAPIView(generics.CreateAPIView):
         }
 
         return Response(status=status.HTTP_200_OK, data=data)
+
+class ValidateFileAPIView(generics.ListAPIView):
+    serializer_class = PipelineFile
+    queryset = PipelineFile.objects.all()
+
+    def get(self, request, pk_pipeline, pk_pipelinefile):
+        # Verify pipeline and pipeline file exist
+        try:
+            Pipeline.objects.get(pk=pk_pipeline)
+            pipeline_file = PipelineFile.objects.get(pk=pk_pipelinefile)
+        except (Pipeline.DoesNotExist, PipelineFile.DoesNotExist):
+            raise Http404
+
+        validator = CSVFileValidator(file=pipeline_file)
+
+        return Response(data=validator.validate())
