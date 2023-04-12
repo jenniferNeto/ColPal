@@ -16,7 +16,6 @@ spec:
               value: colgate-repo
             - name: IMAGE_NAME
               value: frontend-image
-              [REGION]-docker.pkg.dev/[PROJECT_ID]/[REPOSITORY]/[IMAGE_NAME]:[TAG]
           image: us-east4-docker.pkg.dev/dataplatformcolgate/colgate-repo/front-image:latest
           ports:
             - containerPort: 3000
