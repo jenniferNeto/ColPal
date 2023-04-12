@@ -23,7 +23,7 @@ class Pipe(TimeStamp):
     title = models.CharField(max_length=40)
     upload_frequency = models.DurationField(default=timedelta)
     is_approved = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_stable = models.BooleanField(default=True)
     approved_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
@@ -43,14 +43,14 @@ class Pipeline(Pipe):
         self.old_title = self.title
         self.old_is_approved = self.is_approved
         self.old_upload_frequency = self.upload_frequency
-        self.old_is_active = self.is_active
+        self.old_is_stable = self.is_stable
 
     def save(self, *args, **kwargs):
         # Update the last_modification timestamp
         if self.old_title != self.title or \
                 self.old_is_approved != self.is_approved or \
                 self.old_upload_frequency != self.upload_frequency or \
-                self.old_is_active != self.is_active:
+                self.old_is_stable != self.is_stable:
             self.last_modified = datetime.now(tz=timezone.get_current_timezone())
 
         # If the pipeline is now approved update timestamp

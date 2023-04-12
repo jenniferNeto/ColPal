@@ -22,7 +22,7 @@ class PipelineSerializer(serializers.ModelSerializer):
             'created',
             'last_modified',
             'upload_frequency',
-            'is_active',
+            'is_stable',
             'approved',
             'approved_date',
         ]
@@ -61,7 +61,7 @@ class PipelineHistorySeralizer(PipelineSerializer):
             'created',
             'last_modified',
             'upload_frequency',
-            'is_active',
+            'is_stable',
             'approved',
             'approved_date',
             'history',
@@ -86,7 +86,7 @@ class PipelineUpdateSerializer(PipelineHistorySeralizer):
             'title',
             'upload_frequency',
             'update_reason',
-            'is_active',
+            'is_stable',
         ]
 
 class PipelineStatusSerializer(serializers.ModelSerializer):
