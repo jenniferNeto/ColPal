@@ -2,19 +2,15 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from django.contrib.auth.models import User
-
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-import json
 
-from request.models import Request
-from positions.models import Viewer, Uploader, Manager
-
-from .models import Constraint
-
+from positions.models import Manager
 from pipeline.models import Pipeline, PipelineFile
 
+import json
 import csv
+import os
 
 class ConstraintValidaiton(APITestCase):
     """Test cases for all types of constraints"""
@@ -63,7 +59,9 @@ class ConstraintValidaiton(APITestCase):
         with open('test.csv', 'w', newline='') as file:
             writer = csv.writer(file, delimiter=',')
             writer.writerow(headers)
-            writer.writerow(['VALID', '1', '1.0', '04/09/2001', 'True', '04/09/2001:01:03:03', 'email@email.com'])
+            writer.writerow(['VALID', '1', '1.0', '04/09/2001', 'true', '04/09/2001 01:03:03', 'email@email.com'])
+            writer.writerow(['', '-1', '123.234', '04/09/2001', 'false', '04/09/2001:01:03:03', 'email@email.com'])
+            writer.writerow(['1', '-1.34', '12', '04/09/20013', 'truth', '04/09/2001 :01:03:03', 'emailemail.com'])
 
         # Generate the constraints for the pipeline
         pipeline_file = PipelineFile.objects.last()
@@ -71,24 +69,40 @@ class ConstraintValidaiton(APITestCase):
         # Check uploaded file for None
         self.assertNotEquals(pipeline_file, None)
 
-        [print("Constraint:", obj.pk) for obj in Constraint.objects.all()]
-
         # Check None for autocomplete
         if pipeline_file:
             # Make requests to set all header constraints
             for index in range(0, len(headers)):
                 value = index + 1
-                print("URL:", f"/pipeline/{pipeline.pk}/constraints/{value}/")
-                response = self.client.put(f"/pipeline/{pipeline.pk}/constraints/{value}/",
-                                           data={'attributes_type': value},
+                response = self.client.put(f"/pipelines/{pipeline.pk}/constraints/{value}/",
+                                           data={'attribute_type': value},
                                            HTTP_AUTHORIZATION='Bearer {}'.format(token),
                                            follow=True)
 
-                print("Content:", response.content)
-                print("Context:", response.context)
                 self.assertEquals(response.status_code, status.HTTP_200_OK)
 
         # File must be SimpleUploadedFile for django object
         file = open('test.csv', 'r')
         simple_file = SimpleUploadedFile('test.csv', bytes(file.read(), 'UTF-8'), content_type='text/csv')
-        response = self.client.get(f"/pipelines/{pipeline.pk}/", HTTP_AUTHORIZATION='Bearer {}'.format(token), follow=True)
+        response = self.client.post(f"/pipelines/{pipeline.pk}/upload/",
+                                    data={'file': simple_file},
+                                    HTTP_AUTHORIZATION='Bearer {}'.format(token),
+                                    follow=True)
+
+        # Validate status of uploaded file and close
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        file.close()
+
+        # Generate the constraints for the pipeline
+        pipeline_file = PipelineFile.objects.last()
+
+        # Make validation request
+        if pipeline_file:
+            response = self.client.get(f"/pipelines/{pipeline.pk}/files/{pipeline_file.pk}/validate/",
+                                       data={'file': simple_file},
+                                       HTTP_AUTHORIZATION='Bearer {}'.format(token),
+                                       follow=True)
+
+        # Remove generated test files
+        os.remove('test.csv')
+        os.remove('template_file.csv')

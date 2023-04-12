@@ -21,20 +21,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='DateConstraint',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.DateField(null=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='DatetimeConstraint',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.DateTimeField(null=True)),
-            ],
-        ),
-        migrations.CreateModel(
             name='IntegerConstraint',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),

@@ -44,11 +44,5 @@ class IntegerConstraint(models.Model):
 class FloatConstraint(models.Model):
     value = models.FloatField(null=True)
 
-class DateConstraint(models.Model):
-    value = models.DateField(null=True)
-
 class BooleanConstraint(models.Model):
     value = models.BooleanField(null=True)
-
-class DatetimeConstraint(models.Model):
-    value = models.DateTimeField(null=True)

@@ -1,14 +1,15 @@
 from django.core.validators import EmailValidator
-
+from django.db import transaction
 from constraints.models import Constraint
+from django.db import IntegrityError
+
+from dateutil.parser import parse, ParserError
 
 from constraints.models import (
     VarcharConstraint,
     IntegerConstraint,
     FloatConstraint,
-    DateConstraint,
     BooleanConstraint,
-    DatetimeConstraint,
 )
 
 from .models import PipelineFile
@@ -18,6 +19,7 @@ import codecs
 
 
 class CSVFileValidator:
+    """Validate cells within a csv file against generated constraints"""
     def __init__(self, file: PipelineFile):
         self.file = file
 
@@ -30,37 +32,68 @@ class CSVFileValidator:
             return False
         return True
 
-    def _validate_constraint(self, constraint: int, value: str) -> bool:
+    def _validate_constraint(self, constraint: int, value: str, null=False, blank=False,) -> str:  # type: ignore
         # Map the constraint to its class type
+        # This is in the order of the Constraint.VALUES list
+        # None represents the constrained values that don't require custom models to validate
         constraints = [
-            None,
+            None,  # NONE
             VarcharConstraint,
             IntegerConstraint,
             FloatConstraint,
-            DateConstraint,
+            None,  # DATE
             BooleanConstraint,
-            DatetimeConstraint,
-            None
+            None,  # DATETIME
+            None   # EMAIL
         ]
 
         # Mapped instance
         obj = constraints[constraint]
 
-        if obj is not None:
+        # Need to use atomic transactions for test cases to work properly
+        with transaction.atomic():
             try:
-                obj.objects.create(value=value)
-            except Exception:
-                return False
-        if constraint == Constraint.Attributes.EMAIL:
-            # Email uses built in validator instead of custom instance
-            try:
-                validator = EmailValidator()
-                validator.__call__(value=value)
-            except Exception:
-                return False
+                if obj is not None:
+                    # Convert value to use for model creation
+                    if constraint == Constraint.Attributes.BOOLEAN:
+                        try:
+                            value: bool = bool(value)  # type: ignore
+                        except Exception as e:
+                            return str(e)
+                    if constraint == Constraint.Attributes.INTEGER:
+                        try:
+                            value: int = int(value)  # type: ignore
+                        except Exception as e:
+                            return str(e)
+                    if constraint == Constraint.Attributes.FLOAT:
+                        try:
+                            value: float = float(value)  # type: ignore
+                        except Exception as e:
+                            return str(e)
+                    try:
+                        obj.objects.create(value=value)
+                    except Exception as e:
+                        return str(e)
 
+                if constraint == Constraint.Attributes.DATE or constraint == Constraint.Attributes.DATETIME:
+                    # Date and Datetime use dateutil parser instead of custom instance
+                    try:
+                        value: str = str(parse(value))  # type: ignore
+                    except ParserError as pe:
+                        return str(pe)
+                    return "OK"
+
+                if constraint == Constraint.Attributes.EMAIL:
+                    # Email uses built in validator instead of custom instance
+                    try:
+                        validator = EmailValidator()
+                        validator.__call__(value=value)  # type: ignore
+                    except Exception as e:
+                        return str(e)
+            except IntegrityError as ie:
+                return str(ie)
         # NONE constraint
-        return True
+        return 'OK'
 
     def validate(self):
         """Validate all cells within a csv file against header constraints"""
@@ -76,7 +109,7 @@ class CSVFileValidator:
 
         # Header row is valid by default
         results = []
-        results.append([True] * len(headers))
+        results.append(['OK'] * len(headers))
 
         # Validate every cell within the csv file
         for row in reader:
@@ -88,12 +121,12 @@ class CSVFileValidator:
                 # Validate for null values
                 if constraint.nullable:
                     if value == 'NULL':
-                        row_results.append(True)
+                        row_results.append('OK')
                         continue
                 # Validate for empty vlaues
                 if constraint.blank:
                     if value == '':
-                        row_results.append(True)
+                        row_results.append('OK')
                         continue
 
                 # Validate value against constraint
