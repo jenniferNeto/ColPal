@@ -103,22 +103,29 @@ class PipelineStatusSerializer(serializers.ModelSerializer):
     def is_approved(self, obj):
         return obj.is_approved
 
-class FileUploadSerializer(serializers.Serializer):
+class FileUploadSerializer(serializers.ModelSerializer):
     """Serialize an uploaded file for a pipeline"""
     file = serializers.FileField()
 
     class Meta:
-        model = PipelineFile
+        model = Pipeline
 
         fields = [
-            'file'
+            'file',
         ]
+
+    def get_file(self, obj):
+        return obj.file
+
+    def get_template(self, obj):
+        return obj.template
 
 class PipelineFileSerializer(serializers.Serializer):
     pipeline_id = serializers.SerializerMethodField()
     file_id = serializers.SerializerMethodField()
     path = serializers.SerializerMethodField()
     upload_date = serializers.SerializerMethodField()
+    template = serializers.SerializerMethodField()
 
     class Meta:
         model = PipelineFile
@@ -128,7 +135,8 @@ class PipelineFileSerializer(serializers.Serializer):
             'file_id',
             'file',
             'path',
-            'upload_date'
+            'upload_date',
+            'template'
         ]
 
     def get_pipeline_id(self, obj):
@@ -142,3 +150,6 @@ class PipelineFileSerializer(serializers.Serializer):
 
     def get_upload_date(self, obj):
         return obj.upload_date
+
+    def get_template(self, obj):
+        return obj.template_file

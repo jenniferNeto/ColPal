@@ -2,7 +2,6 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.files import File
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -10,8 +9,7 @@ import json
 import csv
 import os
 
-from request.models import Request
-from positions.models import Viewer, Uploader, Manager
+from positions.models import Uploader
 
 from .models import Pipeline, PipelineFile
 
@@ -48,6 +46,9 @@ class PipelineFileEndpointTestCase(APITestCase):
         # Make the user a upload to the pipeline
         Uploader.objects.create(user=user, pipeline=pipeline)
 
+        # File count
+        file_count = PipelineFile.objects.count()
+
         # Create the text file
         with open('students.csv', 'w', newline='') as file:
             # Create file writer
@@ -72,10 +73,10 @@ class PipelineFileEndpointTestCase(APITestCase):
 
         # Verify pipeline file object was created and response was honored
         self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(PipelineFile.objects.count(), 1)
+        self.assertEquals(PipelineFile.objects.count(), file_count + 1)
 
         # Verify file was uploaded to google cloud bucket
-        self.assertEquals(len(json.loads(response.content)), 1)
+        self.assertEquals(len(json.loads(response.content)), file_count + 1)
 
         # Delete created file
         os.remove('students.csv')

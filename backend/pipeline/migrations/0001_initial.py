@@ -67,6 +67,7 @@ class Migration(migrations.Migration):
                 ('path', models.FilePathField(null=True)),
                 ('upload_date', models.DateTimeField(default=django.utils.timezone.now)),
                 ('pipeline', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pipeline.pipeline')),
+                ('template_file', models.BooleanField(default=False)),
             ],
         )
     ]

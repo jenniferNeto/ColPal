@@ -8,4 +8,5 @@ urlpatterns = [
     path('pipelines/', include('pipeline.urls')),
     path('pipelines/', include('positions.urls')),
     path('pipelines/', include('request.urls')),
+    path('pipelines/', include('constraints.urls')),
 ]
