@@ -5,24 +5,31 @@ export default function PipelineCreate() {
   return (
     <div className="row h-100">
 
-      <div className='col-sm-12 card shadow bg-white p-2'>
-        <h4 className='card-header p-3'>Create a New Pipeline</h4>
-        <div className='card-body'>
+      <div className='card shadow bg-white h-25'>
+        
+        <div className="card-header">
+          <h5>Create a New Pipeline</h5>
+        </div>
+
+        <div className="card-body">
           <form>
-            <div class="form-group">
-              <label for="formGroupExampleInput">Example label</label>
-              <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Example input" />
-            </div>
-            <div class="form-group">
-              <label for="formGroupExampleInput2">Another label</label>
-              <input type="text" class="form-control" id="formGroupExampleInput2" placeholder="Another input" />
+            <div className="row">
+              <div class="col-sm-6 my-1">
+                <input type="text" class="form-control" placeholder="Pipeline Title" />
+              </div>
+              <div class="col-sm-6 my-1">
+                <input type="text" class="form-control" placeholder="Upload Frequency" />
+              </div>
+              <div class="col-sm-12 my-1">
+                <input type="text" class="form-control" placeholder="Upload Frequency" />
+              </div>
             </div>
           </form>
         </div>
 
       </div>
 
-      <div className='col-sm-12 card shadow bg-white p-2 mt-3'>
+      <div className='col-sm-12 card shadow bg-white p-2 mt-3 h-75'>
 
         <div className='card-header'>
           <div class="d-grid gap-2">
