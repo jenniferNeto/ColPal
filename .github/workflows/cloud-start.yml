@@ -22,7 +22,7 @@ jobs:
           service_account: github-actions@dataplatformcolgate.iam.gserviceaccount.com
       - name: Restart Backend Cloud Run service
         run: |-
-          gcloud run services replace serve-backend.yml --platform=managed --region=us-central1 --quiet --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com
+          gcloud run services replace serve-backend.yml 
       - name: Restart Backend Cloud Run service
         run: |-
-          gcloud run services replace serve-frontend.yml --platform=managed --region=us-central1 --quiet --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com
+          gcloud run services replace serve-frontend.yml
