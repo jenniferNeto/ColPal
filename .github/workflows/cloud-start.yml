@@ -22,10 +22,11 @@ jobs:
           service_account: github-actions@dataplatformcolgate.iam.gserviceaccount.com
       - name: Deploy Frontend Cloud Run service
         run: |-
-         gcloud run deploy frontend-test --region=us-central1 --platform=managed --port=3000 --memory=8Gi --cpu=4000m --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com --allow-unauthenticated --source serve-frontend.yml
+          kubectl apply -f serve-frontend.yml
       - name: Deploy Backend Cloud Run service
         run: |-
-          gcloud run deploy backend-test --region=us-central1 --platform=managed --port=8000 --memory=8Gi --cpu=4000m --service-account=github-actions@dataplatformcolgate.iam.gserviceaccount.com --allow-unauthenticated --source serve-backend.yml
+          kubectl apply -f serve-backend.yml
+
 
 
      
