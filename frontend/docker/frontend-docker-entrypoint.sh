@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # If in production start the server
-if [ $ENVIRONMENT == "production" ]; then
+if [ "$ENVIRONMENT" = "production" ]; then
     # Build the deployment version of the frontend
     # npm run build
 
