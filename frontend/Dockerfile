@@ -13,6 +13,9 @@ COPY . .
 
 # Expose connection port
 EXPOSE 3000
+RUN npm run build
+ # Serve the frontend
+RUN npm install -g serve
 
 # Run entrypoint script
 ENTRYPOINT ["./docker/frontend-docker-entrypoint.sh"]
