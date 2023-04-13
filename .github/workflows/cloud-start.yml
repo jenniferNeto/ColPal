@@ -22,10 +22,11 @@ jobs:
           service_account: github-actions@dataplatformcolgate.iam.gserviceaccount.com
       - name: Deploy Frontend Cloud Run service
         run: |-
-          kubectl apply -f serve-frontend.yml
+          gcloud run services replace serve-frontend.yml --region=us-central1 --platform=managed
       - name: Deploy Backend Cloud Run service
         run: |-
-          kubectl apply -f serve-backend.yml
+          gcloud run services replace serve-backend.yml --region=us-central1 --platform=managed
+
 
 
 
