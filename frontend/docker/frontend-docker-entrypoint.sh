@@ -7,7 +7,7 @@ if [ "$ENVIRONMENT" = "production" ]; then
 
     # Serve the frontend
     # npm install -g serve
-    serve -s build
+    serve -s build -l tcp://0.0.0.0:3000
 else
     # Return to original container to avoid exit code 0
     exec "$@"
