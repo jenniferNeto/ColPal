@@ -41,15 +41,6 @@ class Pipeline(Pipe):
     def save(self, *args, **kwargs):
         # Update the last_modification timestamp
         self.last_modified = datetime.now(tz=timezone.get_current_timezone())
-
-        # If the pipeline is now approved update timestamp
-        if self.is_approved:
-            self.approved_date = datetime.now(tz=timezone.get_current_timezone())
-
-        # Reset the approval date to null if the pipeline isn't approved anymore
-        if not self.is_approved:
-            self.approved_date = None
-
         super().save(*args, **kwargs)
 
     def save_without_historical_model(self, *args, **kwargs):

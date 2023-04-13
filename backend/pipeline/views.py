@@ -184,8 +184,14 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
             raise Http404
 
         # Get and update pipeline status
-        approval_status = request.POST.get('approved')
-        pipeline.is_approved = bool(approval_status)
+        approval_status = bool(request.POST.get('approved'))
+
+        # If pipeline was approved with this request
+        if not pipeline.is_approved and approval_status:
+            pipeline.approved_date = timezone.now()
+
+        # Update approval status and save
+        pipeline.is_approved = approval_status
         pipeline.save()
 
         return Response(status=status.HTTP_200_OK, data={'id': pk_pipeline, 'approved': pipeline.is_approved})
