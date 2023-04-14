@@ -19,7 +19,7 @@ from django.utils import timezone
 
 from .utils import is_stable, get_deadline
 from .validators import CSVFileValidator
-from .models import Pipeline, PipelineFile
+from .models import Pipeline, PipelineFile, PipelineNotification
 from .serializers import (
     PipelineSerializer,
     PipelineStatusSerializer,
@@ -27,6 +27,7 @@ from .serializers import (
     PipelineUpdateSerializer,
     PipelineFileSerializer,
     FileUploadSerializer,
+    PipelineNotificationSerializer,
 )
 
 Users = get_user_model()
@@ -354,3 +355,18 @@ class PipelineDeadlineAPIView(generics.ListAPIView):
             raise Http404
 
         return Response(status=status.HTTP_200_OK, data={'deadline': get_deadline(pipeline.pk)})
+
+class PipelineNotificationListAPIView(generics.ListAPIView):
+    serializer_class = PipelineNotification
+    queryset = Pipeline.objects.all()
+
+    def get(self, request, pk_pipeline):
+        # Verify pipeline and pipeline file exist
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        except Pipeline.DoesNotExist:
+            raise Http404
+
+        instance = PipelineNotification.objects.filter(pipeline=pipeline)
+
+        return Response(PipelineNotificationSerializer(instance=instance, many=True).data)

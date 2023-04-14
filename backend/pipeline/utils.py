@@ -1,20 +1,14 @@
 from .models import Pipeline, PipelineFile
 
 from django.utils import timezone
-from django.core.mail import send_mail, send_mass_mail
+from django.utils.html import strip_tags
 from django.core.mail import EmailMultiAlternatives
-from django.contrib.auth.models import User
+from django.template.loader import render_to_string
 
 from datetime import datetime, timedelta
 
-from email.mime.text import MIMEText
-
-from django.template.loader import render_to_string, get_template
-from django.utils.html import strip_tags
-
 from positions.models import Viewer, Uploader, Manager
-
-import math
+from pipeline.models import PipelineNotification
 
 import os
 
@@ -163,3 +157,6 @@ def stable_email(subject: str, pipeline_id: int, template: str, from_email: str,
         )
         email.attach_alternative(message_html, "text/html")
         email.send()
+
+        # Create pipeline notification
+        PipelineNotification.objects.create(pipeline=pipeline, user=recipient)

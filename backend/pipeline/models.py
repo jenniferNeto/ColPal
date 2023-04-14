@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 from datetime import datetime, timedelta
 
@@ -98,3 +99,9 @@ class PipelineFile(models.Model):
             for column in columns:
                 Constraint.objects.create(pipeline=self.pipeline, column_title=column)
         return saved_object
+
+class PipelineNotification(models.Model):
+    """Represents notification requests for pipelines"""
+    pipeline = models.ForeignKey(Pipeline, on_delete=models.CASCADE, null=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    date = models.DateTimeField(default=timezone.now)
