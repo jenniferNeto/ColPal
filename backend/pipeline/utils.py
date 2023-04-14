@@ -2,6 +2,7 @@ from .models import Pipeline, PipelineFile
 
 from django.utils import timezone
 from django.core.mail import send_mail, send_mass_mail
+from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth.models import User
 
 from datetime import datetime, timedelta
@@ -9,6 +10,7 @@ from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 
 from django.template.loader import render_to_string, get_template
+from django.utils.html import strip_tags
 
 from positions.models import Viewer, Uploader, Manager
 
@@ -118,59 +120,46 @@ def extract_users(pipeline_id: int):
 
     return users_filter
 
-
 def cron_is_stable():
+    """Validate stability conditions of all pipelines and notify users of changes"""
     for pipeline in Pipeline.objects.all():
         stable = is_stable(pipeline.pk)
-
-        print("Pipeline Stability:", pipeline.is_stable)
-        print("Remaining time:", calculate_remaining_time(pipeline.pk))
-        print("Hard Deadline:", calculate_hard_deadline(pipeline.pk))
-        print()
 
         # If pipeline was stable but now is unstable
         if pipeline.is_stable and not stable:
             # Send email to everyone on pipeline notifying of unstable pipeline
             users = extract_users(pipeline.pk)
             stable_email("[Stable Data] Your pipeline is unstable!",
-                         pipeline.pk, os.environ.get("EMAIL_ADDRESS", ''), users)
-
-            print("Template:", render_to_string("base.html"))
+                         pipeline.pk, 'unstable.html', os.environ.get("EMAIL_ADDRESS", ''), users)
 
         # If pipeline was unstable but now is stable
         if not pipeline.is_stable and stable:
             # Send email to everyone on pipeline notifying of stable pipeline
             users = extract_users(pipeline.pk)
             stable_email("[Stable Data] Your pipeline is stable again!",
-                         pipeline.pk, os.environ.get("EMAIL_ADDRESS", ''), users)
+                         pipeline.pk, 'stable.html', os.environ.get("EMAIL_ADDRESS", ''), users)
 
+        # If the stability of the pipeline changed, update the object
         if pipeline.is_stable != stable:
             pipeline.is_stable = stable
             pipeline.save()
 
-def stable_email(subject: str, pipeline_id: int, from_email: str, recipient_list):
-    print("Starting email process")
+def stable_email(subject: str, pipeline_id: int, template: str, from_email: str, recipient_list):
+    """Send a pipeline status template email"""
     pipeline = Pipeline.objects.get(pk=pipeline_id)
 
     # Extract all users with a non-blank email address
     users = [user for user in recipient_list if user.email != '']
 
-    stable = "Stable" if not pipeline.is_stable else "Unstable"
-
+    # Send every user a status update email
     for recipient in users:
-        message_html = render_to_string('base.html', context={})
-        message = MIMEText(message_html, 'html')
-        print("Sending mail:", send_mail(
-            subject=subject,
-            message=message.as_string(),
-            from_email=from_email,
-            recipient_list=[recipient.email]))
-
-
-# message = f'Pipeline Notice\n \
-#         Pipline ID: #{pipeline.pk}\n \
-#         Pipeline Title: {pipeline}\n \
-#         Status: {stable}\n \
-#         Update Time: {datetime.now().strftime("%H:%M:%S %m/%d/%Y")}\n \
-#         \n \
-#         To view more information on this pipeline please login at https://stabledata.net/login'
+        message_html = render_to_string(template, context={'username': recipient, 'title': pipeline})
+        message = strip_tags(message_html)
+        email = EmailMultiAlternatives(
+            subject,
+            message,
+            from_email,
+            to=[recipient.email]
+        )
+        email.attach_alternative(message_html, "text/html")
+        email.send()
