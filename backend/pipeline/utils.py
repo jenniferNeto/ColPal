@@ -6,7 +6,9 @@ from django.contrib.auth.models import User
 
 from datetime import datetime, timedelta
 
-from django.template.loader import render_to_string
+from email.mime.text import MIMEText
+
+from django.template.loader import render_to_string, get_template
 
 from positions.models import Viewer, Uploader, Manager
 
@@ -156,9 +158,11 @@ def stable_email(subject: str, pipeline_id: int, from_email: str, recipient_list
     stable = "Stable" if not pipeline.is_stable else "Unstable"
 
     for recipient in users:
+        message_html = render_to_string('base.html', context={})
+        message = MIMEText(message_html, 'html')
         print("Sending mail:", send_mail(
             subject=subject,
-            message=render_to_string("base.html"),
+            message=message.as_string(),
             from_email=from_email,
             recipient_list=[recipient.email]))
 
