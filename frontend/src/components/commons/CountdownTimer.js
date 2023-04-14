@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
 
-function CountdownTimer({ startDate, endDate }) {
-  const [timeLeft, setTimeLeft] = useState(
-    Math.floor((new Date(endDate) - Date.now()) / 1000)
-  );
+function CountdownTimer({ track, deadline, total }) {
+  const [timeLeft, setTimeLeft] = useState(deadline);
 
   const [progress, setProgress] = useState(100)
 
   useEffect(() => {
-
+    if(!track) return;
     const interval = setInterval(() => {
       setTimeLeft(Math.max(timeLeft - 1, 0));
-      setProgress(Math.floor((timeLeft * 100) / (Date.parse(endDate)/1000 - Date.parse(startDate)/1000)))
+      setProgress(Math.floor((timeLeft * 100) / total))
     }, 1000);
 
 

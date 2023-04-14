@@ -25,9 +25,9 @@ export default function UserRoleForm() {
 
     const users = useMemo(() => allUsersRequest.response?.data ?? [], [allUsersRequest.response])
     return (
-        <div className="card shadow h-100">
-            <div className="form-inline card-header">
-                <div class="form-group mb-2">
+        <div className="card shadow">
+            <div className="card-header">
+                <div class="form-group">
                     <select className="form-control" onChange={e => setSelectedUser(e.target.value)}>
                         <option>Select Users</option>
                         {users.map(user =>

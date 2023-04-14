@@ -1,23 +1,26 @@
 import {useState, useEffect, useMemo} from 'react'
-import { useLocation, useParams } from "react-router-dom";
-import { post_pipeline_file, get_pipeline_uploads, get_pipeline_due_date } from '../utils/endpoints'
+import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { post_pipeline_file, get_pipeline_uploads, get_pipeline_deadline } from '../utils/endpoints'
+import { getDuration } from '../utils/functions';
 
 import PipelineUpload from '../components/pipelines/PipelineUpload';
 import PipelineHistory from '../components/pipelines/PipelineHistory';
 import PipelineChangeLog from '../components/pipelines/PipelineChangeLog';
-import PipelineTimeTrack from "../components/pipelines/PipelineTimeTrack"
+import PipelineStateTrack from "../components/pipelines/PipelineStateTrack"
 import useRequest from '../hooks/useRequest';
 import UploadCheckout from '../components/file-upload/UploadCheckout';
 
 export default function Pipeline() {
   const {pipeline_id} = useParams();
+  const {state} = useLocation()
+  const navigate = useNavigate()
 
   const [uploadedFile, setUploadedFile] = useState(null)
   const [showCheckout, setShowCheckout] = useState(false)
 
   const uploadRequest = useRequest(post_pipeline_file(pipeline_id))
   const fileHistoryRequest = useRequest(get_pipeline_uploads(pipeline_id))
-  const dueDateRequest = useRequest(get_pipeline_due_date(pipeline_id))
+  const deadlineRequest = useRequest(get_pipeline_deadline(pipeline_id))
   
  
   const handleFileUpload = (file) => {
@@ -27,25 +30,26 @@ export default function Pipeline() {
 
   const handleFileCheckout = async () => { 
     await uploadRequest.doRequest({'file': uploadedFile})
-    await dueDateRequest.doRequest()
+    await deadlineRequest.doRequest()
     setUploadedFile(null)
     setShowCheckout(false)
+    navigate(0)
   }
 
   //Getiing the history of the pipeline
   useEffect(() => {
 
     fileHistoryRequest.doRequest()
-    dueDateRequest.doRequest()
+    deadlineRequest.doRequest()
    
-  }, [uploadRequest.response, fileHistoryRequest.doRequest])
+  }, [uploadRequest.response, fileHistoryRequest.doRequest, deadlineRequest.doRequest])
 
   const pipelineFileHistory = useMemo(() => fileHistoryRequest.response?.data ?? [],
     [fileHistoryRequest.response]
   )
 
-  const nextDueDate = useMemo(() => dueDateRequest.response?.data ?? null,
-    [dueDateRequest.response]
+  const nextDeadline = useMemo(() => deadlineRequest.response?.data.deadline ?? null,
+    [deadlineRequest.response]
   )
 
   return (
@@ -68,7 +72,10 @@ export default function Pipeline() {
           </div>
         </div>
         <div className="col-sm-3">
-          <PipelineTimeTrack dueDate={nextDueDate}/>
+          <PipelineStateTrack 
+            state={state.data}
+            nextDeadline={nextDeadline} 
+          />
         </div>
       </div>
     </>

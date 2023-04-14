@@ -325,6 +325,7 @@ class PipelineFileRetrieveAPIView(generics.RetrieveAPIView):
 
         return Response(PipelineFileSerializer(uploaded_file).data)
 
+
 class ValidateFileAPIView(generics.ListAPIView):
     serializer_class = PipelineFile
     queryset = PipelineFile.objects.all()

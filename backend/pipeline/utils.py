@@ -88,7 +88,6 @@ def get_deadline(pipeline_id: int) -> timedelta:
         pipeline = Pipeline.objects.get(pk=pipeline_id)
     except Pipeline.DoesNotExist:
         raise LookupError(f'Pipeline with id {pipeline_id} does not exist')
-
     if pipeline.hard_deadline:
         return calculate_hard_deadline(pipeline_id)
     return calculate_remaining_time(pipeline_id)

@@ -3,7 +3,7 @@ import {parseFrequency} from "../../utils/functions";
 import { useNavigate } from "react-router-dom";
 
 export default function PipelineCard({data}) {
-  const {id, title, is_active, approved, upload_frequency} = data;
+  const {id, title, is_stable, approved, upload_frequency} = data;
   const navigate = useNavigate();
   const [day, hours, minutes, seconds] = parseFrequency(upload_frequency);
   
@@ -15,8 +15,8 @@ export default function PipelineCard({data}) {
           <div className="card-title d-flex justify-content-between">
             <h5>{title}</h5> 
             <div>
-            <span className={`badge me-1 rounded-pill bg-${is_active ? 'success': 'danger'}`}>
-              {is_active ? 'active': 'inactive'}</span>
+            <span className={`badge me-1 rounded-pill bg-${is_stable ? 'success': 'danger'}`}>
+              {is_stable ? 'stable': 'unstable'}</span>
             <span className={`badge rounded-pill bg-${approved ? 'success': 'danger'}`}>
               {approved ? 'approved': 'not approved'}</span>
             </div>

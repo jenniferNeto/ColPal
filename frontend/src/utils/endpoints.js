@@ -13,8 +13,15 @@ export const post_pipeline_file = (pipeline_id) => ({
     isAuth: true,
 })
 
-export const get_pipeline_due_date = (pipeline_id) => ({
-    url: `/pipelines/${pipeline_id}/due/`,
+export const post_pipeline_create = () => ({
+    url: `/pipelines/create/`,
+    method: 'post',
+    headers: {'Content-Type': 'application/json'},
+    isAuth: true,
+})
+
+export const get_pipeline_deadline = (pipeline_id) => ({
+    url: `/pipelines/${pipeline_id}/deadline/`,
     method: 'get',
     headers: {},
     isAuth: true,
