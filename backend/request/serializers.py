@@ -59,6 +59,13 @@ class RequestSerializer(serializers.ModelSerializer):
             representation['request_is_stable'] = new_is_stable
             representation['is_stable'] = old_is_stable
 
+        new_hard_deadline = instance.hard_deadline
+        old_hard_deadline = instance.pipeline.hard_deadline
+
+        if new_hard_deadline != old_hard_deadline:
+            representation['request_hard_deadline'] = new_hard_deadline
+            representation['hard_deadline'] = old_hard_deadline
+
         return representation
 
 class RequestUpdateSerializer(RequestSerializer):

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'simple_history',
     'drf_multiple_model',
+    'django_apscheduler',
     'backend',
     'corsheaders',
     'authentication',
@@ -77,7 +78,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [f'{BASE_DIR}/backend/static/templates/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -184,7 +185,7 @@ CORS_ALLOWED_ORIGINS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -218,3 +219,20 @@ DATE_INPUT_FORMATS = [
     '%B %d %Y', '%B %d, %Y',             # 'October 25 2006', 'October 25, 2006'
     '%d %B %Y', '%d %B, %Y',             # '25 October 2006', '25 October, 2006'
 ]
+
+# if DEBUG:
+#     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_ADDRESS')
+
+SERVER_EMAIL = os.environ.get('EMAIL_ADDRESS')
+
+EMAIL_USE_TLS = True
+
+EMAIL_HOST = 'smtp.gmail.com'
+
+EMAIL_PORT = 587
+
+EMAIL_HOST_USER = os.environ.get('EMAIL_ADDRESS')
+
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')

@@ -18,6 +18,9 @@ services:
       - DB_PASS=${DB_PASS}
       - ENVIRONMENT=${ENVIRONMENT}
       - CREDENTIALS=${CREDENTIALS}
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - IGNORE_SCHEDULER=${IGNORE_SCHEDULER}
     depends_on:
       db:
         condition: service_healthy

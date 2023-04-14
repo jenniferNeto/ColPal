@@ -49,7 +49,7 @@ class RequestEndpointTestCase(APITestCase):
                                     pipeline=pipeline)
 
         # Send pipeline update request
-        data = {'title': 'New title', 'upload_frequency': 100, 'is_stable': True, 'update_reason': 'Test'}
+        data = {'title': 'New title', 'upload_frequency': 100, 'is_stable': True, 'hard_deadline': True, 'update_reason': 'Test'}
         self.client.put(f'/pipelines/{pipeline_id}/update/', data=data,
                         HTTP_AUTHORIZATION='Bearer {}'.format(token),
                         follow=True)

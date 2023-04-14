@@ -3,7 +3,7 @@ import useRequest from '../../hooks/useRequest';
 import { get_all_users } from "../../utils/endpoints";
 import FormSelect from "react-bootstrap/esm/FormSelect";
 
-export default function UserRoleList() {
+export default function UserRoleForm() {
     const [userRoles, setUserRoles] = useState([]);
     const [selectedUser, setSelectedUser] = useState('')
     
@@ -14,7 +14,7 @@ export default function UserRoleList() {
     const allUsersRequest = useRequest(get_all_users())
 
     const addSelectedUser = () => {
-        
+        if(!isManager && !isViewer && !isUploader) return  //Needs at least one role
         setUserRoles([...userRoles, selectedUser])
     }
 
@@ -25,18 +25,17 @@ export default function UserRoleList() {
 
     const users = useMemo(() => allUsersRequest.response?.data ?? [], [allUsersRequest.response])
     return (
-        <div className="row">
-            <div className="col-sm-9">
-                <FormSelect onChange={e => setSelectedUser(e.target.value)}>
-                    <option>Select Users</option>
-                    {users.map(user =>
-                    <option key={user['id']} value={user['username']}>{user['username']}</option>)
-                    }
-                </FormSelect>
-                
-            </div>
-            <div className="col-sm-3">
-                <button className="btn btn-primary">Add User Role</button>
+        <div className="card shadow h-100">
+            <div className="form-inline card-header">
+                <div class="form-group mb-2">
+                    <select className="form-control" onChange={e => setSelectedUser(e.target.value)}>
+                        <option>Select Users</option>
+                        {users.map(user =>
+                        <option key={user['id']} value={user['username']}>{user['username']}</option>)
+                        }
+                    </select>
+                    <button className="btn btn-primary">Add User Role</button>
+                </div>
             </div>
         </div>
     )

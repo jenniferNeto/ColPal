@@ -24,6 +24,7 @@ class Migration(migrations.Migration):
                 ('upload_frequency', models.DurationField(default=datetime.timedelta)),
                 ('is_approved', models.BooleanField(default=False)),
                 ('is_stable', models.BooleanField(default=True)),
+                ('hard_deadline', models.BooleanField(default=True)),
                 ('approved_date', models.DateTimeField(blank=True, null=True)),
                 ('update_reason', models.TextField(null=True)),
                 ('accept_changes', models.IntegerField(choices=[(0, 'Pending'), (1, 'Accepted'), (2, 'Rejected')], default=0)),

@@ -11,6 +11,8 @@ class PipelineSerializer(serializers.ModelSerializer):
     approved = serializers.SerializerMethodField(read_only=True)
     approved_date = serializers.SerializerMethodField(read_only=True)
 
+    is_stable = serializers.SerializerMethodField(read_only=True)
+
     upload_frequency = serializers.DurationField()
 
     class Meta:
@@ -23,6 +25,7 @@ class PipelineSerializer(serializers.ModelSerializer):
             'last_modified',
             'upload_frequency',
             'is_stable',
+            'hard_deadline',
             'approved',
             'approved_date',
         ]
@@ -44,6 +47,9 @@ class PipelineSerializer(serializers.ModelSerializer):
     def get_upload_frequency(self, obj):
         return str(obj.upload_frequency.total_seconds())
 
+    def get_is_stable(self, obj):
+        return obj.is_stable
+
 class PipelineHistorySeralizer(PipelineSerializer):
     """
     Seralize the entire Pipeline object but include the
@@ -62,6 +68,7 @@ class PipelineHistorySeralizer(PipelineSerializer):
             'last_modified',
             'upload_frequency',
             'is_stable',
+            'hard_deadline',
             'approved',
             'approved_date',
             'history',
@@ -87,6 +94,7 @@ class PipelineUpdateSerializer(PipelineHistorySeralizer):
             'upload_frequency',
             'update_reason',
             'is_stable',
+            'hard_deadline',
         ]
 
 class PipelineStatusSerializer(serializers.ModelSerializer):

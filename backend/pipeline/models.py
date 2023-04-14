@@ -25,6 +25,7 @@ class Pipe(TimeStamp):
     is_approved = models.BooleanField(default=False)
     is_stable = models.BooleanField(default=True)
     approved_date = models.DateTimeField(null=True, blank=True)
+    hard_deadline = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.title}'
@@ -37,31 +38,15 @@ class Pipeline(Pipe):
         history_change_reason_field=models.TextField(null=True)
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Store defaults to check modification times
-        self.old_title = self.title
-        self.old_is_approved = self.is_approved
-        self.old_upload_frequency = self.upload_frequency
-        self.old_is_stable = self.is_stable
-
     def save(self, *args, **kwargs):
         # Update the last_modification timestamp
-        if self.old_title != self.title or \
-                self.old_is_approved != self.is_approved or \
-                self.old_upload_frequency != self.upload_frequency or \
-                self.old_is_stable != self.is_stable:
-            self.last_modified = datetime.now(tz=timezone.get_current_timezone())
-
-        # If the pipeline is now approved update timestamp
-        if self.is_approved and self.old_is_approved != self.is_approved:
-            self.approved_date = datetime.now(tz=timezone.get_current_timezone())
-
-        # Reset the approval date to null if the pipeline isn't approved anymore
-        if not self.is_approved:
-            self.approved_date = None
+        self.last_modified = datetime.now(tz=timezone.get_current_timezone())
 
         super().save(*args, **kwargs)
+
+        # Update approved date when pipeline is approved
+        if self.is_approved and not self.approved_date:
+            self.approved_date = timezone.now()
 
     def save_without_historical_model(self, *args, **kwargs):
         """Copied from the documentation"""

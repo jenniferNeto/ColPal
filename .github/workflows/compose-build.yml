@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: Testcases
 on:
   push:
@@ -38,3 +39,48 @@ jobs:
         with:
           workflow: deploy-backend.yml
           ref: ${{ github.ref_name }}
+=======
+name: Testcases
+on:
+  push:
+    branches:
+      - development
+      - main
+      - dev/**
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      AUTHENTICATION: ${{ secrets.AUTHENTICATION }}
+      DEBUG: 0
+      DB_HOST: ${{ secrets.HOST }}
+      DB_NAME: ${{ secrets.NAME }}
+      DB_USER: ${{ secrets.USER }}
+      DB_PASS: ${{ secrets.PASSWORD }}
+      POSTGRES_DB: ${{ secrets.NAME }}
+      POSTGRES_USER: ${{ secrets.USER }}
+      POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
+      EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      ENVIRONMENT: development
+      IGNORE_SCHEDULER: true
+      CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build containers
+        run: docker-compose up -d --build
+      - name: Run Django tests
+        run: docker exec django python manage.py test
+      - name: Start backend build workflow
+        uses: benc-uk/workflow-dispatch@v1
+        if: ${{ github.ref_name == 'development' }}
+        with:
+          workflow: build-backend.yml
+          ref: ${{ github.ref_name }}
+      - name: Start backend deploy workflow
+        uses: benc-uk/workflow-dispatch@v1
+        if: ${{ github.ref_name == 'main' }}
+        with:
+          workflow: deploy-backend.yml
+          ref: ${{ github.ref_name }}
+>>>>>>> e4a1ddc651491bd4a8823ce3b3f17d8e763ac1f4

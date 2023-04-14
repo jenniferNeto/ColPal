@@ -17,7 +17,7 @@ from request.utils import createRequest
 
 from django.utils import timezone
 
-from .utils import is_stable
+from .utils import is_stable, get_deadline
 from .validators import CSVFileValidator
 from .models import Pipeline, PipelineFile
 from .serializers import (
@@ -184,8 +184,14 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
             raise Http404
 
         # Get and update pipeline status
-        approval_status = request.POST.get('approved')
-        pipeline.is_approved = bool(approval_status)
+        approval_status = bool(request.POST.get('approved'))
+
+        # If pipeline was approved with this request
+        if not pipeline.is_approved and approval_status:
+            pipeline.approved_date = timezone.now()
+
+        # Update approval status and save
+        pipeline.is_approved = approval_status
         pipeline.save()
 
         return Response(status=status.HTTP_200_OK, data={'id': pk_pipeline, 'approved': pipeline.is_approved})
@@ -319,40 +325,6 @@ class PipelineFileRetrieveAPIView(generics.RetrieveAPIView):
 
         return Response(PipelineFileSerializer(uploaded_file).data)
 
-class PipelineNextFileUploadAPIView(generics.CreateAPIView):
-    """Retrieve due date of next file to be uploaded"""
-    serializer_class = PipelineFileSerializer
-    queryset = PipelineFile.objects.all()
-
-    def get(self, request, pk_pipeline):
-        # Check to see if a user is allowed to update this pipeline
-        check_user_permissions(request, pk_pipeline, Uploader)
-
-        pipeline = Pipeline.objects.get(pk=pk_pipeline)
-
-        # User can only upload files if pipeline is active and approved
-        if not (pipeline.is_active and pipeline.is_approved):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        # Use the pipeline to filter the file objects
-        pipeline = Pipeline.objects.get(pk=pk_pipeline)
-        instance = PipelineFile.objects.filter(pipeline=pipeline)
-
-        # Get the date of the last uploaded file to the current pipeline
-        latest_upload = PipelineFile.objects.filter(pipeline=pipeline).last()
-        start_date = pipeline.created if latest_upload is None else latest_upload.upload_date
-
-        # Calculate if the file is overdue and generate response data
-        past_due = start_date + pipeline.upload_frequency < timezone.now()
-
-        data = {
-            'last_upload': start_date,
-            'next_upload': start_date + pipeline.upload_frequency,
-            'past_due': past_due,
-        }
-
-        return Response(status=status.HTTP_200_OK, data=data)
-
 class ValidateFileAPIView(generics.ListAPIView):
     serializer_class = PipelineFile
     queryset = PipelineFile.objects.all()
@@ -368,3 +340,17 @@ class ValidateFileAPIView(generics.ListAPIView):
         validator = CSVFileValidator(file=pipeline_file)
 
         return Response(data=validator.validate())
+
+class PipelineDeadlineAPIView(generics.ListAPIView):
+    """Get the remaining time for a pipeline to be stable"""
+    serializer_class = Pipeline
+    queryset = Pipeline.objects.all()
+
+    def get(self, request, pk_pipeline):
+        # Verify pipeline and pipeline file exist
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        except Pipeline.DoesNotExist:
+            raise Http404
+
+        return Response(status=status.HTTP_200_OK, data={'deadline': get_deadline(pipeline.pk)})
