@@ -65,6 +65,7 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
                                  title=instance.title,
                                  upload_frequency=instance.upload_frequency,
                                  is_stable=instance.is_stable,
+                                 hard_deadline=instance.hard_deadline,
                                  update_reason=instance.update_reason)
         return Response(status.HTTP_200_OK)
 
@@ -95,6 +96,7 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
         instance.title = kwargs['title']
         instance.upload_frequency = kwargs['upload_frequency']
         instance.is_stable = kwargs['is_stable']
+        instance.hard_deadline = kwargs['hard_deadline']
 
         # Save changes on the instance
         # This will also generate a historical model of the changes

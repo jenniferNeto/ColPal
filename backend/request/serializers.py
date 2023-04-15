@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import Request
+from pipeline.serializers import PipelineSerializer
 
 
 class RequestSerializer(serializers.ModelSerializer):
@@ -34,10 +35,21 @@ class RequestSerializer(serializers.ModelSerializer):
         return obj.update_reason
 
     def to_representation(self, instance):
-        representation = super().to_representation(instance)
+        # data = PipelineSerializer().to_representation(instance)
+        # output = dict()
+        # # handle custom serialization for each field here
+        # for field_name, field_value in data.items():
+        #     old, old_val = f'old_{field_name}', getattr(instance, field_name)
+        #     new, new_val = f'new_{field_name}', field_value
+
+        #     if old_val != new_val:
+        #         output[old] = old_val
+        #         output[new] = new_val
+        # return output
 
         # I'm not sure how to check this automatically for each attribute
         # Just going to manually check for now until a better solution is found
+        representation = super().to_representation(instance)
         new_title = instance.title
         old_title = instance.pipeline.title
 
@@ -51,13 +63,6 @@ class RequestSerializer(serializers.ModelSerializer):
         if new_upload_frequency != old_upload_frequency:
             representation['request_upload_frequency'] = new_upload_frequency
             representation['upload_frequency'] = old_upload_frequency
-
-        new_is_stable = instance.is_stable
-        old_is_stable = instance.pipeline.is_stable
-
-        if new_is_stable != old_is_stable:
-            representation['request_is_stable'] = new_is_stable
-            representation['is_stable'] = old_is_stable
 
         new_hard_deadline = instance.hard_deadline
         old_hard_deadline = instance.pipeline.hard_deadline

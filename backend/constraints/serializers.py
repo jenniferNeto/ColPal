@@ -28,7 +28,7 @@ class ConstraintSerializer(serializers.ModelSerializer):
 class ConstraintUpdateSerializer(serializers.ModelSerializer):
     """Update a constraint's default state"""
 
-    attribute_type = serializers.ChoiceField(choices=Constraint.VALUES)
+    column_type = serializers.ChoiceField(choices=Constraint.VALUES)
 
     class Meta:
         model = Constraint
