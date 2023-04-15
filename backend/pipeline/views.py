@@ -78,21 +78,22 @@ class PipelineCreateAPIView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         # Override create but with a different instance
         data = request.data.copy()
+        # Remove constraints for serializer
         if 'constraints' in data:
             data.pop('constraints')
-        print("Data:", data)
+
         pipeline_serializer = PipelineSerializer(data=data)
         constraints_serializer = ConstraintSerializer(data=request.data.get('constraints', []), many=True)
         pipeline_serializer.is_valid(raise_exception=True)
         pipeline = pipeline_serializer.save()
 
+        # Generate constraints if found with request
         if request.data.get('constraints', []):
             constraints_serializer.is_valid(raise_exception=True)
             attribute_data = constraints_serializer.data
 
             for constraint in attribute_data:
                 constraint['column_type'] = map_type(constraint['column_type'])
-                print("Constraint:", constraint)
                 Constraint.objects.create(
                     pipeline=pipeline,
                     column_title=constraint['column_name'],

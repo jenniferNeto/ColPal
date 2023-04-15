@@ -22,7 +22,11 @@ class PipelineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pipeline
 
-        fields = '__all__'
+        fields = [
+            'title',
+            'upload_frequency',
+            'hard_deadline',
+        ]
 
 class PipelineHistorySeralizer(PipelineSerializer):
     """
@@ -43,7 +47,7 @@ class PipelineHistorySeralizer(PipelineSerializer):
             'upload_frequency',
             'is_stable',
             'hard_deadline',
-            'approved',
+            'is_approved',
             'approved_date',
             'history',
         ]
