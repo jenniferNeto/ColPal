@@ -30,5 +30,6 @@ urlpatterns = [
     path('<int:pk_pipeline>/files/<int:pk_pipelinefile>/', views.PipelineFileRetrieveAPIView.as_view()),
     path('<int:pk_pipeline>/files/<int:pk_pipelinefile>/validate/', views.ValidateFileAPIView.as_view()),
     path('<int:pk_pipeline>/deadline/', views.PipelineDeadlineAPIView.as_view()),
+    path('<int:pk_pipeline>/notifications/', views.PipelineNotificationListAPIView.as_view()),
     path('user/<int:pk>/', views.UserPipelinesListAPIView.as_view()),
 ]

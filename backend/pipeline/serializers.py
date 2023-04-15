@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Pipeline, PipelineFile
+from .models import Pipeline, PipelineFile, PipelineNotification
 
 
 class PipelineSerializer(serializers.ModelSerializer):
@@ -161,3 +161,27 @@ class PipelineFileSerializer(serializers.Serializer):
 
     def get_template(self, obj):
         return obj.template_file
+    
+class PipelineNotificationSerializer(serializers.ModelSerializer):
+    """Serialize the approval status of a pipeline"""
+    pipeline_id = serializers.SerializerMethodField()
+    user_id = serializers.SerializerMethodField()
+    date = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PipelineNotification
+
+        fields = [
+            'pipeline_id',
+            'user_id',
+            'date'
+        ]
+
+    def get_pipeline_id(self, obj):
+        return obj.pipeline.pk
+
+    def get_user_id(self, obj):
+        return obj.user.pk
+
+    def get_date(self, obj):
+        return obj.date
