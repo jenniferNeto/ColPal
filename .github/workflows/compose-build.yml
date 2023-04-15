@@ -30,6 +30,9 @@ jobs:
         run: docker-compose up -d --build
       - name: Run Django tests
         run: docker exec django python manage.py test
+      - name: Log
+        if: always()
+        run: docker logs django
       - name: Start backend build workflow
         uses: benc-uk/workflow-dispatch@v1
         if: ${{ github.ref_name == 'development' }}
