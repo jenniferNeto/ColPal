@@ -22,6 +22,7 @@ jobs:
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
       ENVIRONMENT: development
       IGNORE_SCHEDULER: true
+      MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
       CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
     steps:
       - uses: actions/checkout@v3

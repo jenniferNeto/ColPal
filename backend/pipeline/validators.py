@@ -15,7 +15,14 @@ from constraints.models import (
 from .models import PipelineFile
 
 import csv
-import codecs
+
+import io
+import pandas as pd
+
+import googlemaps
+import os
+
+maps = googlemaps.Client(key=os.environ.get("MAPS_API_KEY"))
 
 
 class CSVFileValidator:
@@ -95,43 +102,101 @@ class CSVFileValidator:
         # NONE constraint
         return 'OK'
 
+    def validate_date(self, x) -> bool:
+        """Validate a date"""
+        try:
+            parse(x)
+        except Exception:
+            return False
+        return True
+
+    def validate_email(self, x) -> bool:
+        """Validate an email address"""
+        try:
+            EmailValidator().__call__(value=x)
+        except Exception:
+            return False
+        return True
+
+    def validate_address(self, x) -> bool:
+        """Validate an address using google maps api"""
+        return bool(maps.geocode(address=x, components={}))  # type: ignore
+
+    def infer_type(self, x, dtype) -> bool:
+        """Alter inference to more accurately describe data by validating"""
+        inference = isinstance(x, dtype)
+
+        # isinstance does not consider '1' an int, override functionality
+        if not inference and dtype is int or dtype is float:
+            try:
+                dtype(x)
+            except ValueError:
+                return inference
+
+            # Differentiate int vs float
+            if dtype == float:
+                return dtype(x) % 1 != 0
+            return float(x) % 1 == 0
+        return inference
+
+    def generate_base_types(self):
+        """Generate inferred types about a csv file"""
+        # Create a dataframe from the csv file
+        dataframe = pd.read_csv(io.BytesIO(self.file.file.read()))
+
+        # Record attempts to infer data type
+        type_counts = {}
+        for col in dataframe.columns:
+            for dtype in [bool, int, float, str]:
+                # Test every value in a column against the data types and sum the results
+                count = dataframe[col].apply(lambda x: self.infer_type(x, dtype)).sum()
+                type_counts.setdefault(col, {})[dtype] = count
+
+        # Get the most common type for each column
+        most_common_types = {}
+        for col, counts in type_counts.items():
+            # Pursuade columns that seem to be numbers
+            if counts[float] != 0 and counts[str] > counts[float]:
+                counts[str] -= counts[float]
+            elif counts[int] != 0 and counts[str] > counts[int]:
+                counts[str] -= counts[int]
+            most_common_types[col] = max(counts, key=counts.get)
+
+        return dataframe, [n.__name__ for n in most_common_types.values()]
+
     def validate(self):
-        """Validate all cells within a csv file against header constraints"""
-        if not self._is_csv():
-            return
+        # Get dataframe and base inferred types
+        dataframe, types = self.generate_base_types()
+        names = ["email", "date", "address"]
 
-        # Create a csv file reader
-        reader = csv.reader(codecs.iterdecode(self.file.file.open('r'), "UTF-8"), self.dialect)
+        # Type conversion minimum threshold
+        threshold = 0.4
 
-        # Get constraint headers and skip header line in reader
-        headers = Constraint.objects.filter(pipeline=self.file.pipeline)
-        next(reader)
+        # Store types and index of type needed to be checked
+        # Only string values need to be checked
+        type_counts = {}
+        types_index = 0
+        for index, col in enumerate(dataframe.columns):
+            if types[index] != 'str':
+                continue
+            for i, dtype in enumerate([self.validate_email, self.validate_date, self.validate_address]):
+                # Test every value in a column against the data types and sum the results
+                count = dataframe[col].apply(lambda x: dtype(x)).sum()
+                type_counts.setdefault(col, {})[names[i]] = count
 
-        # Header row is valid by default
-        results = []
-        results.append(['OK'] * len(headers))
+            # Dictionary of successful email / date validates on a column
+            current_types = list(type_counts.values())[types_index]
+            types_index += 1
 
-        # Validate every cell within the csv file
-        for row in reader:
-            row_results = []
+            print("Values:", current_types.values())
+            # If no validation was successful, the column really is a plain string
+            if not sum(current_types.values()):
+                continue
 
-            for x_index, value in enumerate(row):
-                constraint = headers[x_index]
+            # Column is actually an email or date
+            types[index] = max(current_types, key=current_types.get)
 
-                # Validate for null values
-                if constraint.nullable:
-                    if value == 'NULL':
-                        row_results.append('OK')
-                        continue
-                # Validate for empty vlaues
-                if constraint.blank:
-                    if value == '':
-                        row_results.append('OK')
-                        continue
-
-                # Validate value against constraint
-                row_results.append(self._validate_constraint(constraint.attribute_type, value))
-
-            # Add recorded row to list of values
-            results.append(row_results)
-        return results
+            # Revert conversion if threshold is not satisified
+            if current_types[types[index]] < threshold * len(dataframe.index):
+                types[index] = 'str'
+        print(types)

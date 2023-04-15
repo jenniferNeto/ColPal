@@ -1,12 +1,15 @@
 aniso8601==9.0.1
 APScheduler==3.10.1
 asgiref==3.6.0
+asn1crypto==1.5.1
 astroid==2.14.2
 cachetools==5.3.0
 certifi==2022.12.7
+cffi==1.15.1
 chardet==5.1.0
-charset-normalizer==3.1.0
+charset-normalizer==2.1.1
 click==8.1.3
+cryptography==38.0.4
 dill==0.3.6
 Django==4.1.7
 django-apscheduler==0.6.2
@@ -19,6 +22,7 @@ django-storages==1.13.2
 django-types==0.17.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.2.2
+filelock==3.11.0
 google-api-core==1.34.0
 google-auth==2.16.3
 google-cloud==0.34.0
@@ -27,6 +31,7 @@ google-cloud-storage==2.8.0
 google-crc32c==1.5.0
 google-resumable-media==2.4.1
 googleapis-common-protos==1.59.0
+googlemaps==4.10.0
 graphene==3.2.2
 graphene-django==3.0.0b7
 graphql-core==3.2.3
@@ -36,6 +41,10 @@ isort==5.12.0
 lazy-object-proxy==1.9.0
 lml==0.1.0
 mccabe==0.7.0
+numpy==1.24.2
+oscrypto==1.3.0
+packaging==23.1
+pandas==2.0.0
 pathspec==0.11.1
 platformdirs==3.0.0
 promise==2.3
@@ -43,6 +52,8 @@ protobuf==3.20.3
 psycopg2==2.9.5
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
+pycparser==2.21
+pycryptodomex==3.17
 pyexcel==0.7.0
 pyexcel-io==0.6.6
 pyexcel-webio==0.1.4
@@ -50,6 +61,7 @@ PyJWT==2.6.0
 pylint==2.16.2
 pylint-django==2.5.3
 pylint-plugin-utils==0.7
+pyOpenSSL==22.1.0
 python-dateutil==2.8.2
 python-dotenv==1.0.0
 pytz==2022.7.1
@@ -57,6 +69,7 @@ pytz-deprecation-shim==0.1.0.post0
 requests==2.28.2
 rsa==4.9
 six==1.16.0
+snowflake-connector-python==3.0.2
 sqlparse==0.4.3
 text-unidecode==1.3
 texttable==1.6.7
