@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAdminUser
 from django.http import Http404
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from simple_history.utils import update_change_reason
 
@@ -15,15 +16,11 @@ from authentication.utils import check_user_permissions, is_user_allowed
 from positions.models import Viewer, Uploader, Manager
 from request.utils import createRequest
 
-from django.utils import timezone
-
-from .validators import generate_types
-
-from constraints.utils import map_type
+from constraints.utils import map_to_constraint
 from constraints.models import Constraint
 
 from .utils import is_stable, get_deadline
-from .validators import CSVFileValidator
+from .validators import generate_types, validate
 from .models import Pipeline, PipelineFile, PipelineNotification
 from .serializers import (
     PipelineSerializer,
@@ -34,7 +31,6 @@ from .serializers import (
     FileUploadSerializer,
     PipelineNotificationSerializer,
     ConstraintSerializer,
-    ConstraintListSerializer
 )
 
 Users = get_user_model()
@@ -93,7 +89,7 @@ class PipelineCreateAPIView(generics.CreateAPIView):
             attribute_data = constraints_serializer.data
 
             for constraint in attribute_data:
-                constraint['column_type'] = map_type(constraint['column_type'])
+                constraint['column_type'] = map_to_constraint(constraint['column_type'])
                 Constraint.objects.create(
                     pipeline=pipeline,
                     column_title=constraint['column_name'],
@@ -374,9 +370,7 @@ class ValidateFileAPIView(generics.ListAPIView):
         except (Pipeline.DoesNotExist, PipelineFile.DoesNotExist):
             raise Http404
 
-        validator = CSVFileValidator(file=pipeline_file)
-
-        return Response(data=validator.validate())
+        return Response(data={"errors": validate(pipeline_file=pipeline_file)})
 
 class PipelineDeadlineAPIView(generics.ListAPIView):
     """Get the remaining time for a pipeline to be stable"""
