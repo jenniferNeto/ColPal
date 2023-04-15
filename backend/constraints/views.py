@@ -67,7 +67,7 @@ class ConstraintUpdateAPIView(generics.RetrieveUpdateAPIView):
 
         # Get new attribute from request and update object
         attribute = request.data['attribute_type']
-        constraint.attribute_type = attribute
+        constraint.column_type = attribute
 
         # Validate update
         serializer = self.get_serializer(constraint, data=request.data)

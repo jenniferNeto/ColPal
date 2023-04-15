@@ -3,6 +3,13 @@ from rest_framework import serializers
 from .models import Pipeline, PipelineFile, PipelineNotification
 
 
+class ConstraintSerializer(serializers.Serializer):
+    column_name = serializers.CharField()
+    column_type = serializers.CharField()
+
+class ConstraintListSerializer(serializers.Serializer):
+    constraints = ConstraintSerializer(many=True)
+
 class PipelineSerializer(serializers.ModelSerializer):
     """Serialize an entire user pipeline"""
     created = serializers.SerializerMethodField(read_only=True)
@@ -49,7 +56,7 @@ class PipelineSerializer(serializers.ModelSerializer):
 
     def get_is_stable(self, obj):
         return obj.is_stable
-
+    
 class PipelineHistorySeralizer(PipelineSerializer):
     """
     Seralize the entire Pipeline object but include the

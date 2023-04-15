@@ -25,6 +25,7 @@ urlpatterns = [
     path('<int:pk_pipeline>/update/', views.PipelineUpdateAPIView.as_view()),
     path('<int:pk_pipeline>/history/', views.PipelineHistoricalRecordsRetrieveAPIView.as_view()),
     path('<int:pk_pipeline>/upload/', views.PipelineFileUploadAPIView.as_view()),
+    path('upload/template/', views.PipelineTemplateFileUploadAPIView.as_view()),
     path('<int:pk_pipeline>/status/', views.PipelineStatusAPIView.as_view()),
     path('<int:pk_pipeline>/files/', views.PipelineFileListAPIView.as_view()),
     path('<int:pk_pipeline>/files/<int:pk_pipelinefile>/', views.PipelineFileRetrieveAPIView.as_view()),

@@ -28,13 +28,13 @@ maps = googlemaps.Client(key=os.environ.get("MAPS_API_KEY"))
 class CSVFileValidator:
     """Validate cells within a csv file against generated constraints"""
     def __init__(self, file: PipelineFile):
-        self.file = file
+        self.pipeline_file = file
 
     def _is_csv(self):
         """Validate the file is a csv file"""
         try:
-            self.dialect = csv.Sniffer().sniff(self.file.file.read(1024).decode("UTF-8"))
-            self.file.file.seek(0, 0)
+            self.dialect = csv.Sniffer().sniff(self.pipeline_file.file.read(1024).decode("UTF-8"))
+            self.pipeline_file.file.seek(0, 0)
         except csv.Error:
             return False
         return True
@@ -82,7 +82,7 @@ class CSVFileValidator:
                     except Exception as e:
                         return str(e)
 
-                if constraint == Constraint.Attributes.DATE or constraint == Constraint.Attributes.DATETIME:
+                if constraint == Constraint.Attributes.DATE or constraint == Constraint.Attributes.ADDRESS:
                     # Date and Datetime use dateutil parser instead of custom instance
                     try:
                         value: str = str(parse(value))  # type: ignore
@@ -102,101 +102,107 @@ class CSVFileValidator:
         # NONE constraint
         return 'OK'
 
-    def validate_date(self, x) -> bool:
-        """Validate a date"""
+def validate_date(x: str) -> bool:
+    """Validate a date"""
+    try:
+        parse(x)
+    except Exception:
+        return False
+    return True
+
+def validate_email(x: str) -> bool:
+    """Validate an email address"""
+    try:
+        EmailValidator().__call__(value=x)
+    except Exception:
+        return False
+    return True
+
+def validate_address(x: str) -> bool:
+    """Validate an address using google maps api"""
+    return bool(maps.geocode(address=x, components={}))  # type: ignore
+
+def infer_type(x, dtype: type) -> bool:
+    """Alter inference to more accurately describe data by validating"""
+    inference = isinstance(x, dtype)
+
+    # isinstance does not consider '1' an int, override functionality
+    if not inference and dtype is int or dtype is float:
         try:
-            parse(x)
-        except Exception:
-            return False
-        return True
+            dtype(x)
+        except ValueError:
+            return inference
 
-    def validate_email(self, x) -> bool:
-        """Validate an email address"""
-        try:
-            EmailValidator().__call__(value=x)
-        except Exception:
-            return False
-        return True
+        # Differentiate int vs float
+        if dtype == float:
+            return dtype(x) % 1 != 0
+        return float(x) % 1 == 0
+    return inference
 
-    def validate_address(self, x) -> bool:
-        """Validate an address using google maps api"""
-        return bool(maps.geocode(address=x, components={}))  # type: ignore
+def generate_base_types(file):
+    """Generate inferred types about a csv file"""
+    # Create a dataframe from the csv file
+    dataframe = pd.read_csv(io.BytesIO(file.read()))
 
-    def infer_type(self, x, dtype) -> bool:
-        """Alter inference to more accurately describe data by validating"""
-        inference = isinstance(x, dtype)
+    # Record attempts to infer data type
+    type_counts = {}
+    for col in dataframe.columns:
+        for dtype in [bool, int, float, str]:
+            # Test every value in a column against the data types and sum the results
+            count = dataframe[col].apply(lambda x: infer_type(x, dtype)).sum()
+            type_counts.setdefault(col, {})[dtype] = count
 
-        # isinstance does not consider '1' an int, override functionality
-        if not inference and dtype is int or dtype is float:
-            try:
-                dtype(x)
-            except ValueError:
-                return inference
+    # Get the most common type for each column
+    most_common_types = {}
+    for col, counts in type_counts.items():
+        # Pursuade columns that seem to be numbers
+        if counts[float] != 0 and counts[str] > counts[float]:
+            counts[str] -= counts[float]
+        elif counts[int] != 0 and counts[str] > counts[int]:
+            counts[str] -= counts[int]
+        most_common_types[col] = max(counts, key=counts.get)
 
-            # Differentiate int vs float
-            if dtype == float:
-                return dtype(x) % 1 != 0
-            return float(x) % 1 == 0
-        return inference
+    return dataframe, [n.__name__ for n in most_common_types.values()]
 
-    def generate_base_types(self):
-        """Generate inferred types about a csv file"""
-        # Create a dataframe from the csv file
-        dataframe = pd.read_csv(io.BytesIO(self.file.file.read()))
+def generate_types(file):
+    # Get dataframe and base inferred types
+    dataframe, types = generate_base_types(file)
+    names = ["email", "date", "address"]
 
-        # Record attempts to infer data type
-        type_counts = {}
-        for col in dataframe.columns:
-            for dtype in [bool, int, float, str]:
-                # Test every value in a column against the data types and sum the results
-                count = dataframe[col].apply(lambda x: self.infer_type(x, dtype)).sum()
-                type_counts.setdefault(col, {})[dtype] = count
+    # Type conversion minimum threshold
+    threshold = 0.4
 
-        # Get the most common type for each column
-        most_common_types = {}
-        for col, counts in type_counts.items():
-            # Pursuade columns that seem to be numbers
-            if counts[float] != 0 and counts[str] > counts[float]:
-                counts[str] -= counts[float]
-            elif counts[int] != 0 and counts[str] > counts[int]:
-                counts[str] -= counts[int]
-            most_common_types[col] = max(counts, key=counts.get)
+    # Store types and index of type needed to be checked
+    # Only string values need to be checked
+    type_counts = {}
+    types_index = 0
+    for index, col in enumerate(dataframe.columns):
+        if types[index] != 'str':
+            continue
+        for i, dtype in enumerate([validate_email, validate_date, validate_address]):
+            # Test every value in a column against the data types and sum the results
+            count = dataframe[col].apply(lambda x: dtype(x)).sum()
+            type_counts.setdefault(col, {})[names[i]] = count
 
-        return dataframe, [n.__name__ for n in most_common_types.values()]
+        # Dictionary of successful email / date validates on a column
+        current_types = list(type_counts.values())[types_index]
+        types_index += 1
 
-    def validate(self):
-        # Get dataframe and base inferred types
-        dataframe, types = self.generate_base_types()
-        names = ["email", "date", "address"]
+        print("Values:", current_types.values())
+        # If no validation was successful, the column really is a plain string
+        if not sum(current_types.values()):
+            continue
 
-        # Type conversion minimum threshold
-        threshold = 0.4
+        # Column is actually an email or date
+        types[index] = max(current_types, key=current_types.get)
 
-        # Store types and index of type needed to be checked
-        # Only string values need to be checked
-        type_counts = {}
-        types_index = 0
-        for index, col in enumerate(dataframe.columns):
-            if types[index] != 'str':
-                continue
-            for i, dtype in enumerate([self.validate_email, self.validate_date, self.validate_address]):
-                # Test every value in a column against the data types and sum the results
-                count = dataframe[col].apply(lambda x: dtype(x)).sum()
-                type_counts.setdefault(col, {})[names[i]] = count
+        # Revert conversion if threshold is not satisified
+        if current_types[types[index]] < threshold * len(dataframe.index):
+            types[index] = 'str'
+    print(types)
 
-            # Dictionary of successful email / date validates on a column
-            current_types = list(type_counts.values())[types_index]
-            types_index += 1
-
-            print("Values:", current_types.values())
-            # If no validation was successful, the column really is a plain string
-            if not sum(current_types.values()):
-                continue
-
-            # Column is actually an email or date
-            types[index] = max(current_types, key=current_types.get)
-
-            # Revert conversion if threshold is not satisified
-            if current_types[types[index]] < threshold * len(dataframe.index):
-                types[index] = 'str'
-        print(types)
+    # Generate response for api
+    response = []
+    for i in range(len(dataframe.columns)):
+        response.append({"column_name": dataframe.columns[i], "column_type": types[i]})
+    return response

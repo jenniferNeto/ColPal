@@ -17,6 +17,11 @@ from request.utils import createRequest
 
 from django.utils import timezone
 
+from .validators import generate_types
+
+from constraints.utils import map_type
+from constraints.models import Constraint
+
 from .utils import is_stable, get_deadline
 from .validators import CSVFileValidator
 from .models import Pipeline, PipelineFile, PipelineNotification
@@ -28,6 +33,8 @@ from .serializers import (
     PipelineFileSerializer,
     FileUploadSerializer,
     PipelineNotificationSerializer,
+    ConstraintSerializer,
+    ConstraintListSerializer
 )
 
 Users = get_user_model()
@@ -70,17 +77,34 @@ class PipelineCreateAPIView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         # Override create but with a different instance
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        pipeline = serializer.save()
-        headers = self.get_success_headers(serializer.data)
+        data = request.data.copy()
+        if 'constraints' in data:
+            data.pop('constraints')
+        print("Data:", data)
+        pipeline_serializer = PipelineSerializer(data=data)
+        constraints_serializer = ConstraintSerializer(data=request.data.get('constraints', []), many=True)
+        pipeline_serializer.is_valid(raise_exception=True)
+        pipeline = pipeline_serializer.save()
+
+        if request.data.get('constraints', []):
+            constraints_serializer.is_valid(raise_exception=True)
+            attribute_data = constraints_serializer.data
+
+            for constraint in attribute_data:
+                constraint['column_type'] = map_type(constraint['column_type'])
+                print("Constraint:", constraint)
+                Constraint.objects.create(
+                    pipeline=pipeline,
+                    column_title=constraint['column_name'],
+                    column_type=constraint['column_type']
+                )
 
         # Whoever creates a pipeline is automatically a viewer and manager of that pipeline
         Manager.objects.create(user=request.user, pipeline=pipeline)
         Uploader.objects.create(user=request.user, pipeline=pipeline)
         Viewer.objects.create(user=request.user, pipeline=pipeline)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(pipeline_serializer.data, status=status.HTTP_201_CREATED)
 
 class PipelineUpdateAPIView(generics.UpdateAPIView):
     """Update a pipeline"""
@@ -283,6 +307,17 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
         }
 
         return Response(status=status.HTTP_200_OK, data=data)
+
+class PipelineTemplateFileUploadAPIView(generics.CreateAPIView):
+    """Upload files to an approved pipeline"""
+    queryset = Pipeline
+    serializer_class = FileUploadSerializer
+
+    def create(self, request):
+        # Get the uploaded file from the request
+        file = request.FILES.get('file')
+
+        return Response(status=status.HTTP_200_OK, data={"constraints": generate_types(file)})
 
 class PipelineFileListAPIView(generics.ListAPIView):
     """View uploaded files for a specific pipeline"""

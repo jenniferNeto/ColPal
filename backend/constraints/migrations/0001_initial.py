@@ -46,10 +46,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('column_title', models.TextField()),
-                ('attribute_type', models.PositiveSmallIntegerField(choices=[(0, 'None'), (1, 'Varchar'), (2, 'Integer'), (3, 'Float'), (4, 'Date'), (5, 'Boolean'), (6, 'Datetime'), (7, 'Email')], default=0)),
-                ('nullable', models.BooleanField(default=False)),
-                ('blank', models.BooleanField(default=False)),
-                ('valid', models.BooleanField(default=True)),
+                ('column_type', models.PositiveSmallIntegerField(choices=[(0, 'None'), (1, 'Varchar'), (2, 'Integer'), (3, 'Float'), (4, 'Boolean'), (5, 'Date'), (6, 'Address'), (7, 'Email')], default=0)),
                 ('pipeline', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pipeline.pipeline')),
             ],
         ),
