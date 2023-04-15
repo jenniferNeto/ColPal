@@ -14,34 +14,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='BooleanConstraint',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.BooleanField(null=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='IntegerConstraint',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.IntegerField(null=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='FloatConstraint',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.FloatField(null=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='VarcharConstraint',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.CharField(max_length=1000, null=True)),
-            ],
-        ),
-        migrations.CreateModel(
             name='Constraint',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),

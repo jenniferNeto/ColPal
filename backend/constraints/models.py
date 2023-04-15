@@ -31,15 +31,3 @@ class Constraint(models.Model):
 
     def __str__(self):
         return f'{self.column_title}[{self.VALUES[self.column_type][1]}]'
-
-class VarcharConstraint(models.Model):
-    value = models.CharField(null=True, max_length=1000)
-
-class IntegerConstraint(models.Model):
-    value = models.IntegerField(null=True)
-
-class FloatConstraint(models.Model):
-    value = models.FloatField(null=True)
-
-class BooleanConstraint(models.Model):
-    value = models.BooleanField(null=True)
