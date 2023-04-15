@@ -22,7 +22,8 @@ class PipelineFileEndpointTestCase(APITestCase):
         Pipeline.objects.create(
             title='Test Pipeline',
             upload_frequency='10',
-            is_approved=True, is_active=True,
+            is_approved=True,
+            is_stable=True,
             approved_date=timezone.now()
         )
 

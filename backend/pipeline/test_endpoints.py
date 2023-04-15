@@ -37,7 +37,7 @@ class PipelineValidationEndpointTestCase(APITestCase):
     def test_pipelines_updateview_get_invalid(self):
         """Test non-existant pipeline update endpoint"""
         token = self.login()
-        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
+        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_stable': True}
         response = self.client.get("/pipelines/0/update/",
                                    HTTP_AUTHORIZATION='Bearer {}'.format(token), data=data, follow=True)
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -47,7 +47,7 @@ class PipelineValidationEndpointTestCase(APITestCase):
         token = self.login()
         self.assertNotEquals(Pipeline.objects.count(), 0)
         pipeline_id = Pipeline.objects.all()[0].pk
-        data = {'title': "Title", 'upload_frequency': "e", 'update_reason': "Updated", 'is_active': True}
+        data = {'title': "Title", 'upload_frequency': "e", 'update_reason': "Updated", 'is_stable': True}
         response = self.client.put(f'/pipelines/{pipeline_id}/update/',
                                    HTTP_AUTHORIZATION='Bearer {}'.format(token), data=data, follow=True)
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -57,7 +57,7 @@ class PipelineValidationEndpointTestCase(APITestCase):
         token = self.login()
         self.assertNotEquals(Pipeline.objects.count(), 0)
         pipeline_id = Pipeline.objects.all()[0].pk
-        data = {'title': "Title", 'upload_frequency': "0", 'is_active': True}
+        data = {'title': "Title", 'upload_frequency': "0", 'is_stable': True}
         response = self.client.put(f'/pipelines/{pipeline_id}/update/',
                                    HTTP_AUTHORIZATION='Bearer {}'.format(token), data=data, follow=True)
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -71,7 +71,7 @@ class PipelineValidationEndpointTestCase(APITestCase):
     def test_pipelines_create(self):
         """Test the creation of a new pipeline"""
         token = self.login()
-        data = {'title': "Title", 'upload_frequency': "0", 'is_active': False}
+        data = {'title': "Title", 'upload_frequency': "0", 'is_stable': False}
         response = self.client.post("/pipelines/create/",
                                     HTTP_AUTHORIZATION='Bearer {}'.format(token), data=data, follow=True)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
@@ -132,7 +132,7 @@ class PipelineEndpointTestCase(APITestCase):
         token = self.login(regular=False)
 
         # Create and send request
-        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
+        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated"}
         self.assertNotEquals(Pipeline.objects.count(), 0)
         pipeline_id = Pipeline.objects.all()[0].pk
         response = self.client.get(f'/pipelines/{pipeline_id}/', data=data,
@@ -145,7 +145,7 @@ class PipelineEndpointTestCase(APITestCase):
         pipeline_id = Pipeline.objects.all()[0].pk
         Manager.objects.create(user=User.objects.get(username=self.regular_user),
                                pipeline=Pipeline.objects.get(pk=pipeline_id))
-        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
+        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated"}
         self.assertNotEquals(Pipeline.objects.count(), 0)
 
         response = self.client.put(f'/pipelines/{pipeline_id}/update/', data=data,
@@ -163,7 +163,7 @@ class PipelineEndpointTestCase(APITestCase):
         Viewer.objects.create(user=user, pipeline=pipeline)
         token = self.login()
 
-        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_active': True}
+        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated"}
         self.assertNotEquals(Pipeline.objects.count(), 0)
         pipeline_id = Pipeline.objects.all()[0].pk
         response = self.client.put(f'/pipelines/{pipeline_id}/update/', data=data,

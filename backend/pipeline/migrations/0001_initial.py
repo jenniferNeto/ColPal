@@ -27,7 +27,8 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=40)),
                 ('upload_frequency', models.DurationField(default=datetime.timedelta)),
                 ('is_approved', models.BooleanField(default=False)),
-                ('is_active', models.BooleanField(default=True)),
+                ('is_stable', models.BooleanField(default=True)),
+                ('hard_deadline', models.BooleanField(default=True)),
                 ('approved_date', models.DateTimeField(blank=True, null=True)),
             ],
             options={
@@ -43,7 +44,8 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=40)),
                 ('upload_frequency', models.DurationField(default=datetime.timedelta)),
                 ('is_approved', models.BooleanField(default=False)),
-                ('is_active', models.BooleanField(default=True)),
+                ('is_stable', models.BooleanField(default=True)),
+                ('hard_deadline', models.BooleanField(default=True)),
                 ('approved_date', models.DateTimeField(blank=True, null=True)),
                 ('history_change_reason', models.TextField(null=True)),
                 ('history_id', models.AutoField(primary_key=True, serialize=False)),
@@ -68,6 +70,14 @@ class Migration(migrations.Migration):
                 ('upload_date', models.DateTimeField(default=django.utils.timezone.now)),
                 ('pipeline', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pipeline.pipeline')),
                 ('template_file', models.BooleanField(default=False)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='PipelineNotification',
+            fields=[
+                ('date', models.DateTimeField(default=django.utils.timezone.now)),
+                ('pipeline', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pipeline.pipeline')),
+                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         )
     ]

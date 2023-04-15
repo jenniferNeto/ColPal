@@ -1,7 +1,14 @@
 from rest_framework import serializers
 
-from .models import Pipeline, PipelineFile
+from .models import Pipeline, PipelineFile, PipelineNotification
 
+
+class ConstraintSerializer(serializers.Serializer):
+    column_name = serializers.CharField()
+    column_type = serializers.CharField()
+
+class ConstraintListSerializer(serializers.Serializer):
+    constraints = ConstraintSerializer(many=True)
 
 class PipelineSerializer(serializers.ModelSerializer):
     """Serialize an entire user pipeline"""
@@ -10,6 +17,8 @@ class PipelineSerializer(serializers.ModelSerializer):
 
     approved = serializers.SerializerMethodField(read_only=True)
     approved_date = serializers.SerializerMethodField(read_only=True)
+
+    is_stable = serializers.SerializerMethodField(read_only=True)
 
     upload_frequency = serializers.DurationField()
 
@@ -22,7 +31,8 @@ class PipelineSerializer(serializers.ModelSerializer):
             'created',
             'last_modified',
             'upload_frequency',
-            'is_active',
+            'is_stable',
+            'hard_deadline',
             'approved',
             'approved_date',
         ]
@@ -44,6 +54,9 @@ class PipelineSerializer(serializers.ModelSerializer):
     def get_upload_frequency(self, obj):
         return str(obj.upload_frequency.total_seconds())
 
+    def get_is_stable(self, obj):
+        return obj.is_stable
+
 class PipelineHistorySeralizer(PipelineSerializer):
     """
     Seralize the entire Pipeline object but include the
@@ -61,8 +74,9 @@ class PipelineHistorySeralizer(PipelineSerializer):
             'created',
             'last_modified',
             'upload_frequency',
-            'is_active',
-            'approved',
+            'is_stable',
+            'hard_deadline',
+            'is_approved',
             'approved_date',
             'history',
         ]
@@ -85,8 +99,8 @@ class PipelineUpdateSerializer(PipelineHistorySeralizer):
         fields = [
             'title',
             'upload_frequency',
+            'hard_deadline',
             'update_reason',
-            'is_active',
         ]
 
 class PipelineStatusSerializer(serializers.ModelSerializer):
@@ -99,9 +113,6 @@ class PipelineStatusSerializer(serializers.ModelSerializer):
         fields = [
             'approved',
         ]
-
-    def is_approved(self, obj):
-        return obj.is_approved
 
 class FileUploadSerializer(serializers.ModelSerializer):
     """Serialize an uploaded file for a pipeline"""
@@ -117,39 +128,29 @@ class FileUploadSerializer(serializers.ModelSerializer):
     def get_file(self, obj):
         return obj.file
 
-    def get_template(self, obj):
-        return obj.template
-
 class PipelineFileSerializer(serializers.Serializer):
-    pipeline_id = serializers.SerializerMethodField()
-    file_id = serializers.SerializerMethodField()
-    path = serializers.SerializerMethodField()
-    upload_date = serializers.SerializerMethodField()
-    template = serializers.SerializerMethodField()
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # handle custom serialization for each field here
+        for field_name, field_value in data.items():
+            data[field_name] = field_value
+        return data
 
     class Meta:
         model = PipelineFile
 
-        fields = [
-            'pipeline_id',
-            'file_id',
-            'file',
-            'path',
-            'upload_date',
-            'template'
-        ]
+        fields = '__all__'
 
-    def get_pipeline_id(self, obj):
-        return obj.pipeline.pk
+class PipelineNotificationSerializer(serializers.ModelSerializer):
+    """Serialize the approval status of a pipeline"""
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # handle custom serialization for each field here
+        for field_name, field_value in data.items():
+            data[field_name] = field_value
+        return data
 
-    def get_file_id(self, obj):
-        return obj.pk
+    class Meta:
+        model = PipelineNotification
 
-    def get_path(self, obj):
-        return obj.path
-
-    def get_upload_date(self, obj):
-        return obj.upload_date
-
-    def get_template(self, obj):
-        return obj.template_file
+        fields = '__all__'

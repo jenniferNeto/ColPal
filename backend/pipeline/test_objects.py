@@ -20,7 +20,7 @@ class PipelineTestCase(TestCase):
         self.assertEquals(pipeline.title, 'Test Pipeline')
         self.assertEquals(pipeline.upload_frequency, timedelta(0))
         self.assertEquals(pipeline.is_approved, False)
-        self.assertEquals(pipeline.is_active, True)
+        self.assertEquals(pipeline.is_stable, True)
         self.assertEquals(pipeline.approved_date, None)
         self.assertEquals(pipeline.history.all().count(), 1)  # type: ignore
 
@@ -55,12 +55,12 @@ class PipelineTestCase(TestCase):
         self.assertNotEquals(pipeline.approved_date, None)
         self.assertEquals(pipeline.history.all().count(), 2)  # type: ignore
 
-    def test_pipeline_save_is_active(self):
-        """Test updating pipeline is_active"""
+    def test_pipeline_save_is_stable(self):
+        """Test updating pipeline is_stable"""
         pipeline = Pipeline.objects.all()[0]
-        pipeline.is_active = False
+        pipeline.is_stable = False
         pipeline.save()
 
-        self.assertEquals(pipeline.is_active, False)
+        self.assertEquals(pipeline.is_stable, False)
         self.assertNotEquals(pipeline.last_modified, None)
         self.assertEquals(pipeline.history.all().count(), 2)  # type: ignore

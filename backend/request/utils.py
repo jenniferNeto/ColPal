@@ -9,6 +9,7 @@ def createRequest(data, instance):
 
     mod.title = data['title']
     mod.upload_frequency = parse_duration(data['upload_frequency'])  # type: ignore
-    mod.is_active = 'is_active' in data
+    mod.is_stable = 'is_stable' in data
+    mod.hard_deadline = 'hard_deadline' in data
     mod.update_reason = data['update_reason']
     mod.save()

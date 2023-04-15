@@ -11,7 +11,7 @@ class PipelineHistoryAdmin(SimpleHistoryAdmin):
         'id',
         'upload_frequency',
         'is_approved',
-        'is_active',
+        'is_stable',
         'approved_date'
     ]
     history_list_display = ['status']
@@ -20,7 +20,7 @@ class PipelineHistoryAdmin(SimpleHistoryAdmin):
         'id',
         'upload_frequency',
         'is_approved',
-        'is_active',
+        'is_stable',
         'approved_date'
     ]
 

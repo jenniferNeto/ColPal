@@ -4,9 +4,12 @@ from rest_framework.response import Response
 from django.http import Http404
 
 from pipeline.models import Pipeline
+from authentication.utils import check_user_permissions
+from positions.models import Viewer, Uploader, Manager
 
 from .models import Constraint
 from .serializers import ConstraintSerializer, ConstraintUpdateSerializer
+
 
 class ConstraintsListAPIView(generics.ListAPIView):
     serializer_class = ConstraintSerializer
@@ -18,6 +21,9 @@ class ConstraintsListAPIView(generics.ListAPIView):
             pipeline = Pipeline.objects.get(pk=pk_pipeline)
         except Pipeline.DoesNotExist:
             raise Http404
+
+        # Validate a user is an uploaderIs
+        check_user_permissions(request, pk_pipeline, Uploader)
 
         # Validate the serializer data
         instance = Constraint.objects.filter(pipeline=pipeline)
@@ -39,6 +45,9 @@ class ConstraintUpdateAPIView(generics.RetrieveUpdateAPIView):
         except (Pipeline.DoesNotExist, Constraint.DoesNotExist):
             raise Http404
 
+        # Validate a user is an uploaderIs
+        check_user_permissions(request, pk_pipeline, Uploader)
+
         # Validate the serializer data
         serializer = ConstraintSerializer(constraint, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -53,9 +62,12 @@ class ConstraintUpdateAPIView(generics.RetrieveUpdateAPIView):
         except (Pipeline.DoesNotExist, Constraint.DoesNotExist):
             raise Http404
 
+        # Validate a user is an uploaderIs
+        check_user_permissions(request, pk_pipeline, Uploader)
+
         # Get new attribute from request and update object
         attribute = request.data['attribute_type']
-        constraint.attribute_type = attribute
+        constraint.column_type = attribute
 
         # Validate update
         serializer = self.get_serializer(constraint, data=request.data)

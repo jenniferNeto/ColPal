@@ -64,7 +64,8 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
             self.update_instance(pipeline_id=instance.pipeline_id,
                                  title=instance.title,
                                  upload_frequency=instance.upload_frequency,
-                                 is_active=instance.is_active,
+                                 is_stable=instance.is_stable,
+                                 hard_deadline=instance.hard_deadline,
                                  update_reason=instance.update_reason)
         return Response(status.HTTP_200_OK)
 
@@ -82,7 +83,7 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
 
     def update_instance(self, pipeline_id, **kwargs):
         # Data should have three optinal update fields
-        # request_title, request_upload_frequency, request_is_active
+        # request_title, request_upload_frequency, request_is_stable
 
         # Need to use specific index and not .first() or objects can be NoneType
         instance: Pipeline = Pipeline.objects.filter(pk=pipeline_id)[0]
@@ -94,7 +95,8 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
         # Update needs to be after update_change_reason or NoneType error reported
         instance.title = kwargs['title']
         instance.upload_frequency = kwargs['upload_frequency']
-        instance.is_active = kwargs['is_active']
+        instance.is_stable = kwargs['is_stable']
+        instance.hard_deadline = kwargs['hard_deadline']
 
         # Save changes on the instance
         # This will also generate a historical model of the changes

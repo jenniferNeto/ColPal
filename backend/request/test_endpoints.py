@@ -49,7 +49,7 @@ class RequestEndpointTestCase(APITestCase):
                                     pipeline=pipeline)
 
         # Send pipeline update request
-        data = {'title': 'New title', 'upload_frequency': 100, 'is_active': True, 'update_reason': 'Test'}
+        data = {'title': 'New title', 'upload_frequency': 100, 'is_stable': True, 'hard_deadline': True, 'update_reason': 'Test'}
         self.client.put(f'/pipelines/{pipeline_id}/update/', data=data,
                         HTTP_AUTHORIZATION='Bearer {}'.format(token),
                         follow=True)
@@ -132,7 +132,7 @@ class RequestEndpointTestCase(APITestCase):
 
     #     self.assertEquals(pipeline.title, 'New title')
     #     self.assertEquals(pipeline.upload_frequency, 100)
-    #     self.assertEquals(pipeline.is_active, True)
+    #     self.assertEquals(pipeline.is_stable, True)
 
     """
     Make unit tests specifically testing the feature that only adds

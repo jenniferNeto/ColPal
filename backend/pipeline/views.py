@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAdminUser
 from django.http import Http404
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from simple_history.utils import update_change_reason
 
@@ -15,10 +16,12 @@ from authentication.utils import check_user_permissions, is_user_allowed
 from positions.models import Viewer, Uploader, Manager
 from request.utils import createRequest
 
-from django.utils import timezone
+from constraints.utils import map_to_constraint
+from constraints.models import Constraint
 
-from .validators import CSVFileValidator
-from .models import Pipeline, PipelineFile
+from .utils import is_stable, get_deadline
+from .validators import generate_types, validate
+from .models import Pipeline, PipelineFile, PipelineNotification
 from .serializers import (
     PipelineSerializer,
     PipelineStatusSerializer,
@@ -26,6 +29,8 @@ from .serializers import (
     PipelineUpdateSerializer,
     PipelineFileSerializer,
     FileUploadSerializer,
+    PipelineNotificationSerializer,
+    ConstraintSerializer,
 )
 
 Users = get_user_model()
@@ -68,17 +73,35 @@ class PipelineCreateAPIView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         # Override create but with a different instance
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        pipeline = serializer.save()
-        headers = self.get_success_headers(serializer.data)
+        data = request.data.copy()
+        # Remove constraints for serializer
+        if 'constraints' in data:
+            data.pop('constraints')
+
+        pipeline_serializer = PipelineSerializer(data=data)
+        constraints_serializer = ConstraintSerializer(data=request.data.get('constraints', []), many=True)
+        pipeline_serializer.is_valid(raise_exception=True)
+        pipeline = pipeline_serializer.save()
+
+        # Generate constraints if found with request
+        if request.data.get('constraints', []):
+            constraints_serializer.is_valid(raise_exception=True)
+            attribute_data = constraints_serializer.data
+
+            for constraint in attribute_data:
+                constraint['column_type'] = map_to_constraint(constraint['column_type'])
+                Constraint.objects.create(
+                    pipeline=pipeline,
+                    column_title=constraint['column_name'],
+                    column_type=constraint['column_type']
+                )
 
         # Whoever creates a pipeline is automatically a viewer and manager of that pipeline
         Manager.objects.create(user=request.user, pipeline=pipeline)
         Uploader.objects.create(user=request.user, pipeline=pipeline)
         Viewer.objects.create(user=request.user, pipeline=pipeline)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(pipeline_serializer.data, status=status.HTTP_201_CREATED)
 
 class PipelineUpdateAPIView(generics.UpdateAPIView):
     """Update a pipeline"""
@@ -183,8 +206,14 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
             raise Http404
 
         # Get and update pipeline status
-        approval_status = request.POST.get('approved')
-        pipeline.is_approved = bool(approval_status)
+        approval_status = bool(request.POST.get('approved'))
+
+        # If pipeline was approved with this request
+        if not pipeline.is_approved and approval_status:
+            pipeline.approved_date = timezone.now()
+
+        # Update approval status and save
+        pipeline.is_approved = approval_status
         pipeline.save()
 
         return Response(status=status.HTTP_200_OK, data={'id': pk_pipeline, 'approved': pipeline.is_approved})
@@ -233,7 +262,7 @@ class UserPipelinesListAPIView(generics.ListAPIView):
         return super().get(request)
 
 class PipelineFileUploadAPIView(generics.CreateAPIView):
-    """Upload files to an active and approved pipeline"""
+    """Upload files to an approved pipeline"""
     serializer_class = FileUploadSerializer
 
     def create(self, request, pk_pipeline):
@@ -249,10 +278,13 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
         # Get the uploaded file from the request
         file = request.FILES.get('file')
 
-        # User can only upload files if pipeline is active and approved
-        if not (pipeline.is_active and pipeline.is_approved):
-            return Response(status=status.HTTP_403_FORBIDDEN, data={'detail': "Pipeline must be active and approved"})
-
+        """Pipeline is stable instead of active"""
+        # # User can only upload files if pipeline is active and approved
+        # if not (pipeline.is_active and pipeline.is_approved):
+        #     return Response(status=status.HTTP_403_FORBIDDEN, data={'detail': "Pipeline must be active and approved"})
+        if not pipeline.is_approved:
+            return Response(status=status.HTTP_403_FORBIDDEN,
+                            data={'detail': "Pipeline must be approved by an admin before uploading files."})
         # Generate path to store file
         target_path = f'pipeline/{pk_pipeline}/{str(timezone.now().replace(tzinfo=None))}/{file}'
         saved_location = storage.save(target_path, file)
@@ -260,12 +292,8 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
         # Connect uploaded file to pipeline using intermediary model
         pipeline_file = PipelineFile.objects.create(pipeline=pipeline, file=file, path=saved_location)
 
-        # Get the date of the last uploaded file to the current pipeline
-        latest_upload = PipelineFile.objects.filter(pipeline=pipeline).last()
-        start_date = pipeline.created if latest_upload is None else latest_upload.upload_date
-
-        # Calculate if the file is overdue and generate response data
-        past_due = start_date + pipeline.upload_frequency < timezone.now()
+        # Check if pipeline is stale
+        past_due = is_stable(pk_pipeline)
         data = {
             'pipeline_id': pk_pipeline,
             'upload_date': pipeline_file.upload_date,
@@ -276,6 +304,17 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
         }
 
         return Response(status=status.HTTP_200_OK, data=data)
+
+class PipelineTemplateFileUploadAPIView(generics.CreateAPIView):
+    """Upload files to an approved pipeline"""
+    queryset = Pipeline
+    serializer_class = FileUploadSerializer
+
+    def create(self, request):
+        # Get the uploaded file from the request
+        file = request.FILES.get('file')
+
+        return Response(status=status.HTTP_200_OK, data={"constraints": generate_types(file)})
 
 class PipelineFileListAPIView(generics.ListAPIView):
     """View uploaded files for a specific pipeline"""
@@ -331,6 +370,33 @@ class ValidateFileAPIView(generics.ListAPIView):
         except (Pipeline.DoesNotExist, PipelineFile.DoesNotExist):
             raise Http404
 
-        validator = CSVFileValidator(file=pipeline_file)
+        return Response(data={"errors": validate(pipeline_file=pipeline_file)})
 
-        return Response(data=validator.validate())
+class PipelineDeadlineAPIView(generics.ListAPIView):
+    """Get the remaining time for a pipeline to be stable"""
+    serializer_class = Pipeline
+    queryset = Pipeline.objects.all()
+
+    def get(self, request, pk_pipeline):
+        # Verify pipeline and pipeline file exist
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        except Pipeline.DoesNotExist:
+            raise Http404
+
+        return Response(status=status.HTTP_200_OK, data={'deadline': get_deadline(pipeline.pk)})
+
+class PipelineNotificationListAPIView(generics.ListAPIView):
+    serializer_class = PipelineNotification
+    queryset = Pipeline.objects.all()
+
+    def get(self, request, pk_pipeline):
+        # Verify pipeline and pipeline file exist
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+        except Pipeline.DoesNotExist:
+            raise Http404
+
+        instance = PipelineNotification.objects.filter(pipeline=pipeline)
+
+        return Response(PipelineNotificationSerializer(instance=instance, many=True).data)
