@@ -11,7 +11,7 @@ import os
 # Need to ignore scheduler to run django tests during github workflow
 
 # To run django test cases this has to be disabled. Pipelines will not be automatically checked for stability
-if os.environ.get('IGNORE_SCHEDULER') is None or not os.environ.get('IGNORE_SCHEDULER'):
+if os.environ.get('IGNORE_SCHEDULER') is None or os.environ.get('IGNORE_SCHEDULER') == 'false':
     scheduler = BackgroundScheduler()
     scheduler.start()
     scheduler.add_job(cron_is_stable, 'interval', seconds=5)

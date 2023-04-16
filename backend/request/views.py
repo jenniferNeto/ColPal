@@ -11,6 +11,7 @@ from positions.models import Manager
 from pipeline.models import Pipeline
 
 from .models import Request
+from .utils import send_request_status_email
 from .serializers import RequestSerializer, RequestUpdateSerializer
 
 
@@ -67,6 +68,8 @@ class RequestUpdateDetailAPIView(generics.UpdateAPIView):
                                  is_stable=instance.is_stable,
                                  hard_deadline=instance.hard_deadline,
                                  update_reason=instance.update_reason)
+        # Create notification and send email
+        send_request_status_email(instance)
         return Response(status.HTTP_200_OK)
 
     def get(self, request, pk_request):

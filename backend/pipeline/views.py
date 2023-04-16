@@ -14,24 +14,14 @@ storage = GoogleCloudStorage()
 
 from authentication.utils import check_user_permissions, is_user_allowed
 from positions.models import Viewer, Uploader, Manager
-from request.utils import createRequest
-
+from request.utils import create_pipeline_request
 from constraints.utils import map_to_constraint
 from constraints.models import Constraint
 
 from .utils import is_stable, get_deadline
 from .validators import generate_types, validate
 from .models import Pipeline, PipelineFile, PipelineNotification
-from .serializers import (
-    PipelineSerializer,
-    PipelineStatusSerializer,
-    PipelineHistorySeralizer,
-    PipelineUpdateSerializer,
-    PipelineFileSerializer,
-    FileUploadSerializer,
-    PipelineNotificationSerializer,
-    ConstraintSerializer,
-)
+import pipeline.serializers as serializers
 
 Users = get_user_model()
 
@@ -39,19 +29,19 @@ Users = get_user_model()
 class PipelineListAPIView(generics.ListAPIView):
     """View all created pipelines"""
     queryset = Pipeline.objects.all()
-    serializer_class = PipelineSerializer
+    serializer_class = serializers.PipelineSerializer
     permission_classes = [IsAdminUser]
 
 class ApprovedPipelineListAPIView(generics.ListAPIView):
     """View all created pipelines"""
     queryset = Pipeline.objects.filter(is_approved=True)
-    serializer_class = PipelineSerializer
+    serializer_class = serializers.PipelineSerializer
     permission_classes = [IsAdminUser]
 
 class PipelineDetailAPIView(generics.RetrieveAPIView):
     """View a specific pipeline based on its id"""
     queryset = Pipeline.objects.all()
-    serializer_class = PipelineSerializer
+    serializer_class = serializers.PipelineSerializer
 
     def get(self, request, pk_pipeline):
         pipeline = Pipeline.objects.filter(pk=pk_pipeline).first()
@@ -64,12 +54,12 @@ class PipelineDetailAPIView(generics.RetrieveAPIView):
         # match all the required added fields on a Pipeline
         # Without this line update requests will always be 405 response code
         pipeline.update_reason = None  # type: ignore
-        return Response(PipelineSerializer(pipeline).data)
+        return Response(serializers.PipelineSerializer(pipeline).data)
 
 class PipelineCreateAPIView(generics.CreateAPIView):
     """Create a new pipeline"""
     queryset = Pipeline.objects.all()
-    serializer_class = PipelineSerializer
+    serializer_class = serializers.PipelineSerializer
 
     def create(self, request, *args, **kwargs):
         # Override create but with a different instance
@@ -78,8 +68,8 @@ class PipelineCreateAPIView(generics.CreateAPIView):
         if 'constraints' in data:
             data.pop('constraints')
 
-        pipeline_serializer = PipelineSerializer(data=data)
-        constraints_serializer = ConstraintSerializer(data=request.data.get('constraints', []), many=True)
+        pipeline_serializer = serializers.PipelineSerializer(data=data)
+        constraints_serializer = serializers.ConstraintSerializer(data=request.data.get('constraints', []), many=True)
         pipeline_serializer.is_valid(raise_exception=True)
         pipeline = pipeline_serializer.save()
 
@@ -106,7 +96,7 @@ class PipelineCreateAPIView(generics.CreateAPIView):
 class PipelineUpdateAPIView(generics.UpdateAPIView):
     """Update a pipeline"""
     queryset = Pipeline.objects.all()
-    serializer_class = PipelineUpdateSerializer
+    serializer_class = serializers.PipelineUpdateSerializer
 
     def put(self, request, *args, **kwargs):
         pipeline_id = self.kwargs['pk_pipeline']
@@ -153,7 +143,7 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
 
         # Create the new request object
-        createRequest(data=request.data, instance=instance)
+        create_pipeline_request(request=request, data=request.data, instance=instance)
 
         return Response(status=status.HTTP_200_OK)
 
@@ -170,11 +160,11 @@ class PipelineUpdateAPIView(generics.UpdateAPIView):
         # match all the required added fields on a Pipeline
         # Without this line update requests will always be 405 response code
         pipeline.update_reason = None  # type: ignore
-        return Response(PipelineSerializer(pipeline).data)
+        return Response(serializers.PipelineSerializer(pipeline).data)
 
 class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
     """View pipeline approval status"""
-    serializer_class = PipelineStatusSerializer
+    serializer_class = serializers.PipelineStatusSerializer
 
     def get(self, request, pk_pipeline):
         # Check to make sure pipeline exists
@@ -185,7 +175,7 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
 
         # Check user has permissions to view status
         check_user_permissions(request, pk_pipeline, Viewer)
-        return Response(PipelineStatusSerializer(pipeline).data)
+        return Response(serializers.PipelineStatusSerializer(pipeline).data)
 
     def put(self, request, pk_pipeline):
         # Check to make sure pipeline exists
@@ -220,7 +210,7 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
 
 class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
     """View pipeline historical instances"""
-    serializer_class = PipelineHistorySeralizer
+    serializer_class = serializers.PipelineHistorySeralizer
 
     def get_queryset(self):
         pipeline_id = self.kwargs['pk_pipeline']
@@ -237,7 +227,7 @@ class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
 
 class UserPipelinesListAPIView(generics.ListAPIView):
     """View pipelines a user can upload to"""
-    serializer_class = PipelineSerializer
+    serializer_class = serializers.PipelineSerializer
 
     def get_queryset(self):
         pk = self.kwargs['pk']
@@ -263,7 +253,7 @@ class UserPipelinesListAPIView(generics.ListAPIView):
 
 class PipelineFileUploadAPIView(generics.CreateAPIView):
     """Upload files to an approved pipeline"""
-    serializer_class = FileUploadSerializer
+    serializer_class = serializers.FileUploadSerializer
 
     def create(self, request, pk_pipeline):
         # Check to make sure pipeline exists
@@ -308,7 +298,7 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
 class PipelineTemplateFileUploadAPIView(generics.CreateAPIView):
     """Upload files to an approved pipeline"""
     queryset = Pipeline
-    serializer_class = FileUploadSerializer
+    serializer_class = serializers.FileUploadSerializer
 
     def create(self, request):
         # Get the uploaded file from the request
@@ -318,7 +308,7 @@ class PipelineTemplateFileUploadAPIView(generics.CreateAPIView):
 
 class PipelineFileListAPIView(generics.ListAPIView):
     """View uploaded files for a specific pipeline"""
-    serializer_class = PipelineFileSerializer
+    serializer_class = serializers.PipelineFileSerializer
     queryset = PipelineFile.objects.all()
 
     def get(self, request, pk_pipeline):
@@ -332,11 +322,11 @@ class PipelineFileListAPIView(generics.ListAPIView):
             raise Http404
         instance = PipelineFile.objects.filter(pipeline=pipeline)
 
-        return Response(PipelineFileSerializer(instance, many=True).data)
+        return Response(serializers.PipelineFileSerializer(instance, many=True).data)
 
 class PipelineFileRetrieveAPIView(generics.RetrieveAPIView):
     """View uploaded file for a specific pipeline"""
-    serializer_class = PipelineFileSerializer
+    serializer_class = serializers.PipelineFileSerializer
     queryset = PipelineFile.objects.all()
 
     def get(self, request, pk_pipeline, pk_pipelinefile):
@@ -356,7 +346,7 @@ class PipelineFileRetrieveAPIView(generics.RetrieveAPIView):
         except PipelineFile.DoesNotExist:
             raise Http404
 
-        return Response(PipelineFileSerializer(uploaded_file).data)
+        return Response(serializers.PipelineFileSerializer(uploaded_file).data)
 
 class ValidateFileAPIView(generics.ListAPIView):
     serializer_class = PipelineFile
@@ -399,4 +389,4 @@ class PipelineNotificationListAPIView(generics.ListAPIView):
 
         instance = PipelineNotification.objects.filter(pipeline=pipeline)
 
-        return Response(PipelineNotificationSerializer(instance=instance, many=True).data)
+        return Response(serializers.PipelineNotificationSerializer(instance=instance, many=True).data)
