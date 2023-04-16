@@ -3,6 +3,8 @@
 import datetime
 from django.db import migrations, models
 import django.db.models.deletion
+from django.contrib.auth import get_user_model
+from django.conf import settings
 
 
 class Migration(migrations.Migration):
@@ -30,6 +32,7 @@ class Migration(migrations.Migration):
                 ('accept_changes', models.IntegerField(choices=[(0, 'Pending'), (1, 'Accepted'), (2, 'Rejected')], default=0)),
                 ('response', models.TextField(null=True)),
                 ('pipeline', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='pipeline.pipeline')),
+                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'abstract': False,

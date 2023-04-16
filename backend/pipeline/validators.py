@@ -69,6 +69,7 @@ def generate_base_types(file):
             counts[str] -= counts[float]
         elif counts[int] != 0 and counts[str] > counts[int]:
             counts[str] -= counts[int]
+        # Can cause a problem if the column is empty, TODO
         most_common_types[col] = max(counts, key=counts.get)
 
     return dataframe, [n.__name__ for n in most_common_types.values()]

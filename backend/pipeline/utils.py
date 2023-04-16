@@ -122,14 +122,14 @@ def cron_is_stable():
         if pipeline.is_stable and not stable:
             # Send email to everyone on pipeline notifying of unstable pipeline
             users = extract_users(pipeline.pk)
-            stable_email("[Stable Data] Your pipeline is unstable!",
+            stable_email("Your pipeline is unstable!",
                          pipeline.pk, 'unstable.html', os.environ.get("EMAIL_ADDRESS", ''), users)
 
         # If pipeline was unstable but now is stable
         if not pipeline.is_stable and stable:
             # Send email to everyone on pipeline notifying of stable pipeline
             users = extract_users(pipeline.pk)
-            stable_email("[Stable Data] Your pipeline is stable again!",
+            stable_email("Your pipeline is stable again!",
                          pipeline.pk, 'stable.html', os.environ.get("EMAIL_ADDRESS", ''), users)
 
         # If the stability of the pipeline changed, update the object
@@ -148,14 +148,22 @@ def stable_email(subject: str, pipeline_id: int, template: str, from_email: str,
     for recipient in users:
         message_html = render_to_string(template, context={'username': recipient, 'title': pipeline})
         message = strip_tags(message_html)
-        email = EmailMultiAlternatives(
-            subject,
-            message,
-            from_email,
-            to=[recipient.email]
-        )
-        email.attach_alternative(message_html, "text/html")
-        email.send()
+        try:
+            email = EmailMultiAlternatives(
+                subject,
+                message,
+                from_email,
+                to=[recipient.email]
+            )
+            email.attach_alternative(message_html, "text/html")
+            email.send()
+        except Exception:
+            pass
 
         # Create pipeline notification
-        PipelineNotification.objects.create(pipeline=pipeline, user=recipient)
+        PipelineNotification.objects.create(
+            pipeline=pipeline,
+            user=recipient,
+            date=timezone.now(),
+            message='Stable' if pipeline.is_stable else 'Unstable' + ' pipeline')
+        # PipelineNotification.objects.create(pipeline=pipeline, user=recipient)
