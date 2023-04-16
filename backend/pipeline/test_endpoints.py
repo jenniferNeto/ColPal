@@ -132,7 +132,7 @@ class PipelineEndpointTestCase(APITestCase):
         token = self.login(regular=False)
 
         # Create and send request
-        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_stable': True}
+        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated"}
         self.assertNotEquals(Pipeline.objects.count(), 0)
         pipeline_id = Pipeline.objects.all()[0].pk
         response = self.client.get(f'/pipelines/{pipeline_id}/', data=data,
@@ -145,7 +145,7 @@ class PipelineEndpointTestCase(APITestCase):
         pipeline_id = Pipeline.objects.all()[0].pk
         Manager.objects.create(user=User.objects.get(username=self.regular_user),
                                pipeline=Pipeline.objects.get(pk=pipeline_id))
-        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_stable': True}
+        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated"}
         self.assertNotEquals(Pipeline.objects.count(), 0)
 
         response = self.client.put(f'/pipelines/{pipeline_id}/update/', data=data,
@@ -163,7 +163,7 @@ class PipelineEndpointTestCase(APITestCase):
         Viewer.objects.create(user=user, pipeline=pipeline)
         token = self.login()
 
-        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated", 'is_stable': True}
+        data = {'title': "Title", 'upload_frequency': "00:00:10", 'update_reason': "Updated"}
         self.assertNotEquals(Pipeline.objects.count(), 0)
         pipeline_id = Pipeline.objects.all()[0].pk
         response = self.client.put(f'/pipelines/{pipeline_id}/update/', data=data,

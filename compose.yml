@@ -21,6 +21,7 @@ services:
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
       - IGNORE_SCHEDULER=${IGNORE_SCHEDULER}
+      - MAPS_API_KEY=${MAPS_API_KEY}
     depends_on:
       db:
         condition: service_healthy

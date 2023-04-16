@@ -14,42 +14,11 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='BooleanConstraint',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.BooleanField(null=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='IntegerConstraint',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.IntegerField(null=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='FloatConstraint',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.FloatField(null=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='VarcharConstraint',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.CharField(max_length=1000, null=True)),
-            ],
-        ),
-        migrations.CreateModel(
             name='Constraint',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('column_title', models.TextField()),
-                ('attribute_type', models.PositiveSmallIntegerField(choices=[(0, 'None'), (1, 'Varchar'), (2, 'Integer'), (3, 'Float'), (4, 'Date'), (5, 'Boolean'), (6, 'Datetime'), (7, 'Email')], default=0)),
-                ('nullable', models.BooleanField(default=False)),
-                ('blank', models.BooleanField(default=False)),
-                ('valid', models.BooleanField(default=True)),
+                ('column_type', models.PositiveSmallIntegerField(choices=[(0, 'None'), (1, 'Varchar'), (2, 'Integer'), (3, 'Float'), (4, 'Boolean'), (5, 'Date'), (6, 'Address'), (7, 'Email')], default=0)),
                 ('pipeline', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pipeline.pipeline')),
             ],
         ),

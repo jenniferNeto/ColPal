@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAdminUser
 from django.http import Http404
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from simple_history.utils import update_change_reason
 
@@ -15,10 +16,11 @@ from authentication.utils import check_user_permissions, is_user_allowed
 from positions.models import Viewer, Uploader, Manager
 from request.utils import createRequest
 
-from django.utils import timezone
+from constraints.utils import map_to_constraint
+from constraints.models import Constraint
 
 from .utils import is_stable, get_deadline
-from .validators import CSVFileValidator
+from .validators import generate_types, validate
 from .models import Pipeline, PipelineFile, PipelineNotification
 from .serializers import (
     PipelineSerializer,
@@ -28,6 +30,7 @@ from .serializers import (
     PipelineFileSerializer,
     FileUploadSerializer,
     PipelineNotificationSerializer,
+    ConstraintSerializer,
 )
 
 Users = get_user_model()
@@ -70,17 +73,35 @@ class PipelineCreateAPIView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         # Override create but with a different instance
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        pipeline = serializer.save()
-        headers = self.get_success_headers(serializer.data)
+        data = request.data.copy()
+        # Remove constraints for serializer
+        if 'constraints' in data:
+            data.pop('constraints')
+
+        pipeline_serializer = PipelineSerializer(data=data)
+        constraints_serializer = ConstraintSerializer(data=request.data.get('constraints', []), many=True)
+        pipeline_serializer.is_valid(raise_exception=True)
+        pipeline = pipeline_serializer.save()
+
+        # Generate constraints if found with request
+        if request.data.get('constraints', []):
+            constraints_serializer.is_valid(raise_exception=True)
+            attribute_data = constraints_serializer.data
+
+            for constraint in attribute_data:
+                constraint['column_type'] = map_to_constraint(constraint['column_type'])
+                Constraint.objects.create(
+                    pipeline=pipeline,
+                    column_title=constraint['column_name'],
+                    column_type=constraint['column_type']
+                )
 
         # Whoever creates a pipeline is automatically a viewer and manager of that pipeline
         Manager.objects.create(user=request.user, pipeline=pipeline)
         Uploader.objects.create(user=request.user, pipeline=pipeline)
         Viewer.objects.create(user=request.user, pipeline=pipeline)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(pipeline_serializer.data, status=status.HTTP_201_CREATED)
 
 class PipelineUpdateAPIView(generics.UpdateAPIView):
     """Update a pipeline"""
@@ -284,6 +305,17 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
 
         return Response(status=status.HTTP_200_OK, data=data)
 
+class PipelineTemplateFileUploadAPIView(generics.CreateAPIView):
+    """Upload files to an approved pipeline"""
+    queryset = Pipeline
+    serializer_class = FileUploadSerializer
+
+    def create(self, request):
+        # Get the uploaded file from the request
+        file = request.FILES.get('file')
+
+        return Response(status=status.HTTP_200_OK, data={"constraints": generate_types(file)})
+
 class PipelineFileListAPIView(generics.ListAPIView):
     """View uploaded files for a specific pipeline"""
     serializer_class = PipelineFileSerializer
@@ -338,9 +370,7 @@ class ValidateFileAPIView(generics.ListAPIView):
         except (Pipeline.DoesNotExist, PipelineFile.DoesNotExist):
             raise Http404
 
-        validator = CSVFileValidator(file=pipeline_file)
-
-        return Response(data=validator.validate())
+        return Response(data={"errors": validate(pipeline_file=pipeline_file)})
 
 class PipelineDeadlineAPIView(generics.ListAPIView):
     """Get the remaining time for a pipeline to be stable"""
