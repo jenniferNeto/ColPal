@@ -11,7 +11,8 @@ urlpatterns = [
     path('<int:pk>/', views.UsersDetailAPIView.as_view(), name="Get Users"),
     path('login/', views.UserLoginAPIView.as_view()),
     path('logout/', views.UserLogoutAPIView.as_view()),
-
+    path('create/', views.UserCreateAPIView.as_view()),
+    path('delete/', views.UserDeleteAPIView.as_view()),
     path('obtain/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh')
 ]
