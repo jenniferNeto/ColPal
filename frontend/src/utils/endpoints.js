@@ -27,6 +27,13 @@ export const get_pipeline_deadline = (pipeline_id) => ({
     isAuth: true,
 })
 
+export const post_create_constraints = () => ({
+    url: `/pipelines/upload/template/`,
+    method: 'post',
+    headers: {'Content-Type': 'multipart/form-data'},
+    isAuth: true,
+})
+
 export const get_pipeline_uploads = (pipeline_id) => ({
     url: `/pipelines/${pipeline_id}/files/`,
     method: 'get',
