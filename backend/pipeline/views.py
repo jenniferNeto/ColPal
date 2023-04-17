@@ -38,6 +38,12 @@ class ApprovedPipelineListAPIView(generics.ListAPIView):
     serializer_class = serializers.PipelineSerializer
     permission_classes = [IsAdminUser]
 
+class NotApprovedPipelineListAPIView(generics.ListAPIView):
+    """View all created pipelines"""
+    queryset = Pipeline.objects.filter(is_approved=False)
+    serializer_class = serializers.PipelineSerializer
+    permission_classes = [IsAdminUser]
+
 class PipelineDetailAPIView(generics.RetrieveAPIView):
     """View a specific pipeline based on its id"""
     queryset = Pipeline.objects.all()

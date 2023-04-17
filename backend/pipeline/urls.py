@@ -20,6 +20,7 @@ if os.environ.get('IGNORE_SCHEDULER') is None or os.environ.get('IGNORE_SCHEDULE
 urlpatterns = [
     path('', views.PipelineListAPIView.as_view()),
     path('approved/', views.ApprovedPipelineListAPIView.as_view()),
+    path('not-approved/', views.NotApprovedPipelineListAPIView.as_view()),
     path('create/', views.PipelineCreateAPIView.as_view()),
     path('<int:pk_pipeline>/', views.PipelineDetailAPIView.as_view()),
     path('<int:pk_pipeline>/update/', views.PipelineUpdateAPIView.as_view()),
