@@ -40,6 +40,14 @@ export const get_pipeline_uploads = (pipeline_id) => ({
     headers: {},
     isAuth: true,
 })
+
+export const get_validate_upload = (pipeline_id, file_id) => ({
+    url: `/pipelines/${pipeline_id}/files/${file_id}/validate/`,
+    method: 'get',
+    headers: {},
+    isAuth: true,
+})
+
 export const get_all_users = () => ({
     url: `/users/`,
     method: 'get',
