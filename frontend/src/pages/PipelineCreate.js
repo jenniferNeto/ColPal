@@ -4,6 +4,7 @@ import { post_pipeline_create } from "../utils/endpoints";
 
 import ConstraintForm from "../components/create-pipeline/ConstraintForm";
 import UserRoleForm from "../components/create-pipeline/UserRoleForm";
+import ConstraintTable from "../components/create-pipeline/ConstraintTable";
 
 export default function PipelineCreate() {
   const [title, setTitle] = useState('');
@@ -62,22 +63,7 @@ export default function PipelineCreate() {
             </div>
             <div className="row m-2">
            
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Column Name</th>
-                      <th scope="col">Column Type</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {constraints.map(({column_name, column_type}) => (
-                      <tr>
-                        <th scope="row">{column_name}</th>
-                        <td>{column_type}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <ConstraintTable constraints={constraints} />
     
             </div>
           </form>

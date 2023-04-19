@@ -200,9 +200,9 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
         # Check pipeline
         if not pipeline:
             raise Http404
-
+      
         # Get and update pipeline status
-        approval_status = bool(request.POST.get('approved'))
+        approval_status = bool(request.data['approved']) #changed this because request.POST didn't work
 
         # If pipeline was approved with this request
         if not pipeline.is_approved and approval_status:

@@ -6,6 +6,27 @@ export const get_user_pipelines = (id) => ({
     headers: {},
     isAuth: true,
 })
+
+export const get_unapproved_pipelines = () => ({
+    url: `/pipelines/not-approved/`,
+    method: 'get',
+    headers: {},
+    isAuth: true,
+})
+
+export const get_pipeline_constraints = (pipeline_id) => ({
+    url: `/pipelines/${pipeline_id}/constraints/`,
+    method: 'get',
+    headers: {},
+    isAuth: true,
+})
+
+export const put_approve_pipeline = (pipeline_id) => ({
+    url: `/pipelines/${pipeline_id}/status/`,
+    method: 'put',
+    headers: {},
+    isAuth: true,
+})
 export const post_pipeline_file = (pipeline_id) => ({
     url: `/pipelines/${pipeline_id}/upload/`,
     method: 'post',

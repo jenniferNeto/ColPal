@@ -27,14 +27,18 @@ export default function UserRoleForm() {
     return (
         <div className="card shadow">
             <div className="card-header">
-                <div class="form-group">
+                <div class="form-group row">
+                    <div className="col-sm-8">
                     <select className="form-control" onChange={e => setSelectedUser(e.target.value)}>
                         <option>Select Users</option>
                         {users.map(user =>
                         <option key={user['id']} value={user['username']}>{user['username']}</option>)
                         }
                     </select>
-                    <button className="btn btn-primary">Add User Role</button>
+                    </div>
+                    <div className="col-sm-4">
+                        <button className="btn btn-primary">Add User</button>
+                    </div>
                 </div>
             </div>
         </div>
