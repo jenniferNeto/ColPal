@@ -19,7 +19,7 @@ from request.utils import create_pipeline_request
 from constraints.utils import map_to_constraint
 from constraints.models import Constraint
 
-from .utils import is_stable, get_deadline
+from .utils import is_stable, get_deadline, get_snowflake_files
 from .validators import generate_types, validate
 from .models import Pipeline, PipelineFile, PipelineNotification
 import pipeline.serializers as serializers
@@ -395,3 +395,11 @@ class PipelineNotificationListAPIView(generics.ListAPIView):
         instance = PipelineNotification.objects.filter(pipeline=pipeline)
 
         return Response(serializers.PipelineNotificationSerializer(instance=instance, many=True).data)
+
+class PipelineSnowflakeConfirmation(generics.ListAPIView):
+    serializer_class = Pipeline
+    queryset = Pipeline.objects.none()
+
+    def get(self, request):
+        print("SNOWFLAKE FILES:", get_snowflake_files())
+        return Response(status=status.HTTP_200_OK)

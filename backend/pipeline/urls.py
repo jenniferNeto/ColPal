@@ -33,4 +33,5 @@ urlpatterns = [
     path('<int:pk_pipeline>/deadline/', views.PipelineDeadlineAPIView.as_view()),
     path('<int:pk_pipeline>/notifications/', views.PipelineNotificationListAPIView.as_view()),
     path('user/<int:pk>/', views.UserPipelinesListAPIView.as_view()),
+    path('snowflake/', views.PipelineSnowflakeConfirmation.as_view())
 ]

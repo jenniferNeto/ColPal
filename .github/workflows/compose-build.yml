@@ -23,6 +23,7 @@ jobs:
       ENVIRONMENT: development
       IGNORE_SCHEDULER: true
       MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+      SNOWFLAKE_BEARER: ${{ secrets.SNOWFLAKE_BEARER }}
       CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
     steps:
       - uses: actions/checkout@v3

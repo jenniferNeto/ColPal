@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 from positions.models import Viewer, Uploader, Manager
 from pipeline.models import PipelineNotification
 
+import snowflake.connector
+
 import os
 
 def calculate_remaining_time(pipeline_id: int) -> timedelta:
@@ -166,5 +168,22 @@ def stable_email(subject: str, pipeline_id: int, template: str, from_email: str,
             pipeline=pipeline,
             user=recipient,
             date=timezone.now(),
-            message='Stable' if pipeline.is_stable else 'Unstable' + ' pipeline')
-        # PipelineNotification.objects.create(pipeline=pipeline, user=recipient)
+            message='Stable' if pipeline.is_stable else 'Unstable')
+
+def get_snowflake_files():
+    connection = snowflake.connector.connect(
+        user='SMA237',
+        account='BBOSMPR.FY01681',
+        authenticator='externalbrowser',
+        warehouse='COLPAL_DSP_WAREHOUSE',
+        database='COLPAL_DSP_DATABASE',
+        token=os.environ.get('SNOWFLAKE_BEARER')
+    )
+
+    cursor = connection.connect()
+    query = "LIST @gcs_stage"
+
+    cursor.execute(query)  # type: ignore
+
+    results = cursor.fetchall()  # type: ignore
+    return results
