@@ -1,6 +1,11 @@
 from django.core.validators import EmailValidator
+from django.db.models.fields.files import FieldFile
+
 from dateutil.parser import parse
+
 from constraints.models import Constraint
+from pipeline.models import Pipeline
+
 from .models import PipelineFile
 
 import io
@@ -115,12 +120,11 @@ def generate_types(file):
         response.append({"column_name": dataframe.columns[i], "column_type": types[i]})
     return response
 
-def validate(pipeline_file: PipelineFile):
+def validate(file: FieldFile, pipeline: Pipeline):
     """Validate a csv file based on provided types"""
     # Get file and constraint types as indexes
-    file = pipeline_file.file
     types = [constraint.column_type for constraint in Constraint.objects.filter(
-        pipeline=pipeline_file.pipeline)]
+        pipeline=pipeline)]
 
     # Create a dataframe from the csv file
     dataframe = pd.read_csv(io.BytesIO(file.read()))
@@ -131,6 +135,16 @@ def validate(pipeline_file: PipelineFile):
     validators = [None, str, int, float, bool, validate_email, validate_address, validate_date]
 
     for c_index, col in enumerate(dataframe.columns):
+        # If no constraints, can't validate
+        if len(types) == 0:
+            break
+
+        # If files doesn't match generated constraints
+        if c_index >= len(types):
+            for r_index, row in enumerate(dataframe[col]):
+                errors[error_count] = {"col": c_index, "row": r_index, "error": "Undefined column"}
+                error_count += 1
+            continue
         dtype = validators[types[c_index]]
         for r_index, row in enumerate(dataframe[col]):
             try:

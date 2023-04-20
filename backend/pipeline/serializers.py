@@ -128,18 +128,36 @@ class FileUploadSerializer(serializers.ModelSerializer):
     def get_file(self, obj):
         return obj.file
 
-class PipelineFileSerializer(serializers.Serializer):
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        # handle custom serialization for each field here
-        for field_name, field_value in data.items():
-            data[field_name] = field_value
-        return data
+class PipelineFileSerializer(serializers.ModelSerializer):
+    pipeline_id = serializers.SerializerMethodField()
+    file_id = serializers.SerializerMethodField()
+    path = serializers.SerializerMethodField()
 
     class Meta:
         model = PipelineFile
 
-        fields = '__all__'
+        fields = [
+            'pipeline_id',
+            'file_id',
+            'file',
+            'path',
+            'upload_date',
+        ]
+
+    def get_pipeline_id(self, obj):
+        return obj.pipeline.pk
+
+    def get_file_id(self, obj):
+        return obj.pk
+
+    def get_path(self, obj):
+        return obj.path
+
+    def get_upload_date(self, obj):
+        return obj.upload_date
+
+    def get_file(self, obj):
+        return obj.file.title
 
 class PipelineNotificationSerializer(serializers.ModelSerializer):
     """Serialize the approval status of a pipeline"""
