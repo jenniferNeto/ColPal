@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAdminUser
 
 from django.http import Http404
 from django.contrib.auth import get_user_model
+from django.db.models.fields.files import FieldFile
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -272,33 +273,45 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
         check_user_permissions(request, pk_pipeline, Uploader)
 
         # Get the uploaded file from the request
-        file = request.FILES.get('file')
+        file: FieldFile = request.FILES.get('file')
 
-        """Pipeline is stable instead of active"""
-        # # User can only upload files if pipeline is active and approved
-        # if not (pipeline.is_active and pipeline.is_approved):
-        #     return Response(status=status.HTTP_403_FORBIDDEN, data={'detail': "Pipeline must be active and approved"})
         if not pipeline.is_approved:
             return Response(status=status.HTTP_403_FORBIDDEN,
                             data={'detail': "Pipeline must be approved by an admin before uploading files."})
-        # Generate path to store file
+
+        # Validation file results
+        results = validate(file, pipeline)
+
+        # No errors found in file
+        if not results:
+            # Generate path to store file
+            return self.save_file(request, pk_pipeline)
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=results)
+
+    def save_file(self, request, pk_pipeline: int):
+        # Get the uploaded file from the request
+        file: FieldFile = request.FILES.get('file')
+
+        print("File:", file)
+
+        pipeline = Pipeline.objects.get(pk=pk_pipeline)
         target_path = f'pipeline/{pk_pipeline}/{str(timezone.now().replace(tzinfo=None))}/{file}'
         saved_location = storage.save(target_path, file)
 
         # Connect uploaded file to pipeline using intermediary model
-        pipeline_file = PipelineFile.objects.create(pipeline=pipeline, file=file, path=saved_location)
+        pipeline_file = PipelineFile.objects.create(pipeline=pipeline, file=file, path=target_path)
 
         # Check if pipeline is stale
         past_due = is_stable(pk_pipeline)
         data = {
             'pipeline_id': pk_pipeline,
+            'pipeline_file_id': pipeline_file.pk,
             'upload_date': pipeline_file.upload_date,
             'past_due': past_due,
             'filename': str(file),
             'file': saved_location,
             'template': pipeline_file.template_file
         }
-
         return Response(status=status.HTTP_200_OK, data=data)
 
 class PipelineTemplateFileUploadAPIView(generics.CreateAPIView):
@@ -353,20 +366,6 @@ class PipelineFileRetrieveAPIView(generics.RetrieveAPIView):
             raise Http404
 
         return Response(serializers.PipelineFileSerializer(uploaded_file).data)
-
-class ValidateFileAPIView(generics.ListAPIView):
-    serializer_class = PipelineFile
-    queryset = PipelineFile.objects.all()
-
-    def get(self, request, pk_pipeline, pk_pipelinefile):
-        # Verify pipeline and pipeline file exist
-        try:
-            Pipeline.objects.get(pk=pk_pipeline)
-            pipeline_file = PipelineFile.objects.get(pk=pk_pipelinefile)
-        except (Pipeline.DoesNotExist, PipelineFile.DoesNotExist):
-            raise Http404
-
-        return Response(data={"errors": validate(pipeline_file=pipeline_file)})
 
 class PipelineDeadlineAPIView(generics.ListAPIView):
     """Get the remaining time for a pipeline to be stable"""
