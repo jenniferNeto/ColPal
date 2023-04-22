@@ -1,5 +1,6 @@
 from .models import Pipeline, PipelineFile
 
+from django.conf import settings
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.core.mail import EmailMultiAlternatives
@@ -168,3 +169,27 @@ def stable_email(subject: str, pipeline_id: int, template: str, from_email: str,
             title='Pipeline Unstable' if pipeline.is_stable else 'Pipeline Stable',
             message='Please upload a file now' if pipeline.is_stable else 'Pipeline is ready for uploads')
         # This has to be swapped to print the correct notification
+
+def send_approve(pipeline, user, context):
+    """Send email to all managers on a pipeline about new request"""
+    message_html = render_to_string(
+        "approved.html",
+        context=context)
+    message = strip_tags(message_html)
+    try:
+        email = EmailMultiAlternatives(
+            "Pipeline approved!",
+            message,
+            from_email=settings.SERVER_EMAIL,
+            to=[user.email]  # type: ignore
+        )
+        email.attach_alternative(message_html, "text/html")
+        email.send()
+        PipelineNotification.objects.create(
+            pipeline=pipeline,
+            user=user,
+            date=timezone.now(),
+            title="Pipeline approved",
+            message="You can now upload files to your pipeline")
+    except Exception:
+        pass

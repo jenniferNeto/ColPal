@@ -5,6 +5,7 @@ from django.contrib.auth.models import User, AbstractBaseUser
 from django.utils import timezone
 from django.conf import settings
 
+
 from pipeline.models import Pipeline, PipelineNotification
 
 

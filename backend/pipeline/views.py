@@ -19,7 +19,7 @@ from request.utils import create_pipeline_request
 from constraints.utils import map_to_constraint
 from constraints.models import Constraint
 
-from .utils import is_stable, get_deadline
+from .utils import is_stable, get_deadline, send_approve
 from .validators import generate_types, validate
 from .models import Pipeline, PipelineFile, PipelineNotification
 import pipeline.serializers as serializers
@@ -201,13 +201,14 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
         # Check pipeline
         if not pipeline:
             raise Http404
-      
+
         # Get and update pipeline status
         approval_status = bool(request.data['approved'])  # changed this because request.POST didn't work
 
         # If pipeline was approved with this request
         if not pipeline.is_approved and approval_status:
             pipeline.approved_date = timezone.now()
+            send_approve(pipeline, user, context={'username': user, 'title': pipeline})
 
         # Update approval status and save
         pipeline.is_approved = approval_status
@@ -233,13 +234,13 @@ class PipelineHistoricalRecordsRetrieveAPIView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
 class UserPipelinesListAPIView(generics.ListAPIView):
-    """View pipelines a user can upload to"""
+    """View pipelines a user can view to"""
     serializer_class = serializers.PipelineSerializer
 
     def get_queryset(self):
         pk = self.kwargs['pk']
-        uploaders = Uploader.objects.filter(user__pk=pk).values_list('pipeline_id')
-        pipeline_ids = [pipe[0] for pipe in uploaders]
+        viewers = Viewer.objects.filter(user__pk=pk).values_list('pipeline_id')
+        pipeline_ids = [pipe[0] for pipe in viewers]
         return Pipeline.objects.filter(pk__in=pipeline_ids)
 
     def get(self, request, pk):

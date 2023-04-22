@@ -17,12 +17,6 @@ function formatDate(dateString) {
 
 export default function NotificationCard({data}) {
   const {id, message, date, pipeline, pipeline_title, user, title} = data;
-  console.log(id, message, date, pipeline, pipeline_title, user, title)
-
-  console.log("Data:", data)
-  console.log("Message:", message)
-  // console.log("Title", title)
-
   const danger = title === "Position Removed" || title === "Request Rejected" || title === "Pipeline Unstable"  
   return (
       <div className='card' style={{border: 'none', background: '#E9E7FD', cursor: "pointer"}}>
