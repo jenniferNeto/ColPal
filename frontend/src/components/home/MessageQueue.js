@@ -11,7 +11,7 @@ export default function MessageQueue({notifications}) {
             <hr />
             <div className='col'>
             {
-                notifications.map(notification => (
+                notifications.slice(0).reverse().map(notification => (
                     <div key={notification.id} className='col-md-12 col-sm-12 my-3'>
                         <NotificationCard data={notification}/>
                     </div>
