@@ -10,6 +10,7 @@ export default function PipelineHistory({uploadHistory}) {
   const [showModal, setShowModal] = useState(false)
   const [viewFile, setViewFile] = useState(null)
 
+  /*
   const handleOpen = async (fileURL) => {
       const baseUrl = "https://storage.cloud.google.com/colgate-data-storage/"
       const fileName = fileURL.split("/").pop()
@@ -22,8 +23,7 @@ export default function PipelineHistory({uploadHistory}) {
           console.log(err)
       } 
 
-    
-  }
+  }*/
 
   const handleClose = () => {
     setViewFile(null)
@@ -40,7 +40,7 @@ export default function PipelineHistory({uploadHistory}) {
               <tr>
                 <th scope="col">File Name</th>
                 <th scope="col">Upload Time</th>
-                <th scope="col">View</th>
+                <th scope="col">Download</th>
 
               </tr>
             </thead>
@@ -50,7 +50,9 @@ export default function PipelineHistory({uploadHistory}) {
                   <td scope="col">{upload['path'].split("/").pop()}</td>
                   <td scope="col">{formatDate(upload['upload_date'])}</td>
                   <td scope="col">
-                    <FontAwesomeIcon icon={faEye} className="view-btn" onClick={() => handleOpen(upload['path'])}/>
+                    <a href={"https://storage.cloud.google.com/colgate-data-storage/"+upload['path']}>
+                      <FontAwesomeIcon icon={faEye} className="view-btn" />
+                    </a>
                   </td>
 
                 </tr>

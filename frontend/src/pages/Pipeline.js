@@ -1,10 +1,10 @@
 import {useState, useEffect, useMemo} from 'react'
 import { useLocation, useParams, useNavigate } from "react-router-dom";
-import { post_pipeline_file, get_pipeline_uploads, get_pipeline_deadline } from '../utils/endpoints'
+import { post_pipeline_file, get_pipeline_uploads, get_pipeline_deadline, add_pipeline_role } from '../utils/endpoints'
 
 import PipelineUpload from '../components/pipelines/PipelineUpload';
 import PipelineHistory from '../components/pipelines/PipelineHistory';
-import PipelineChangeLog from '../components/pipelines/PipelineChangeLog';
+
 import PipelineStateTrack from "../components/pipelines/PipelineStateTrack"
 import PipelineUserRoles from '../components/pipelines/PipelineUserRoles';
 
@@ -23,7 +23,7 @@ export default function Pipeline() {
   const uploadRequest = useRequest(post_pipeline_file(pipeline_id))
   const fileHistoryRequest = useRequest(get_pipeline_uploads(pipeline_id))
   const deadlineRequest = useRequest(get_pipeline_deadline(pipeline_id))
-  
+
  
   const handleFileUpload = (file) => {
     setUploadedFile(file)
@@ -35,6 +35,7 @@ export default function Pipeline() {
     await uploadRequest.doRequest({'file': uploadedFile})
   }
 
+
   useEffect(() => {
     if (uploadRequest.response) navigate(0)
   
@@ -42,6 +43,7 @@ export default function Pipeline() {
     fileHistoryRequest.doRequest()
 
   }, [uploadRequest.response, fileHistoryRequest.doRequest, deadlineRequest.doRequest])
+
 
   const pipelineFileHistory = useMemo(() => fileHistoryRequest.response?.data ?? [],
     [fileHistoryRequest.response]
@@ -69,11 +71,11 @@ export default function Pipeline() {
           <div className='col-sm-12 h-25'>
             <PipelineUpload upload={handleFileUpload} />
           </div>
-          <div className='col-sm-12 h-50'>
+          <div className='col-sm-12' style={{height: '45%'}}>
             <PipelineHistory uploadHistory={pipelineFileHistory}/>
           </div>
-          <div className='col-sm-12 mt-3 h-25'>
-            <PipelineUserRoles pipelineId={pipeline_id} />
+          <div className='col-sm-12 mt-3'style={{height: '30%'}}>
+            <PipelineUserRoles pipelineId={pipeline_id}/>
           </div>
         </div>
         <div className="col-sm-3">

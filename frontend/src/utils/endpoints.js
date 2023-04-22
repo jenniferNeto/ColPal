@@ -21,8 +21,8 @@ export const get_pipeline_constraints = (pipeline_id) => ({
     isAuth: true,
 })
 
-export const add_pipeline_roles = (pipeline_id, role) => ({
-    url: `/positions/${pipeline_id}/positions/${role}/add/`,
+export const add_pipeline_role = (pipeline_id, role) => ({
+    url: `/pipelines/${pipeline_id}/positions/${role}/add/`,
     method: 'post',
     headers: {},
     isAuth: true,
@@ -31,6 +31,13 @@ export const add_pipeline_roles = (pipeline_id, role) => ({
 export const get_pipeline_roles = (pipeline_id, role) => ({
     url: `/pipelines/${pipeline_id}/positions/${role}/`,
     method: 'get',
+    headers: {},
+    isAuth: true,
+})
+
+export const delete_pipeline_roles = (pipeline_id, role) => ({
+    url: `/pipelines/${pipeline_id}/positions/${role}/delete/`,
+    method: 'put',
     headers: {},
     isAuth: true,
 })
