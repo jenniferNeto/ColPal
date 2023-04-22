@@ -170,26 +170,30 @@ def stable_email(subject: str, pipeline_id: int, template: str, from_email: str,
             message='Please upload a file now' if pipeline.is_stable else 'Pipeline is ready for uploads')
         # This has to be swapped to print the correct notification
 
-def send_approve(pipeline, user, context):
+def send_approve(pipeline, context):
     """Send email to all managers on a pipeline about new request"""
     message_html = render_to_string(
         "approved.html",
         context=context)
     message = strip_tags(message_html)
-    try:
-        email = EmailMultiAlternatives(
-            "Pipeline approved!",
-            message,
-            from_email=settings.SERVER_EMAIL,
-            to=[user.email]  # type: ignore
-        )
-        email.attach_alternative(message_html, "text/html")
-        email.send()
+    users = extract_users(pipeline.pk)
+    users = [user for user in users if type(user) != Viewer]
+    print("Users:", users)
+    for person in users:
+        try:
+            email = EmailMultiAlternatives(
+                "Pipeline approved!",
+                message,
+                from_email=settings.SERVER_EMAIL,
+                to=[person.email]  # type: ignore
+            )
+            email.attach_alternative(message_html, "text/html")
+            email.send()
+        except Exception:
+            pass
         PipelineNotification.objects.create(
             pipeline=pipeline,
-            user=user,
+            user=person,
             date=timezone.now(),
             title="Pipeline approved",
-            message="You can now upload files to your pipeline")
-    except Exception:
-        pass
+            message="You can now upload files to this pipeline")

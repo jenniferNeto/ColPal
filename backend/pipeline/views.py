@@ -208,7 +208,7 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
         # If pipeline was approved with this request
         if not pipeline.is_approved and approval_status:
             pipeline.approved_date = timezone.now()
-            send_approve(pipeline, user, context={'username': user, 'title': pipeline})
+            send_approve(pipeline, context={'username': user, 'title': pipeline})
 
         # Update approval status and save
         pipeline.is_approved = approval_status
