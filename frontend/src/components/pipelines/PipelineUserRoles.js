@@ -18,9 +18,9 @@ export default function PipelineUserRoles({ pipelineId }) {
     const addUploaderRequest = useRequest(add_pipeline_role(pipelineId, 'uploaders'))
     const addViewerRequest = useRequest(add_pipeline_role(pipelineId, 'viewers'))
 
-    const deleteManagerRequest = useRequest(add_pipeline_role(pipelineId, 'managers'))
-    const deleteUploaderRequest = useRequest(add_pipeline_role(pipelineId, 'uploaders'))
-    const deleteViewerRequest = useRequest(add_pipeline_role(pipelineId, 'viewers'))
+    const deleteManagerRequest = useRequest(delete_pipeline_roles(pipelineId, 'managers'))
+    const deleteUploaderRequest = useRequest(delete_pipeline_roles(pipelineId, 'uploaders'))
+    const deleteViewerRequest = useRequest(delete_pipeline_roles(pipelineId, 'viewers'))
 
     const { currentUser } = useAuth()
 
@@ -35,9 +35,26 @@ export default function PipelineUserRoles({ pipelineId }) {
             default:
                 break
         }
-        
+
         setSelectedRole('')
         setSelectedUser('')
+    }
+
+    const handleRemoveRole = async (e, userId) => {
+        e.preventDefault()
+        const data = new FormData(e.target);
+        const role = data.get('role')
+
+        switch (role) {
+            case 'manager':
+                return deleteManagerRequest.doRequest({ 'id': userId })
+            case 'uploader':
+                return deleteUploaderRequest.doRequest({ 'id': userId })
+            case 'viewer':
+                return deleteViewerRequest.doRequest({ 'id': userId })
+            default:
+                break
+        }
     }
 
     useEffect(() => {
@@ -47,10 +64,13 @@ export default function PipelineUserRoles({ pipelineId }) {
         uploadersRequest.doRequest()
         viewersRequest.doRequest()
 
-    }, [addManagerRequest.response, addUploaderRequest.response, addViewerRequest.response])
+    }, [ addManagerRequest.response, addUploaderRequest.response, addViewerRequest.response,
+        deleteViewerRequest.response, deleteUploaderRequest.response, deleteManagerRequest.response
+    ])
 
     const userRoles = useMemo(() => {
-        let userRoles = {[currentUser.id]: { 'username': currentUser.username, 'roles': ['viewer'] }}
+        let userRoles = { [currentUser.id]: { 'username': currentUser.username, 'roles': ['viewer'] } }
+
         const managers = managersRequest.response?.data ?? []
         const uploaders = uploadersRequest.response?.data ?? []
         const viewers = viewersRequest.response?.data ?? []
@@ -63,8 +83,8 @@ export default function PipelineUserRoles({ pipelineId }) {
             })
         viewers.forEach((user) => {
             userRoles[user.id] ?
-            userRoles[user.id]['roles'].push('viewer') :
-            userRoles[user.id] = { 'username': user.username, 'roles': ['viewer'] }
+                userRoles[user.id]['roles'].push('viewer') :
+                userRoles[user.id] = { 'username': user.username, 'roles': ['viewer'] }
         })
 
         return userRoles
@@ -73,7 +93,6 @@ export default function PipelineUserRoles({ pipelineId }) {
 
     const users = useMemo(() => allUsersRequest.response?.data ?? [], [allUsersRequest.response])
 
-    console.log(userRoles)
     return (
         <div className="card shadow">
             <div className='card-body scroll py-1'>
@@ -86,11 +105,11 @@ export default function PipelineUserRoles({ pipelineId }) {
                         </tr>
                     </thead>
                     <tbody>
-                        
+
                         <tr>
                             <td scope="col"><b>{userRoles[currentUser.id].username}</b> <em>(you)</em></td>
                             <td scope="col">{userRoles[currentUser.id].roles.map(role => <span class="badge bg-primary me-1">{role}</span>)}</td>
-                            <td scope="col">_____________</td>
+                            <td scope="col"></td>
                         </tr>
 
                         {Object.entries(userRoles).map(([id, user]) => (
@@ -99,11 +118,14 @@ export default function PipelineUserRoles({ pipelineId }) {
                                     <td scope="col"><b>{user.username}</b></td>
                                     <td scope="col">{user.roles.map(role => <span class="badge bg-primary me-1">{role}</span>)}</td>
                                     <td scope="col">
-                                        <select className='form-control' onChange={e => setSelectedRole(e.target.value)}>
-                                            <option disabled value={""}>Remove Role</option>
-                                            {user.roles.map(role => <option value={role}>{role}</option>)}
-                                           
-                                        </select>
+                                        <form className="input-group" method="POST" onSubmit={(e) => handleRemoveRole(e, id)}>
+                                            <select className='form-control form-control-sm' name="role">
+                                                <option disabled value={""}>Remove Role</option>
+                                                {user.roles.map(role => <option value={role}>{role}</option>)}
+
+                                            </select>
+                                            <button className="btn btn-sm btn-danger">Remove</button>
+                                        </form>
                                     </td>
 
                                 </tr>

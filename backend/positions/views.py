@@ -18,7 +18,7 @@ User = get_user_model()
 
 class IsViewerRequired(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
-        check_user_permissions(request, kwargs['pk_pipeline'], Manager)
+        check_user_permissions(request, kwargs['pk_pipeline'], Viewer)
         return super().get(request, *args, **kwargs)
 
 class ViewerListAPIView(IsViewerRequired):
