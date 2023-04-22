@@ -5,7 +5,7 @@ import logo from '../../img/logo-white.png'
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/UserContext';
 export default function Sidebar() {
-    const {logout} = useAuth()
+    const {logout, currentUser} = useAuth()
     return (
 
         <div className="d-flex flex-sm-column flex-row flex-nowrap align-items-center sticky-top rounded h-100 shadow px-1" style={{ 'backgroundColor': '#605CA8' }}>
@@ -27,12 +27,15 @@ export default function Sidebar() {
                         <span className='d-block mt-2'>Create</span>
                     </Link>
                 </li>
-                <li className="nav-item">
+                {currentUser.admin && (
+                    <li className="nav-item">
                     <Link to="/pipeline-verify" className="nav-link px-1 py-3 text-white" title="">
                         <FontAwesomeIcon icon={faCheck} size="2x" />
                         <span className='d-block mt-2'>Approve</span>
                     </Link>
                 </li>
+                )}
+                
                 <li className="nav-item">
                     <Link onClick={logout} className="nav-link px-1 py-3 text-white" title="">
                         <FontAwesomeIcon icon={faSignOut} size="2x" />

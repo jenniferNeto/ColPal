@@ -78,6 +78,8 @@ class Migration(migrations.Migration):
                 ('date', models.DateTimeField(default=django.utils.timezone.now)),
                 ('pipeline', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pipeline.pipeline')),
                 ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('title', models.TextField(null=False)),
+                ('message', models.TextField(null=False)),
             ],
         )
     ]

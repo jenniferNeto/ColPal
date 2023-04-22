@@ -11,7 +11,7 @@ import os
 # Need to ignore scheduler to run django tests during github workflow
 
 # To run django test cases this has to be disabled. Pipelines will not be automatically checked for stability
-if os.environ.get('IGNORE_SCHEDULER') is None or not os.environ.get('IGNORE_SCHEDULER'):
+if os.environ.get('IGNORE_SCHEDULER') is None or os.environ.get('IGNORE_SCHEDULER') == 'false':
     scheduler = BackgroundScheduler()
     scheduler.start()
     scheduler.add_job(cron_is_stable, 'interval', seconds=5)
@@ -20,6 +20,7 @@ if os.environ.get('IGNORE_SCHEDULER') is None or not os.environ.get('IGNORE_SCHE
 urlpatterns = [
     path('', views.PipelineListAPIView.as_view()),
     path('approved/', views.ApprovedPipelineListAPIView.as_view()),
+    path('not-approved/', views.NotApprovedPipelineListAPIView.as_view()),
     path('create/', views.PipelineCreateAPIView.as_view()),
     path('<int:pk_pipeline>/', views.PipelineDetailAPIView.as_view()),
     path('<int:pk_pipeline>/update/', views.PipelineUpdateAPIView.as_view()),
@@ -29,8 +30,8 @@ urlpatterns = [
     path('<int:pk_pipeline>/status/', views.PipelineStatusAPIView.as_view()),
     path('<int:pk_pipeline>/files/', views.PipelineFileListAPIView.as_view()),
     path('<int:pk_pipeline>/files/<int:pk_pipelinefile>/', views.PipelineFileRetrieveAPIView.as_view()),
-    path('<int:pk_pipeline>/files/<int:pk_pipelinefile>/validate/', views.ValidateFileAPIView.as_view()),
     path('<int:pk_pipeline>/deadline/', views.PipelineDeadlineAPIView.as_view()),
     path('<int:pk_pipeline>/notifications/', views.PipelineNotificationListAPIView.as_view()),
+    path('user/<int:pk_user>/notifications/', views.PipelineNotifcationsUserListAPIView.as_view()),
     path('user/<int:pk>/', views.UserPipelinesListAPIView.as_view()),
 ]

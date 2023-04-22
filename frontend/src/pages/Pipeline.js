@@ -1,71 +1,117 @@
-import {useState, useEffect} from 'react'
-import { useParams, useLocation } from "react-router-dom";
-import { post_pipeline_file } from '../utils/endpoints'
-import axios from 'axios'
+import {useState, useEffect, useMemo} from 'react'
+import { useAuth } from '../context/UserContext';
+import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { post_pipeline_file, get_pipeline_uploads, get_pipeline_deadline, get_pipeline_roles } from '../utils/endpoints'
 
 import PipelineUpload from '../components/pipelines/PipelineUpload';
 import PipelineHistory from '../components/pipelines/PipelineHistory';
-import PipelineChangeLog from '../components/pipelines/PipelineChangeLog';
-import PipelineTimeTrack from "../components/pipelines/PipelineTimeTrack"
+
+import PipelineStateTrack from "../components/pipelines/PipelineStateTrack"
+import PipelineUserRoles from '../components/pipelines/PipelineUserRoles';
+
 import useRequest from '../hooks/useRequest';
 import UploadCheckout from '../components/file-upload/UploadCheckout';
 
 export default function Pipeline() {
-  const { state } = useLocation();
+
+  const {pipeline_id} = useParams();
+  const {state} = useLocation()
+  const navigate = useNavigate()
 
   const [uploadedFile, setUploadedFile] = useState(null)
   const [showCheckout, setShowCheckout] = useState(false)
-  const [uploadHistory, setUploadHistory] = useState([])
 
-  const uploadRequest = useRequest(post_pipeline_file(state.data.id))
-  
+  const {currentUser} = useAuth()
+  const [showRoles, setShowRoles] = useState(false)
+  const [showUpload, setShowUpload] = useState(false)
+
+  const uploadRequest = useRequest(post_pipeline_file(pipeline_id))
+  const fileHistoryRequest = useRequest(get_pipeline_uploads(pipeline_id))
+  const deadlineRequest = useRequest(get_pipeline_deadline(pipeline_id))
+
+  const managersRequest = useRequest(get_pipeline_roles(pipeline_id, 'managers'))
+  const uploadersRequest = useRequest(get_pipeline_roles(pipeline_id, 'uploaders'))
+
  
   const handleFileUpload = (file) => {
     setUploadedFile(file)
     setShowCheckout(true)
+    uploadRequest.invalidate()
   }
 
   const handleFileCheckout = async () => { 
     await uploadRequest.doRequest({'file': uploadedFile})
-    setShowCheckout(false)
   }
 
-  //Getiing the history of the pipeline from mock data
-  useEffect(() => {
-    const get_history = async () => {
-      const res = await axios.get('/mock-data/pipeline_uploads.json');
-      setUploadHistory(res.data)
-    }
-    get_history()
-  }, [])
 
   useEffect(() => {
-    if (uploadRequest.response) {
-      console.log(uploadRequest.response)
-    }
-  }, [uploadRequest.response])
+    if (uploadRequest.response) navigate(0)
+    
+    managersRequest.doRequest()
+    uploadersRequest.doRequest()
+    deadlineRequest.doRequest()
+    fileHistoryRequest.doRequest()
+
+  }, [uploadRequest.response, fileHistoryRequest.doRequest, deadlineRequest.doRequest])
+
+  useEffect(() => {
+    const managers = managersRequest.response?.data ?? []
+    const uploaders = uploadersRequest.response?.data ?? []
+
+    const isManager = managers.some(manager => manager.id == currentUser.id)
+    const isUploader = uploaders.some(uploader => uploader.id == currentUser.id)
+
+    console.log(isManager, isUploader)
+
+    setShowRoles(isManager)
+    setShowUpload(isUploader)
+  }, [managersRequest.response, uploadersRequest.response, currentUser.id])
+
+
+  const pipelineFileHistory = useMemo(() => fileHistoryRequest.response?.data ?? [],
+    [fileHistoryRequest.response]
+  )
+
+  const nextDeadline = useMemo(() => deadlineRequest.response?.data.deadline ?? null,
+    [deadlineRequest.response]
+  )
+
+  const validationErrors = useMemo(() => uploadRequest.error?.response.data ?? [],
+    [uploadRequest.error]
+  )
+
+  const historyHeight = useMemo(() => {
+    let historyHeight = 100
+    let uploadHeight = 25
+    let rolesHeight = 30
+    if (showRoles) historyHeight -= rolesHeight
+    if (showUpload) historyHeight -= uploadHeight
+    return `${historyHeight}%`
+  }, [showUpload, showRoles, managersRequest.response, uploadersRequest.response])
+
 
   return (
     <>
       <UploadCheckout show={showCheckout}
+        validationErrors={validationErrors}
         file={uploadedFile}
         checkout={handleFileCheckout}
         close={() => setShowCheckout(false)} />
         
       <div className='row h-100'>
         <div className="row col-sm-9">
-          <div className='col-sm-12 h-25'>
-            <PipelineUpload upload={handleFileUpload} />
+
+          {showUpload && <div className='col-sm-12 h-25'><PipelineUpload upload={handleFileUpload} /></div>}
+          <div className='col-sm-12' style={{height: historyHeight}}>
+            <PipelineHistory uploadHistory={pipelineFileHistory}/>
           </div>
-          <div className='col-sm-12 h-50'>
-            <PipelineHistory uploadHistory={uploadHistory}/>
-          </div>
-          <div className='col-sm-12 mt-3 h-25'>
-            <PipelineChangeLog />
-          </div>
+          {showRoles && <div className='col-sm-12 mt-3'style={{height: '30%'}}><PipelineUserRoles pipelineId={pipeline_id}/></div>}
         </div>
         <div className="col-sm-3">
-          <PipelineTimeTrack frequency={state.data.upload_frequency}/>
+          <PipelineStateTrack 
+            state={state.data}
+            nextDeadline={nextDeadline} 
+          />
         </div>
       </div>
     </>

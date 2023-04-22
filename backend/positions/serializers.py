@@ -17,6 +17,7 @@ class PipelineUserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(read_only=True, source='user.email')
 
     class Meta:
+        model = User
         fields = [
             'id',
             'username',
@@ -35,7 +36,7 @@ class ManagerSerializer(PipelineUserSerializer):
     class Meta(PipelineUserSerializer.Meta):
         model = Manager
 
-class PositionCreateSerializer(serializers.ModelSerializer):
+class PositionSerializer(serializers.ModelSerializer):
     # Show the userid instead of the user itself for post purposes
     id = serializers.IntegerField()
 
@@ -44,14 +45,14 @@ class PositionCreateSerializer(serializers.ModelSerializer):
             'id',
         ]
 
-class ViewerCreateSerializer(PositionCreateSerializer):
-    class Meta(PositionCreateSerializer.Meta):
+class ViewerPositionSerializer(PositionSerializer):
+    class Meta(PositionSerializer.Meta):
         model = Viewer
 
-class UploaderCreateSerializer(PositionCreateSerializer):
-    class Meta(PositionCreateSerializer.Meta):
+class UploaderPositionSerializer(PositionSerializer):
+    class Meta(PositionSerializer.Meta):
         model = Uploader
 
-class ManagerCreateSerializer(PositionCreateSerializer):
-    class Meta(PositionCreateSerializer.Meta):
+class ManagerPositionSerializer(PositionSerializer):
+    class Meta(PositionSerializer.Meta):
         model = Manager

@@ -2,14 +2,17 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAdminUser
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from django.contrib.auth import login, logout, get_user_model
+from django.db.utils import IntegrityError
 from django.http import Http404
 
-from .serializers import UserSerializer, UserLoginSerializer
+
+from .serializers import UserSerializer, UserLoginSerializer, UserCreateSerializer
 
 User = get_user_model()
 
@@ -19,7 +22,6 @@ class UsersListAPIView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
-
 
 class UsersDetailAPIView(generics.RetrieveAPIView):
     """Expose a user to the API using the user id number"""
@@ -76,3 +78,38 @@ class UserLogoutAPIView(APIView):
 
 class TokenRefresh(TokenRefreshView):
     permission_classes = [AllowAny]
+
+class UserCreateAPIView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserCreateSerializer
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            self.perform_create(serializer)
+        except IntegrityError:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Username already exists"})
+        return Response(status=status.HTTP_201_CREATED)
+
+class UserDeleteAPIView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserLoginSerializer
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            user = User.objects.get(pk=request.data['user'])
+        except User.DoesNotExist:
+            raise Http404
+
+        if request.user != user:
+            user.delete()
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Cannot delete yourself"})
+    
