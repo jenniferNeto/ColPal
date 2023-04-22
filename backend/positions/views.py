@@ -68,7 +68,7 @@ class ViewerCreateAPIView(generics.CreateAPIView):
 
         position_email("You have a new position!", pk_pipeline, "position_added.html",
                        user, context={"username": user, "position": "Viewer", "title": pipeline})
-        return Response(self.get_serializer(request.data))
+        return Response(request.data)
 
 class UploaderCreateAPIView(generics.CreateAPIView):
     """Create a new viewer for a specific pipeline"""
