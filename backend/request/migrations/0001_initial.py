@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('accept_changes', models.IntegerField(choices=[(0, 'Pending'), (1, 'Accepted'), (2, 'Rejected')], default=0)),
                 ('response', models.TextField(null=True)),
                 ('pipeline', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='pipeline.pipeline')),
-                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(null=False, on_delete=django.db.models.deletion.DO_NOTHING, to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'abstract': False,

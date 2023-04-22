@@ -104,6 +104,6 @@ class PipelineNotification(models.Model):
     """Represents notification requests for pipelines"""
     pipeline = models.ForeignKey(Pipeline, on_delete=models.CASCADE, null=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
-    date = models.DateTimeField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now, null=False)
     title = models.TextField(null=False)
     message = models.TextField(null=False)
