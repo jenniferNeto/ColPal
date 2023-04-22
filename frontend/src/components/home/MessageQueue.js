@@ -11,7 +11,7 @@ export default function MessageQueue({notifications}) {
             <h2>Notifications</h2>
             </div>
             
-            <div className='card-body scroll' style={{maxHeight: '600px'}}>
+            <div className='card-body scroll' style={{maxHeight: '85vh'}}>
             {
                 notifications.slice(0).reverse().map(notification => (
                     <div key={notification.id} className='col-md-12 col-sm-12 my-3'>
