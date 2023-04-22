@@ -14,5 +14,6 @@ urlpatterns = [
     path('<int:pk_pipeline>/positions/managers/', views.ManagerListAPIView.as_view()),
     path('<int:pk_pipeline>/positions/managers/add/', views.ManagerCreateAPIView.as_view()),
     path('<int:pk_pipeline>/positions/managers/delete/', views.ManagerDeleteAPIView.as_view()),
+    path('<int:pk_pipeline>/positions/delete/', views.UserDeleteAPIView.as_view()),
 
 ]

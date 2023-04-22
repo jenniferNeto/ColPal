@@ -66,7 +66,8 @@ class ViewerCreateAPIView(generics.CreateAPIView):
         except IntegrityError:
             raise ValidationError(detail={"detail": "User is already a viewer"})
 
-        position_email("You have a new position!", pk_pipeline, "position_added.html", user, context={"username": user, "position": "Viewer", "title": pipeline})
+        position_email("You have a new position!", pk_pipeline, "position_added.html",
+                       user, context={"username": user, "position": "Viewer", "title": pipeline})
         return Response(self.get_serializer(request.data))
 
 class UploaderCreateAPIView(generics.CreateAPIView):
@@ -96,7 +97,8 @@ class UploaderCreateAPIView(generics.CreateAPIView):
         except IntegrityError:
             pass
 
-        position_email("You have a new position!", pk_pipeline, "position_added.html", user, context={"username": user, "position": "Uploader", "title": pipeline})
+        position_email("You have a new position!", pk_pipeline, "position_added.html",
+                       user, context={"username": user, "position": "Uploader", "title": pipeline})
         return Response(request.data)
 
 class ManagerCreateAPIView(generics.CreateAPIView):
@@ -127,7 +129,8 @@ class ManagerCreateAPIView(generics.CreateAPIView):
         except IntegrityError:
             pass
 
-        position_email("You have a new position!", pk_pipeline, "position_added.html", user, context={"username": user, "position": "Manager", "title": pipeline})
+        position_email("You have a new position!", pk_pipeline, "position_added.html",
+                       user, context={"username": user, "position": "Manager", "title": pipeline})
         return Response(request.data)
 
 class ViewerDeleteAPIView(generics.UpdateAPIView):
@@ -166,7 +169,8 @@ class ViewerDeleteAPIView(generics.UpdateAPIView):
             uploader[0].delete()
 
         viewer.delete()
-        position_email("You have been removed!", pk_pipeline, "position_removed.html", user, context={"username": user, "position": "Viewer", "title": pipeline})
+        position_email("You have been removed!", pk_pipeline, "position_removed.html",
+                       user, context={"username": user, "position": "Viewer", "title": pipeline})
         return Response(status=status.HTTP_200_OK)
 
 class UploaderDeleteAPIView(generics.UpdateAPIView):
@@ -192,7 +196,8 @@ class UploaderDeleteAPIView(generics.UpdateAPIView):
             return Response(status=status.HTTP_409_CONFLICT, data={"detail": "User is not an uploader"})
 
         uploader.delete()
-        position_email("You have been removed!", pk_pipeline, "position_removed.html", user, context={"username": user, "position": "Uploader", "title": pipeline})
+        position_email("You have been removed!", pk_pipeline, "position_removed.html",
+                       user, context={"username": user, "position": "Uploader", "title": pipeline})
         return Response(status=status.HTTP_200_OK)
 
 class ManagerDeleteAPIView(generics.UpdateAPIView):
@@ -220,5 +225,41 @@ class ManagerDeleteAPIView(generics.UpdateAPIView):
         if len(Manager.objects.filter(pipeline=pipeline)) == 1:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE, data={"detail": "Cannot delete last manager"})
         manager.delete()
-        position_email("You have been removed!", pk_pipeline, "position_removed.html", user, context={"username": user, "position": "Manager", "title": pipeline})
+        position_email("You have been removed!", pk_pipeline, "position_removed.html",
+                       user, context={"username": user, "position": "Manager", "title": pipeline})
+        return Response(status=status.HTTP_200_OK)
+
+class UserDeleteAPIView(generics.UpdateAPIView):
+    """Delete a user from a pipeline"""
+    # Deleting as a user deletes all roles
+    queryset = Viewer.objects.none()
+    serializer_class = serializers.ViewerPositionSerializer
+
+    def put(self, request, pk_pipeline):
+        # Validate pipeline and user exists
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+            user = User.objects.get(pk=request.data['id'])
+        except (Pipeline.DoesNotExist, User.DoesNotExist):
+            raise Http404
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # Find all user positions
+        viewer = Viewer.objects.filter(pipeline=pipeline, user=user)
+        uploader = Uploader.objects.filter(pipeline=pipeline, user=user)
+        manager = Manager.objects.filter(pipeline=pipeline, user=user)
+
+        # If the user is a manager, check to see if its the last manager
+        if manager:
+            if Manager.objects.count() == 1:
+                return Response(status=status.HTTP_406_NOT_ACCEPTABLE, data={"detail": "Cannot delete last manager"})
+            else:
+                manager[0].delete()
+        if uploader:
+            uploader[0].delete()
+        if viewer:
+            viewer[0].delete()
+        position_email("You have been removed!", pk_pipeline, "position_removed.html",
+                       user, context={"username": user, "position": "all", "title": pipeline})
         return Response(status=status.HTTP_200_OK)

@@ -1,4 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
+import { useAuth } from '../context/UserContext'
+import { useNavigate } from 'react-router-dom';
 import useRequest from '../hooks/useRequest'
 import { get_unapproved_pipelines } from '../utils/endpoints'
 import UnapprovedPipelinesList from '../components/approval/UnapprovePipelinesList'
@@ -7,6 +9,9 @@ import PipelinesApproveCheckout from '../components/approval/PipelinesApproveChe
 export default function PipelineVerify() {
   const [selectedPipeline, setSelectedPipeline] = useState(null)
   const [showApprove, setShowApprove] = useState(false)
+  const { currentUser } = useAuth()
+  const navigate = useNavigate()
+  
   const unapprovedPipesReq = useRequest(get_unapproved_pipelines())
 
   const handleClose = () => {
@@ -22,6 +27,9 @@ export default function PipelineVerify() {
   }
 
   useEffect(() => {
+
+    if (!currentUser.admin) navigate("/")
+  
     unapprovedPipesReq.doRequest()
   }, [unapprovedPipesReq.doRequest])
 

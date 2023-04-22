@@ -5,7 +5,6 @@ export default function PipelineStateTrack({nextDeadline, state}) {
 
   if(!nextDeadline) return null;
 
-  console.log(state)
   return (
     <div class="card shadow bg-white h-100 text-center p-2">
       <h4>Next Upload Due:</h4>

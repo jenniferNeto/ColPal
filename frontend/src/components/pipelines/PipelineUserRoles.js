@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import useRequest from '../../hooks/useRequest';
 import { get_all_users, get_pipeline_roles } from "../../utils/endpoints";
+import { useAuth } from "../../context/UserContext";
 
 export default function PipelineUserRoles({pipelineId}) {
 
@@ -12,6 +13,7 @@ export default function PipelineUserRoles({pipelineId}) {
     const uploadersRequest = useRequest(get_pipeline_roles(pipelineId, 'uploaders'))
     const viewersRequest = useRequest(get_pipeline_roles(pipelineId, 'viewers'))
 
+    const {currentUser} = useAuth()
 
     const addUserRole = () => {
         console.log(selectedUser)
@@ -33,26 +35,7 @@ export default function PipelineUserRoles({pipelineId}) {
     return (
         <div className="card shadow">
             <div className="card-header">
-                <div class="form-group row">
-                    <div className="col-sm-4">
-                        <select className="form-control" onChange={e => setSelectedUser(e.target.value)}>
-                            <option>Select Users</option>
-                            {users.map(user => <option key={user['id']} value={user['name']}>{user['username']}</option>)}
-                        </select>
-                    </div>
-                    <div className="col-sm-5">
-                        <select className='form-control' onChange={e => setSelectedRole(e.target.value)}>
-                            <option disabled value={"None"}>Select Role</option>
-                            <option value={"viewers"}>Viewer</option>
-                            <option value={"uploaders"}>Uploader</option>
-                            <option value={"managers"}>Manager</option>
-                        </select>
-                      
-                    </div>
-                    <div className="col-sm-3">
-                        <button className="btn btn-primary" onClick={addUserRole}>Add User</button>
-                    </div>
-                </div>
+                
     
             </div>
 
@@ -80,36 +63,32 @@ export default function PipelineUserRoles({pipelineId}) {
 
             </tbody>
           </table>
-           {/*
-                <div className="row" key={index}>
-                    <div className="col-sm-5">
-                        <input type="text" class="form-control" value={column_name} disabled />
-                    </div>
-                    <div className="col-sm-5">
-                        <select className='form-control' value={column_type}
-                            onChange={(e) => editConstraint(index, column_name, e.target.value)}>
-                            <select className='form-control' onChange={e => setColumnType(e.target.value)}>
-                        <option disabled value={"None"}>Column Type</option>
-                        <option value={"viewers"}>Viewer</option>
-                        <option value={"uploaders"}>Uploader</option>
-                        <option value={"managers"}>Manager</option>
-
-                    </select>
-                        </select>
-                    </div>
-                    <div className="col-sm-1">
-                        <button className="btn btn-sm btn-danger" onClick={(e) => removeConstraint(index)}>Remove</button>
-                    </div>
-
-
-                </div>
-
-         
-            */}
         </div>
-        <div className='card-footer'>
-            
-        </div>
+        {currentUser.admin && (
+            <div className='card-footer'>
+            <div class="form-group row">
+                        <div className="col-sm-4">
+                            <select className="form-control" onChange={e => setSelectedUser(e.target.value)}>
+                                <option>Select Users</option>
+                                {users.map(user => <option key={user['id']} value={user['name']}>{user['username']}</option>)}
+                            </select>
+                        </div>
+                        <div className="col-sm-5">
+                            <select className='form-control' onChange={e => setSelectedRole(e.target.value)}>
+                                <option disabled value={"None"}>Select Role</option>
+                                <option value={"viewers"}>Viewer</option>
+                                <option value={"uploaders"}>Uploader</option>
+                                <option value={"managers"}>Manager</option>
+                            </select>
+                          
+                        </div>
+                        <div className="col-sm-3">
+                            <button className="btn btn-primary" onClick={addUserRole}>Add User</button>
+                        </div>
+                    </div>
+            </div>
+        )}
+        
     </div>
     )
 }

@@ -23,7 +23,6 @@ class UsersListAPIView(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
-
 class UsersDetailAPIView(generics.RetrieveAPIView):
     """Expose a user to the API using the user id number"""
     queryset = User.objects.all()
@@ -113,3 +112,4 @@ class UserDeleteAPIView(generics.CreateAPIView):
             user.delete()
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Cannot delete yourself"})
+    

@@ -48,7 +48,7 @@ function CountdownTimer({ track, deadline, total }) {
           transform="rotate(-90 50 50)"
           style={{ transition: "stroke-dashoffset 1s linear" }}
         />
-        <text x="50" y="50" font-size="10px" textAnchor="middle">
+        <text x="50" y="50" fontSize="10px" textAnchor="middle">
         {daysLeft}:{hoursLeft}:{minutesLeft}:{secondsLeft}
         </text>
 

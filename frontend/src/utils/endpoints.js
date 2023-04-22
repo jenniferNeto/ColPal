@@ -22,14 +22,14 @@ export const get_pipeline_constraints = (pipeline_id) => ({
 })
 
 export const add_pipeline_roles = (pipeline_id, role) => ({
-    url: `/positions/${pipeline_id}/position/${role}/add`,
+    url: `/positions/${pipeline_id}/positions/${role}/add/`,
     method: 'post',
     headers: {},
     isAuth: true,
 })
 
 export const get_pipeline_roles = (pipeline_id, role) => ({
-    url: `/positions/${pipeline_id}/position/${role}/`,
+    url: `/pipelines/${pipeline_id}/positions/${role}/`,
     method: 'get',
     headers: {},
     isAuth: true,
