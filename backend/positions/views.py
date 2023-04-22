@@ -263,3 +263,30 @@ class UserDeleteAPIView(generics.UpdateAPIView):
         position_email("You have been removed!", pk_pipeline, "position_removed.html",
                        user, context={"username": user, "position": "all", "title": pipeline})
         return Response(status=status.HTTP_200_OK)
+
+class RolesListAPIView(generics.ListAPIView):
+    """Delete a user from a pipeline"""
+    # Deleting as a user deletes all roles
+    queryset = Viewer.objects.none()
+    serializer_class = serializers.ViewerPositionSerializer
+
+    def get(self, request, pk_pipeline):
+        # Validate pipeline and user exists
+        try:
+            pipeline = Pipeline.objects.get(pk=pk_pipeline)
+            user = User.objects.get(username=request.user)
+        except Pipeline.DoesNotExist:
+            raise Http404
+
+        viewer = Viewer.objects.filter(pipeline=pipeline, user=user)
+        uploader = Uploader.objects.filter(pipeline=pipeline, user=user)
+        manager = Manager.objects.filter(pipeline=pipeline, user=user)
+
+        data = {}
+        if viewer:
+            data['viewer'] = serializers.ViewerSerializer(viewer[0]).data
+        if uploader:
+            data['uploader'] = serializers.PipelineUserSerializer(uploader[0]).data
+        if manager:
+            data['manager'] = serializers.PipelineUserSerializer(manager[0]).data
+        return Response(status=status.HTTP_200_OK, data=data)

@@ -31,4 +31,5 @@ def position_email(subject: str, pipeline_id: int, template: str, user, context)
         pipeline=pipeline,
         user=user,
         date=timezone.now(),
-        message='Position Removed' if "removed" in subject else "Position Added")
+        title='Position Removed' if 'removed' in subject else 'Position Added',
+        message=f'You have been removed as a {context["position"]}' if 'removed' in subject else f'You have been added as a {context["position"]}')

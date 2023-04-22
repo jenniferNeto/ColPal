@@ -203,7 +203,7 @@ class PipelineStatusAPIView(generics.RetrieveUpdateAPIView):
             raise Http404
       
         # Get and update pipeline status
-        approval_status = bool(request.data['approved']) #changed this because request.POST didn't work
+        approval_status = bool(request.data['approved'])  # changed this because request.POST didn't work
 
         # If pipeline was approved with this request
         if not pipeline.is_approved and approval_status:
@@ -251,11 +251,9 @@ class UserPipelinesListAPIView(generics.ListAPIView):
             raise Http404
         user: User = searched_user[0]
 
-        # Check if logged in user is admin
-        if not request.user.is_superuser:
-            # Check if requested user does not equal logged in user
-            if not (user == request.user):
-                return Response(status=status.HTTP_403_FORBIDDEN)
+        # Check if requested user does not equal logged in user
+        if not (user == request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
         return super().get(request)
 
 class PipelineFileUploadAPIView(generics.CreateAPIView):
@@ -333,7 +331,7 @@ class PipelineFileListAPIView(generics.ListAPIView):
 
     def get(self, request, pk_pipeline):
         # Check to see if a user is allowed to view this pipeline
-        check_user_permissions(request, pk_pipeline, Uploader)
+        check_user_permissions(request, pk_pipeline, Viewer)
 
         # Check to make sure pipeline exists
         try:
@@ -351,7 +349,7 @@ class PipelineFileRetrieveAPIView(generics.RetrieveAPIView):
 
     def get(self, request, pk_pipeline, pk_pipelinefile):
         # Check to see if a user is allowed to view this pipeline
-        check_user_permissions(request, pk_pipeline, Uploader)
+        check_user_permissions(request, pk_pipeline, Viewer)
 
         # Check to make sure pipeline exists
         try:
@@ -394,5 +392,20 @@ class PipelineNotificationListAPIView(generics.ListAPIView):
             raise Http404
 
         instance = PipelineNotification.objects.filter(pipeline=pipeline)
+
+        return Response(serializers.PipelineNotificationSerializer(instance=instance, many=True).data)
+
+class PipelineNotifcationsUserListAPIView(generics.ListAPIView):
+    serializer_class = PipelineNotification
+    queryset = Pipeline.objects.all()
+
+    def get(self, request, pk_user):
+        # Verify pipeline and pipeline file exist
+        try:
+            user = User.objects.get(pk=pk_user)
+        except Pipeline.DoesNotExist:
+            raise Http404
+
+        instance = PipelineNotification.objects.filter(user=user)
 
         return Response(serializers.PipelineNotificationSerializer(instance=instance, many=True).data)

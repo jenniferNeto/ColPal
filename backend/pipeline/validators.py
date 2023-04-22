@@ -122,6 +122,9 @@ def generate_types(file):
 
 def validate(file: FieldFile, pipeline: Pipeline):
     """Validate a csv file based on provided types"""
+    if not file:
+        return {"detail": "File cannot be empty"}
+
     # Get file and constraint types as indexes
     types = [constraint.column_type for constraint in Constraint.objects.filter(
         pipeline=pipeline)]

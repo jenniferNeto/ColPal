@@ -17,6 +17,7 @@ class PipelineUserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(read_only=True, source='user.email')
 
     class Meta:
+        model = User
         fields = [
             'id',
             'username',

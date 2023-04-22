@@ -97,3 +97,18 @@ export const get_all_users = () => ({
     isAuth: false,
 })
 
+export const get_pipeline_notifications = (pipeline_id) => ({
+    url: `/pipelines/${pipeline_id}/notifications/`,
+    method: 'get',
+    headers: {},
+    isAuth: true,
+})
+
+export const get_user_notifications = (id) => ({
+    url: `/pipelines/user/${id}/notifications/`,
+    method: 'get',
+    headers: {},
+    isAuth: true,
+})
+
+
