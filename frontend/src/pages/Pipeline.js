@@ -87,7 +87,7 @@ export default function Pipeline() {
     if (showRoles) historyHeight -= rolesHeight
     if (showUpload) historyHeight -= uploadHeight
     return `${historyHeight}%`
-  }, [showUpload])
+  }, [showUpload, showRoles, managersRequest.response, uploadersRequest.response])
 
 
   return (

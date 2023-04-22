@@ -42,6 +42,16 @@ export const delete_pipeline_roles = (pipeline_id, role) => ({
     isAuth: true,
 })
 
+export const create_user = () => ({
+    url: `/users/create/`,
+    method: 'post',
+    headers: {},
+    isAuth: true,
+})
+
+
+
+
 export const put_approve_pipeline = (pipeline_id) => ({
     url: `/pipelines/${pipeline_id}/status/`,
     method: 'put',

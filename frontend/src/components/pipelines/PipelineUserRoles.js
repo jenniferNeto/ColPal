@@ -6,7 +6,7 @@ import { useAuth } from "../../context/UserContext";
 export default function PipelineUserRoles({ pipelineId }) {
 
     const [selectedUser, setSelectedUser] = useState('')
-    const [selectedRole, setSelectedRole] = useState('')
+    const [selectedRole, setSelectedRole] = useState('viewers')
 
     const allUsersRequest = useRequest(get_all_users())
 
@@ -25,6 +25,7 @@ export default function PipelineUserRoles({ pipelineId }) {
     const { currentUser } = useAuth()
 
     const handleAddUserRole = async () => {
+        console.log(selectedRole, selectedUser)
         switch (selectedRole) {
             case 'managers':
                 return addManagerRequest.doRequest({ 'id': selectedUser })
