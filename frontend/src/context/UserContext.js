@@ -35,8 +35,8 @@ export function UserProvider({ children }) {
       let data = new FormData();
       data.append("user", user['id'])
 
-      const res = await axios.post("http://127.0.0.1:8000/users/login/", data)
-
+      const res = await axios.post("https://colgate-repo-backend-kxeiooj4ra-uc.a.run.app/users/login/", data)
+      
       console.log('login', res)
       const { access, refresh } = res.data
 
