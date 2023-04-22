@@ -46,7 +46,8 @@ def send_request_email(request: Request):
                     pipeline=request.pipeline,
                     user=request.user,
                     date=request.created,
-                    message='New request')
+                    title='New Request',
+                    message=f'Request by {request.user}')
             except Exception:
                 pass
 
@@ -70,6 +71,7 @@ def send_request_status_email(request: Request):
             pipeline=request.pipeline,
             user=request.user,
             date=request.created,
-            message="Accepted" if request.accept_changes == 1 else "Rejected")
+            title="Request Accepted" if request.accept_changes == 1 else "Request Rejected",
+            message="Your request has been accepted" if request.accept_changes == 1 else "Your request has been rejected")
     except Exception:
         pass

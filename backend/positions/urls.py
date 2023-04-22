@@ -5,6 +5,7 @@ from . import views
 
 # Include / at the end of endpoints or unexpected errors will be raised
 urlpatterns = [
+    path('<int:pk_pipeline>/positions/', views.RolesListAPIView.as_view()),
     path('<int:pk_pipeline>/positions/viewers/', views.ViewerListAPIView.as_view()),
     path('<int:pk_pipeline>/positions/viewers/add/', views.ViewerCreateAPIView.as_view()),
     path('<int:pk_pipeline>/positions/viewers/delete/', views.ViewerDeleteAPIView.as_view()),

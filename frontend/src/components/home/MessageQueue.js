@@ -11,9 +11,9 @@ export default function MessageQueue({notifications}) {
             <hr />
             <div className='col'>
             {
-                notifications.map(pipeline => (
-                    <div key={pipeline.id} className='col-md-12 col-sm-12 my-3'>
-                        <NotificationCard data={notifications}/>
+                notifications.map(notification => (
+                    <div key={notification.id} className='col-md-12 col-sm-12 my-3'>
+                        <NotificationCard data={notification}/>
                     </div>
                 ))
             }

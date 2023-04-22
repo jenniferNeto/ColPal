@@ -161,14 +161,20 @@ class PipelineFileSerializer(serializers.ModelSerializer):
 
 class PipelineNotificationSerializer(serializers.ModelSerializer):
     """Serialize the approval status of a pipeline"""
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        # handle custom serialization for each field here
-        for field_name, field_value in data.items():
-            data[field_name] = field_value
-        return data
+    pipeline_title = serializers.SerializerMethodField()
 
     class Meta:
         model = PipelineNotification
 
-        fields = '__all__'
+        fields = [
+            'id',
+            'date',
+            'message',
+            'pipeline',
+            'pipeline_title',
+            'user',
+            'title',
+        ]
+
+    def get_pipeline_title(self, obj):
+        return obj.pipeline.title

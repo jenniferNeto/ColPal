@@ -165,5 +165,6 @@ def stable_email(subject: str, pipeline_id: int, template: str, from_email: str,
             pipeline=pipeline,
             user=recipient,
             date=timezone.now(),
-            message='Stable' if pipeline.is_stable else 'Unstable' + ' pipeline')
-        # PipelineNotification.objects.create(pipeline=pipeline, user=recipient)
+            title='Pipeline Unstable' if pipeline.is_stable else 'Pipeline Stable',
+            message='Please upload a file now' if pipeline.is_stable else 'Pipeline is ready for uploads')
+        # This has to be swapped to print the correct notification
