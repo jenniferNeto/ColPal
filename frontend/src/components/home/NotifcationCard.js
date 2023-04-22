@@ -31,7 +31,7 @@ export default function NotificationCard({data}) {
           <p>{message}</p>
           </div>
           <div className='card-footer d-flex justify-content-between'>
-            <span>Timestamp:</span> <span>{formatDate(date)}</span>
+            <span>Sent:</span> <span>{formatDate(date)}</span>
           </div>
       </div>
   
