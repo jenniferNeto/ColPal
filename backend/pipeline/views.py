@@ -286,6 +286,7 @@ class PipelineFileUploadAPIView(generics.CreateAPIView):
         if not results:
             # Generate path to store file
             return self.save_file(request, pk_pipeline)
+        print(results)
         return Response(status=status.HTTP_400_BAD_REQUEST, data=results)
 
     def save_file(self, request, pk_pipeline: int):

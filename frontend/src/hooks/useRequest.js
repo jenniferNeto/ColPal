@@ -11,13 +11,14 @@ const formalize = (data) => {
 }
 const useRequest = (endpoint) => {
     const [response, setResponse] = useState(null);
-    const [loading, setloading] = useState(true);
+    const [loading, setloading] = useState(false);
     const [error, seterror] = useState(null);
     const { getAccessToken } = useAuth()
 
     const doRequest = useCallback(
         async (data = {}) => {
             try {
+                setloading(true)
                 const res = await axios({
                     url: 'http://127.0.0.1:8000' + endpoint.url,
                     method: endpoint.method,
@@ -29,19 +30,28 @@ const useRequest = (endpoint) => {
                 })
 
                 console.log(endpoint.url, res)
+                seterror(null)
                 setResponse(res)
 
             } catch (err) {
-                seterror("Error")
                 console.log(err)
+                seterror(err)
+                setResponse(null)
+            } finally {
+                setloading(false)
             }
 
-            setloading(false)
+            
 
         }, [getAccessToken])
 
+        const invalidate = useCallback(() => {
+            setResponse(null)
+            setloading(true)
+            seterror(null)
+        }, [])
 
-    return { response, loading, error, doRequest };
+    return { response, loading, error, doRequest, invalidate };
 };
 
 export default useRequest;

@@ -1,10 +1,15 @@
+import { useEffect, useMemo } from 'react';
+
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import CSVDisplay from '../commons/CSVDisplay';
-export default function UploadCheckout({ show, file, checkout, close }) {
+import useRequest from '../../hooks/useRequest';
+import { post_pipeline_file } from '../../utils/endpoints';
+
+export default function UploadCheckout({ show, file, checkout, validationErrors, close }) {
 
   if (!file) return null
-
+  console.log(Object.values(validationErrors))
   return (
     <Modal show={show} fullscreen={true} onHide={close}>
       <Modal.Header closeButton>
@@ -12,7 +17,11 @@ export default function UploadCheckout({ show, file, checkout, close }) {
       </Modal.Header>
       <Modal.Body>
 
-      <CSVDisplay csv={file} />
+        <CSVDisplay csv={file} />
+         { Object.values(validationErrors).map(({col, row, error}) => (
+            <p>{row}:{col} {error}</p>
+          ))}
+      
         
       </Modal.Body>
       <Modal.Footer>

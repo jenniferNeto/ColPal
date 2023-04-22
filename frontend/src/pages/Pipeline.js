@@ -1,16 +1,18 @@
 import {useState, useEffect, useMemo} from 'react'
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { post_pipeline_file, get_pipeline_uploads, get_pipeline_deadline } from '../utils/endpoints'
-import { getDuration } from '../utils/functions';
 
 import PipelineUpload from '../components/pipelines/PipelineUpload';
 import PipelineHistory from '../components/pipelines/PipelineHistory';
 import PipelineChangeLog from '../components/pipelines/PipelineChangeLog';
 import PipelineStateTrack from "../components/pipelines/PipelineStateTrack"
+import PipelineUserRoles from '../components/pipelines/PipelineUserRoles';
+
 import useRequest from '../hooks/useRequest';
 import UploadCheckout from '../components/file-upload/UploadCheckout';
 
 export default function Pipeline() {
+
   const {pipeline_id} = useParams();
   const {state} = useLocation()
   const navigate = useNavigate()
@@ -26,22 +28,19 @@ export default function Pipeline() {
   const handleFileUpload = (file) => {
     setUploadedFile(file)
     setShowCheckout(true)
+    uploadRequest.invalidate()
   }
 
   const handleFileCheckout = async () => { 
     await uploadRequest.doRequest({'file': uploadedFile})
-    await deadlineRequest.doRequest()
-    setUploadedFile(null)
-    setShowCheckout(false)
-    navigate(0)
   }
 
-  //Getiing the history of the pipeline
   useEffect(() => {
-
-    fileHistoryRequest.doRequest()
+    if (uploadRequest.response) navigate(0)
+  
     deadlineRequest.doRequest()
-   
+    fileHistoryRequest.doRequest()
+
   }, [uploadRequest.response, fileHistoryRequest.doRequest, deadlineRequest.doRequest])
 
   const pipelineFileHistory = useMemo(() => fileHistoryRequest.response?.data ?? [],
@@ -52,9 +51,15 @@ export default function Pipeline() {
     [deadlineRequest.response]
   )
 
+  const validationErrors = useMemo(() => uploadRequest.error?.response.data ?? [],
+    [uploadRequest.error]
+  )
+
+
   return (
     <>
       <UploadCheckout show={showCheckout}
+        validationErrors={validationErrors}
         file={uploadedFile}
         checkout={handleFileCheckout}
         close={() => setShowCheckout(false)} />
@@ -68,7 +73,7 @@ export default function Pipeline() {
             <PipelineHistory uploadHistory={pipelineFileHistory}/>
           </div>
           <div className='col-sm-12 mt-3 h-25'>
-            <PipelineChangeLog />
+            <PipelineUserRoles pipelineId={pipeline_id} />
           </div>
         </div>
         <div className="col-sm-3">

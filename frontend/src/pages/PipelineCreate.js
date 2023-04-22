@@ -3,7 +3,6 @@ import useRequest from "../hooks/useRequest";
 import { post_pipeline_create } from "../utils/endpoints";
 
 import ConstraintForm from "../components/create-pipeline/ConstraintForm";
-import UserRoleForm from "../components/create-pipeline/UserRoleForm";
 import ConstraintTable from "../components/create-pipeline/ConstraintTable";
 
 export default function PipelineCreate() {
@@ -11,25 +10,25 @@ export default function PipelineCreate() {
   const [frequency, setFrequency] = useState('');
   const [hardDeadline, setHardDeadline] = useState(false)
   const [constraints, setConstraints] = useState([])
-  const pipelineCreateReq = useRequest(post_pipeline_create())
+  const pipelineCreateRequest = useRequest(post_pipeline_create())
+
 
   const handlePipelineCreate = async (e) => {
     e.preventDefault();
 
-    await pipelineCreateReq.doRequest({ 
+    await pipelineCreateRequest.doRequest({ 
       title, 
       "upload_frequency": frequency, 
       "hard_deadline": hardDeadline, 
       constraints
     })
 
+
     setTitle('')
     setFrequency('')
     setHardDeadline(false)
     setConstraints([])
   }
-
-  console.log(constraints)
 
   return (
     <div className="h-100">
@@ -72,13 +71,10 @@ export default function PipelineCreate() {
 
 
       <div className="row">
+      
 
-        <div className="col-sm-6">
-          <UserRoleForm />
-        </div>
-
-        <div className="col-sm-6" style={{ maxHeight: '85%' }}>
-          <ConstraintForm onSave={constr => setConstraints(constr)} />
+        <div className="col-sm-12" style={{ maxHeight: '85%' }}>
+          <ConstraintForm onSave={constraints => setConstraints(constraints)} />
         </div>
 
       </div>
