@@ -11,7 +11,7 @@ const useFileUrl = (fileUrl) => {
         if (!fileUrl) return;
 
         const getFile = async () => {
-            const baseUrl = "https://storage.cloud.google.com/colgate-data-storage/"
+            const baseUrl = "https://storage.cloud.google.com/dataplatformcolgate_cloudbuild/"
             const fileName = fileUrl.split("/").pop()
             try {
                 setloading(true)
