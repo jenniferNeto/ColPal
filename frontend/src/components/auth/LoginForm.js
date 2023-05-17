@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import logo from '../../img/logo-white.png'
 import { useNavigate } from 'react-router-dom';
 import Card from "react-bootstrap/Card"
 import Container from "react-bootstrap/Container"
@@ -36,9 +37,11 @@ export default function LoginForm() {
   return (
     <Container fluid>
 
-      <Card className='mx-auto w-25 mt-5 shadow-sm' style={{ "width": "20rem" }}>
+      <Card className='mx-auto text-center w-25 mt-5 shadow-sm' style={{ "width": "20rem" }}>
+  
+      
         <Card.Body>
-
+        <img src={logo} alt='logo' className="card-img-top mx-auto rounded ms-auto" style={{ 'width': '150px' }} />
           <Form onSubmit={handleLogin}>
             <Form.Select aria-label="Default select example" onChange={e => setSelectedUser(e.target.value)}>
               <option>Log in as</option>
