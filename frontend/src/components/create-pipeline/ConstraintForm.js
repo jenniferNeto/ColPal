@@ -1,3 +1,4 @@
+import Panel from '../commons/Panel'
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons'
@@ -48,8 +49,7 @@ export default function ConstraintForm({onSave}) {
     }, [createConstraintRequest.response])
 
     return (
-        <div className='card shadow'>
-            <div className='card-header'>
+        <Panel>
                 <div class="d-grid gap-2">
                     <label className="m-0 mr-2 upload-btn" style={{ border: '3px dashed #605CA8' }}>
                         <FontAwesomeIcon icon={faFileUpload} /> Load Template File
@@ -60,10 +60,9 @@ export default function ConstraintForm({onSave}) {
                         />
                     </label>
                 </div>
-            </div>
+   
 
-            <div className='card-body'>
-                <div className="row">
+                <div className="row my-4">
                     <div className="col-sm-5">
                         <input type="text" class="form-control" placeholder="Column Name" onChange={e => setColumnName(e.target.value)} />
                     </div>
@@ -83,10 +82,10 @@ export default function ConstraintForm({onSave}) {
                     <div className="col-sm-1">
                         <button className="btn btn-sm btn-success" onClick={addConstraint}>Add</button>
                     </div>
-                </div>
 
-                {constraints.map(({ column_name, column_type }, index) => (
-                    <div className="row my-1" key={index}>
+                
+                    {constraints.map(({ column_name, column_type }, index) => (
+                    <div className="col-sm-12 row my-1" key={index}>
                         <div className="col-sm-5">
                             <input type="text" class="form-control" value={column_name}
                                 onChange={(e) => editConstraint(index, e.target.value, column_type)} />
@@ -112,14 +111,16 @@ export default function ConstraintForm({onSave}) {
                     </div>
 
                 ))}
-            </div>
-            <div className='card-footer'>
+                </div>
+
+                
+           
                 <div class="d-grid gap-2">
                     <button className="btn btn-primary" 
                     onClick={saveConstraints}
                     disabled={!constraints.length}>Save Constraints</button>
                 </div>
-            </div>
-        </div>
+        
+        </Panel>
     )
 }

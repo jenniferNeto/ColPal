@@ -9,21 +9,22 @@ export default function PipelineCard({data}) {
   
   return (
    
-      <div className='card' style={{border: 'none', background: '#E9E7FD', cursor: "pointer"}} 
-      onClick={() => navigate("/pipeline/"+id, {state: {data}})}>
-          <div className='card-body'>
-          <div className="card-title d-flex justify-content-between">
-            <h5>{title}</h5> 
+      <div className='py-4 px-3 bg-main-100 rounded-xl cursor-pointer' onClick={() => navigate("/pipeline/"+id, {state: {data}})}>
+          <div className="flex justify-between mb-3">
+            <span className="font-bold">{title}</span> 
             <div>
-            <span className={`badge me-1 rounded-pill bg-${is_stable ? 'success': 'danger'}`}>
-              {is_stable ? 'stable': 'unstable'}</span>
-            <span className={`badge rounded-pill bg-${approved ? 'success': 'danger'}`}>
-              {approved ? 'approved': 'not approved'}</span>
+              <span className={`inline-block rounded-full px-2 py-1 mx-1 text-sm font-semibold text-white`} style={{background: is_stable ? '#50C878': '#FF00000'}}>
+                {is_stable ? 'stable': 'unstable'}
+              </span>
+              <span className={`inline-block bg-${approved ? 'green': 'red'}-500 rounded-full px-2 py-1 mx-1 text-sm font-semibold text-white`} style={{background: approved ? '#50C878': 'red'}}>
+                {approved ? 'approved': 'unapproved'}
+              </span>
             </div>
-              
           </div>
-          </div>
-          <div className='card-footer d-flex justify-content-between'>
+
+          <hr className='my-2' />
+
+          <div className='flex justify-between'>
             <span>Upload Frequency:</span> <span>{`${day}d ${hours}h ${minutes}m  ${seconds}s `}</span>
           </div>
       </div>

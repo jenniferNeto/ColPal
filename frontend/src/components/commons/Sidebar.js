@@ -8,7 +8,7 @@ export default function Sidebar() {
     const {logout, currentUser} = useAuth()
     return (
 
-        <div className="d-flex flex-sm-column flex-row flex-nowrap align-items-center sticky-top rounded h-100 shadow px-1" style={{ 'backgroundColor': '#605CA8' }}>
+        <div className="bg-main-500 d-flex flex-sm-column flex-row flex-nowrap align-items-center sticky-top rounded h-100 shadow px-1">
             <a href="/" className="d-block px-1 py-3 text-decoration-none">
                 <img src={logo} alt='logo' className="rounded" style={{ 'width': '75px' }} />
             </a>

@@ -1,3 +1,5 @@
+
+import Panel from "../components/commons/Panel";
 import { useState } from "react";
 import useRequest from "../hooks/useRequest";
 import { post_pipeline_create } from "../utils/endpoints";
@@ -16,10 +18,10 @@ export default function PipelineCreate() {
   const handlePipelineCreate = async (e) => {
     e.preventDefault();
 
-    await pipelineCreateRequest.doRequest({ 
-      title, 
-      "upload_frequency": frequency, 
-      "hard_deadline": hardDeadline, 
+    await pipelineCreateRequest.doRequest({
+      title,
+      "upload_frequency": frequency,
+      "hard_deadline": hardDeadline,
       constraints
     })
 
@@ -33,8 +35,9 @@ export default function PipelineCreate() {
   return (
     <div className="h-100">
 
-      <div className="card shadow col-sm-12 mb-2">
-        <div className="card-body">
+      <div className="row">
+
+        <Panel>
           <form onSubmit={handlePipelineCreate}>
             <div className="row my-2">
               <div className="col-sm-5">
@@ -57,28 +60,23 @@ export default function PipelineCreate() {
                 </div>
               </div>
               <div className="col-sm-1">
-                <input type="submit" class="btn btn-primary" />
+                <button type="submit" class="bg-main-500 hover:bg-main-700 text-white py-2 px-4 rounded">Create</button>
               </div>
             </div>
+
             <div className="row m-2">
-           
-                <ConstraintTable constraints={constraints} />
-    
+              <ConstraintTable constraints={constraints} />
             </div>
+
           </form>
-        </div>
+        </Panel>
+
       </div>
 
 
       <div className="row">
-      
-
-        <div className="col-sm-12" style={{ maxHeight: '85%' }}>
-          <ConstraintForm onSave={constraints => setConstraints(constraints)} />
-        </div>
-
+        <ConstraintForm onSave={constraints => setConstraints(constraints)} />
       </div>
-
 
     </div>
 
