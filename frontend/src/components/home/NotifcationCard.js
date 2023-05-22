@@ -1,3 +1,5 @@
+import Pill from "../commons/Pill";
+
 function formatDate(dateString) {
   const date = new Date(dateString);
   const hours = date.getHours();
@@ -25,18 +27,16 @@ export default function NotificationCard({data}) {
             <span className="font-bold">{pipeline_title}</span> 
             
 
-            <span className='inline-block rounded-full px-2 py-1 mx-1 text-sm font-semibold text-white' style={{background: !danger ? '#50C878': 'red'}}>
-                {title}
-            </span>
+            <Pill text={title} color={ !danger ? 'emerald-500': 'red-500'}/>
            
           </div>
 
-          <p>{message}</p>
+          <p className="mb-3 break-words">{message}</p>
 
           <hr className='my-2' />
 
           <div className='flex justify-between'>
-            <span>Sent:</span> <span>{formatDate(date)}</span>
+            <span className="text-bold">Sent:</span> <span>{formatDate(date)}</span>
           </div>
 
       </div>

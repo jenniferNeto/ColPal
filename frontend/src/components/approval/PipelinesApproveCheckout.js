@@ -37,7 +37,7 @@ export default function PipelinesApproveCheckout({selected, show, close}) {
       </Modal.Body>
       <Modal.Footer>
         <button className='bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded' onClick={close}>Go Back</button>
-        <button className='bg-emerald-500 hover:bg-emerald-700 text-white py-2 px-4 rounded' onClick={close}>Confirm</button>
+        <button className='bg-emerald-500 hover:bg-emerald-700 text-white py-2 px-4 rounded' onClick={handleCheckout}>Confirm</button>
 
       </Modal.Footer>
     </Modal>
