@@ -19,20 +19,26 @@ export default function NotificationCard({data}) {
   const {id, message, date, pipeline, pipeline_title, user, title} = data;
   const danger = title === "Position Removed" || title === "Request Rejected" || title === "Pipeline Unstable"  
   return (
-      <div className='card' style={{border: 'none', background: '#E9E7FD', cursor: "pointer"}}>
-          <div className='card-body'>
-          <div className="card-title d-flex justify-content-between">
-            <h5>{pipeline_title}</h5> 
-            <div>
-            <span className={`badge rounded-pill bg-${danger ? 'danger': 'success'}`}>
-              {title}</span>
-            </div>
+    
+      <div className='py-4 px-3 bg-main-100 rounded-xl cursor-pointer'>
+          <div className="flex justify-between mb-3">
+            <span className="font-bold">{pipeline_title}</span> 
+            
+
+            <span className='inline-block rounded-full px-2 py-1 mx-1 text-sm font-semibold text-white' style={{background: !danger ? '#50C878': 'red'}}>
+                {title}
+            </span>
+           
           </div>
+
           <p>{message}</p>
-          </div>
-          <div className='card-footer d-flex justify-content-between'>
+
+          <hr className='my-2' />
+
+          <div className='flex justify-between'>
             <span>Sent:</span> <span>{formatDate(date)}</span>
           </div>
+
       </div>
   
   )

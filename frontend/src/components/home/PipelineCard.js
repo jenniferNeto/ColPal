@@ -13,10 +13,10 @@ export default function PipelineCard({data}) {
           <div className="flex justify-between mb-3">
             <span className="font-bold">{title}</span> 
             <div>
-              <span className={`inline-block rounded-full px-2 py-1 mx-1 text-sm font-semibold text-white`} style={{background: is_stable ? '#50C878': '#FF00000'}}>
+              <span className={`bg-${is_stable ? 'emerald':'red'}-500 inline-block rounded-full px-2 py-1 mx-1 text-sm font-semibold text-white`}>
                 {is_stable ? 'stable': 'unstable'}
               </span>
-              <span className={`inline-block bg-${approved ? 'green': 'red'}-500 rounded-full px-2 py-1 mx-1 text-sm font-semibold text-white`} style={{background: approved ? '#50C878': 'red'}}>
+              <span className={`bg-${approved ? 'emerald':'red'}-500 inline-block rounded-full px-2 py-1 mx-1 text-sm font-semibold text-white`}>
                 {approved ? 'approved': 'unapproved'}
               </span>
             </div>

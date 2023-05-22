@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 
+button: {
+  cursor: pointer;
+}
 .dot {
   height: 15px;
   width: 15px;
@@ -31,7 +34,6 @@
 }
 
 .scroll {
-  max-height: 300px;
   overflow-y: auto;
 }
 

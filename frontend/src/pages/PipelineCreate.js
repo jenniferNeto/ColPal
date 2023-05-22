@@ -64,7 +64,7 @@ export default function PipelineCreate() {
               </div>
             </div>
 
-            <div className="row m-2">
+            <div className="row m-2 max-h-48 overflow-y-scroll overflow-x-hidden">
               <ConstraintTable constraints={constraints} />
             </div>
 
