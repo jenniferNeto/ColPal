@@ -27,8 +27,8 @@ export default function PipelinesApproveCheckout({selected, show, close}) {
         <Modal.Title>Approve {selected.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-      <div className='shadow-sm card h-100'>
-        <div className='card-body scroll'>
+      <div className='border border-grey-300 rounded-sm h-100'>
+        <div className='overflow-y-auto max-h-fit'>
           <ConstraintTable constraints={constraints} />
         </div>
 
@@ -36,12 +36,9 @@ export default function PipelinesApproveCheckout({selected, show, close}) {
         
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={close}>
-          Go Back
-        </Button>
-        <Button variant="primary" onClick={handleCheckout}>
-            Confirm
-        </Button>
+        <button className='bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded' onClick={close}>Go Back</button>
+        <button className='bg-emerald-500 hover:bg-emerald-700 text-white py-2 px-4 rounded' onClick={close}>Confirm</button>
+
       </Modal.Footer>
     </Modal>
 

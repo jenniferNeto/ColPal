@@ -1,6 +1,7 @@
 
 import {parseFrequency} from "../../utils/functions";
 import { useNavigate } from "react-router-dom";
+import Pill from "../commons/Pill";
 
 export default function PipelineCard({data}) {
   const {id, title, is_stable, approved, upload_frequency} = data;
@@ -13,12 +14,8 @@ export default function PipelineCard({data}) {
           <div className="flex justify-between mb-3">
             <span className="font-bold">{title}</span> 
             <div>
-              <span className={`bg-${is_stable ? 'emerald':'red'}-500 inline-block rounded-full px-2 py-1 mx-1 text-sm font-semibold text-white`}>
-                {is_stable ? 'stable': 'unstable'}
-              </span>
-              <span className={`bg-${approved ? 'emerald':'red'}-500 inline-block rounded-full px-2 py-1 mx-1 text-sm font-semibold text-white`}>
-                {approved ? 'approved': 'unapproved'}
-              </span>
+              <Pill text={is_stable ? 'stable': 'unstable'} color={is_stable ? 'emerald-500':'red-500'} />
+              <Pill text={approved ? 'approved': 'unapproved'} color={approved ? 'emerald-500':'red-500'} />
             </div>
           </div>
 

@@ -35,18 +35,18 @@ export default function PipelineCreate() {
   return (
     <div className="h-100">
 
-      <div className="row">
+      <div className="max-h-full">
 
         <Panel>
           <form onSubmit={handlePipelineCreate}>
-            <div className="row my-2">
-              <div className="col-sm-5">
+            <div className="grid md:grid-cols-12 gap-4 mt-2 mb-4">
+              <div className="md:col-span-5 sm:col-span-12">
                 <input type="text" class="form-control" placeholder="Pipeline Title" value={title} onChange={(e) => setTitle(e.target.value)} />
               </div>
-              <div className="col-sm-4">
+              <div className="md:col-span-4 sm:col-span-12">
                 <input type="text" class="form-control" placeholder="Upload Frequency" value={frequency} onChange={(e) => setFrequency(e.target.value)} />
               </div>
-              <div className="col-sm-2">
+              <div className="md:col-span-2 sm:col-span-6">
                 <div class="form-check">
                   <input class="form-check-input"
                     id="flexCheckIndeterminate"
@@ -59,12 +59,12 @@ export default function PipelineCreate() {
                   </label>
                 </div>
               </div>
-              <div className="col-sm-1">
-                <button type="submit" class="bg-main-500 hover:bg-main-700 text-white py-2 px-4 rounded">Create</button>
+              <div className="md:col-span-1 sm:col-span-6">
+                <button type="submit" className="bg-emerald-500 hover:bg-emerald-700 text-white py-2 px-4 rounded">Create</button>
               </div>
             </div>
 
-            <div className="row m-2 max-h-48 overflow-y-scroll overflow-x-hidden">
+            <div className="m-2 max-h-48 overflow-y-scroll overflow-x-hidden">
               <ConstraintTable constraints={constraints} />
             </div>
 
@@ -74,7 +74,7 @@ export default function PipelineCreate() {
       </div>
 
 
-      <div className="row">
+      <div className="max-h-full">
         <ConstraintForm onSave={constraints => setConstraints(constraints)} />
       </div>
 

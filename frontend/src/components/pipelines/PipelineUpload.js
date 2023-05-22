@@ -1,6 +1,7 @@
 import {useState} from 'react'
 import { faFileUpload } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import Panel from '../commons/Panel'
 
 export default function PipelineUpload({upload}) {
 
@@ -29,28 +30,28 @@ export default function PipelineUpload({upload}) {
 
 
   return (
-    <div class="card shadow bg-white">
-      <div className='card-body'>
+    <Panel>
+
         {file ? (
-          <div className='d-flex justify-content-between'>
-            <p className='m-0 lead'>{file.name}</p>
+          <div className='flex justify-between'>
+            <p className='m-0'>{file.name}</p>
             <span>
-            <button className="btn btn-sm btn-success mx-2" onClick={handleFileConfirm}>
+            <button className="bg-emerald-500 hover:bg-emerald-700 text-white py-1 px-2 rounded mx-1" onClick={handleFileConfirm}> 
               Confirm
             </button>
-            <button className="btn btn-sm btn-danger" onClick={handleFileCancel}>
+            <button className="bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded mx-1" onClick={handleFileCancel}>
               Cancel
             </button>
             </span>
           </div>
         ) : (
-        <p className='m-1 lead'>No file selected</p>
+        <p className='m-1'>No file selected</p>
         )}
-        </div>
+    
       
-      <div className='card-footer'>
+      <hr className='my-2' />
   
-      <div class="d-grid gap-2">
+      <div class="grid gap-2">
         <label className="m-0 mr-2 upload-btn" style={{border: '3px dashed #605CA8'}}>
           <FontAwesomeIcon icon={faFileUpload} /> Upload
           <input
@@ -61,7 +62,7 @@ export default function PipelineUpload({upload}) {
           />
         </label>
         </div>
-      </div>
-    </div>
+
+    </Panel>
   )
 }
