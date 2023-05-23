@@ -25,12 +25,8 @@ export default function UploadCheckout({ show, file, checkout, validationErrors,
         
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={close}>
-          Go Back
-        </Button>
-        <Button variant="primary" onClick={checkout}>
-          Checkout Upload
-        </Button>
+        <button className='bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded' onClick={close}>Go Back</button>
+        <button className='bg-emerald-500 hover:bg-emerald-700 text-white py-2 px-4 rounded' onClick={checkout}>Checkout Upload</button>
       </Modal.Footer>
     </Modal>
   )

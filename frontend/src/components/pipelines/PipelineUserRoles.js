@@ -97,70 +97,75 @@ export default function PipelineUserRoles({ pipelineId }) {
     const users = useMemo(() => allUsersRequest.response?.data ?? [], [allUsersRequest.response])
 
     return (
+
         <Panel>
-            <table className="table max-h-full overflow-y-scroll" >
-                <thead>
-                    <tr>
-                        <th scope="col">User</th>
-                        <th scope="col">Role</th>
-                        <th scope="col">Remove</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div className="max-h-44 overflow-y-scroll">
+                <table className="table" >
+                    <thead>
+                        <tr>
+                            <th scope="col">User</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-                    <tr>
-                        <td scope="row"><b>{userRoles[currentUser.id].username}</b> <em>(you)</em></td>
-                        <td scope="row">{userRoles[currentUser.id].roles.map(role => <Pill text={role} color='main-500' />)}</td>
-                        <td scope="row">__________</td>
-                    </tr>
+                        <tr>
+                            <td scope="row"><b>{userRoles[currentUser.id].username}</b> <em>(you)</em></td>
+                            <td scope="row">{userRoles[currentUser.id].roles.map(role => <Pill text={role} color='main-500' />)}</td>
+                            <td scope="row">__________</td>
+                        </tr>
 
-                    {Object.entries(userRoles).map(([id, user]) => (
-                        currentUser.id != id && (
-                            <tr key={id}>
-                                <td scope="row"><b>{user.username}</b></td>
-                                <td scope="row">{user.roles.map(role => <Pill text={role} color='main-500' />)}</td>
-                                <td scope="row">
-                                    <form className="input-group" method="POST" onSubmit={(e) => handleRemoveRole(e, id)}>
-                                        <select className='form-control form-control-sm' name="role">
-                                            <option disabled value={""}>Remove Role</option>
-                                            {user.roles.map(role => <option value={role}>{role}</option>)}
+                        {Object.entries(userRoles).map(([id, user]) => (
+                            currentUser.id != id && (
+                                <tr key={id}>
+                                    <td scope="row"><b>{user.username}</b></td>
+                                    <td scope="row">{user.roles.map(role => <Pill text={role} color='main-500' />)}</td>
+                                    <td scope="row">
+                                        <form className="input-group" method="POST" onSubmit={(e) => handleRemoveRole(e, id)}>
+                                            <select className='form-control form-control-sm' name="role">
+                                                <option disabled value={""}>Remove Role</option>
+                                                {user.roles.map(role => <option value={role}>{role}</option>)}
 
-                                        </select>
-                                        <button className="btn btn-sm btn-danger">Remove</button>
-                                    </form>
-                                </td>
+                                            </select>
+                                            <button className="btn btn-sm btn-danger">Remove</button>
+                                        </form>
+                                    </td>
 
-                            </tr>
-                        )
-                    ))}
+                                </tr>
+                            )
+                        ))}
 
-                </tbody>
-            </table>
-        
+                    </tbody>
+                </table>
+            </div>
+
             {(currentUser.admin || userRoles[currentUser.id].roles.includes('manager')) && (
-                    <div className="grid gap-3 grid-cols-12 my-2 ">
-                        <div className="col-span-4">
-                            <select className="form-control" onChange={e => setSelectedUser(e.target.value)}>
-                                <option>Select Users</option>
-                                {users.map(user => <option key={user['id']} value={user['id']}>{user['username']}</option>)}
-                            </select>
-                        </div>
-                        <div className="col-span-6">
-                            <select className='form-control' onChange={e => setSelectedRole(e.target.value)}>
-                                <option disabled value={""}>Select Role</option>
-                                <option value={"viewers"}>Viewer</option>
-                                <option value={"uploaders"}>Uploader</option>
-                                <option value={"managers"}>Manager</option>
-                            </select>
-
-                        </div>
-                        <div className="col-span-2">
-                            <button className="bg-emerald-500 hover:bg-emerald-700 text-white py-2 px-4 rounded w-100" onClick={handleAddUserRole}>Add User</button>
-                        </div>
+                <div className="grid gap-3 grid-cols-12 my-2 ">
+                    <div className="col-span-4">
+                        <select className="form-control" onChange={e => setSelectedUser(e.target.value)}>
+                            <option>Select Users</option>
+                            {users.map(user => <option key={user['id']} value={user['id']}>{user['username']}</option>)}
+                        </select>
                     </div>
-           
+                    <div className="col-span-6">
+                        <select className='form-control' onChange={e => setSelectedRole(e.target.value)}>
+                            <option disabled value={""}>Select Role</option>
+                            <option value={"viewers"}>Viewer</option>
+                            <option value={"uploaders"}>Uploader</option>
+                            <option value={"managers"}>Manager</option>
+                        </select>
+
+                    </div>
+                    <div className="col-span-2">
+                        <button className="bg-emerald-500 hover:bg-emerald-700 text-white py-2 px-4 rounded w-100" onClick={handleAddUserRole}>Add User</button>
+                    </div>
+                </div>
+
             )}
 
+
         </Panel>
+
     )
 }

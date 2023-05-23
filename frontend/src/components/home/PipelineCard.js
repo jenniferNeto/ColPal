@@ -22,7 +22,7 @@ export default function PipelineCard({data}) {
           <hr className='my-2' />
 
           <div className='flex justify-between'>
-            <span>Upload Frequency:</span> <span>{`${day}d ${hours}h ${minutes}m  ${seconds}s `}</span>
+            <span className="text-bold">Upload Frequency:</span> <span>{`${day}d ${hours}h ${minutes}m  ${seconds}s `}</span>
           </div>
       </div>
   

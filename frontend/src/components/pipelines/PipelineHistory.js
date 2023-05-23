@@ -33,8 +33,9 @@ export default function PipelineHistory({ uploadHistory }) {
   return (
    
       <Panel>
+        <div className="max-h-full overflow-y-scroll">
         {viewFile && <CSVModal show={showModal} file={viewFile} close={handleClose} />}
-        <table className="table max-h-full overflow-y-scroll" >
+        <table className="table" >
           <thead>
             <tr>
               <th scope="col">File Name</th>
@@ -59,6 +60,7 @@ export default function PipelineHistory({ uploadHistory }) {
 
           </tbody>
         </table>
+        </div>
       </Panel>
  
   )
