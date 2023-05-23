@@ -1,18 +1,18 @@
 import CountdownTimer from '../commons/CountdownTimer'
 import { getDuration } from '../../utils/functions';
-
+import Panel from '../commons/Panel';
 export default function PipelineStateTrack({nextDeadline, state}) {
 
   if(!nextDeadline) return null;
 
   return (
-    <div class="card shadow bg-white h-100 text-center p-2">
-      <h4>Next Upload Due:</h4>
+    <Panel>
+      <p className='text-bold text-center mb-2'>Next Upload Due:</p>
       <CountdownTimer 
         track={state.approved} 
         deadline={nextDeadline} 
         total={getDuration(state.upload_frequency)}
       />
-    </div>
+    </Panel>
   )
 }

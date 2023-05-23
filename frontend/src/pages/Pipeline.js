@@ -108,7 +108,7 @@ export default function Pipeline() {
           <PipelineHistory uploadHistory={pipelineFileHistory} />
         </div>
 
-        {showRoles && <div className='max-h-40'><PipelineUserRoles pipelineId={pipeline_id} /></div>}
+        {showRoles && <div><PipelineUserRoles pipelineId={pipeline_id} /></div>}
 
       </div>
 
