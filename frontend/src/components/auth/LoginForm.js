@@ -52,9 +52,9 @@ export default function LoginForm() {
             </Form.Select>
 
             <div className="d-grid gap-2 mt-3">
-              <Button type="submit" variant="primary">
+              <button className="bg-main-500 hover:bg-main-700 text-white py-2 px-4 rounded">
                 Login
-              </Button>
+              </button>
 
             </div>
           </Form>
