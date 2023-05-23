@@ -11,10 +11,10 @@ from .models import PipelineFile
 import io
 import pandas as pd
 
-# import googlemaps
+import googlemaps
 import os
 
-# maps = googlemaps.Client(key=os.environ.get("MAPS_API_KEY"))
+maps = googlemaps.Client(key=os.environ.get("MAPS_API_KEY"))
 
 
 def validate_date(x: str) -> bool:
@@ -35,10 +35,9 @@ def validate_email(x: str) -> bool:
     return True
 
 
-# def validate_address(x: str) -> bool:
-#     """Validate an address using google maps api"""
-#     return bool(maps.geocode(address=x, components={}))  # type: ignore
-
+def validate_address(x: str) -> bool:
+    """Validate an address using google maps api"""
+    return bool(maps.geocode(address=x, components={}))  # type: ignore
 
 def infer_type(x, dtype) -> bool:
     """Alter inference to more accurately describe data by validating"""
@@ -66,7 +65,6 @@ def generate_base_types(file):
     # Record attempts to infer data type
     type_counts = {}
     for col in dataframe.columns:
-        print("COL:", col)
         for dtype in [bool, int, float, str]:
             # Test every value in a column against the data types and sum the results
             count = dataframe[col].apply(lambda x: infer_type(x, dtype)).sum()
@@ -89,7 +87,7 @@ def generate_base_types(file):
 def generate_types(file):
     # Get dataframe and base inferred types
     dataframe, types = generate_base_types(file)
-    names = ["email", "date"]
+    names = ["email", "date", "address"]
 
     # Type conversion minimum threshold
     threshold = 0.4
@@ -101,7 +99,7 @@ def generate_types(file):
     for index, col in enumerate(dataframe.columns):
         if types[index] != 'str':
             continue
-        for i, dtype in enumerate([validate_email, validate_date]):
+        for i, dtype in enumerate([validate_email, validate_date, validate_address]):
             # Test every value in a column against the data types and sum the results
             count = dataframe[col].apply(lambda x: dtype(x)).sum()
             type_counts.setdefault(col, {})[names[i]] = count
@@ -143,7 +141,7 @@ def validate(file: FieldFile, pipeline: Pipeline):
     error_count = 1
 
     # Validator list
-    validators = [None, str, int, float, bool, validate_email, validate_date]
+    validators = [None, str, int, float, bool, validate_email, validate_address, validate_date]
 
     for c_index, col in enumerate(dataframe.columns):
         # If no constraints, can't validate
