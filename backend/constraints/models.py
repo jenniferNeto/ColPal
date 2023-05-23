@@ -20,7 +20,7 @@ class Constraint(models.Model):
     # Can't be done in the Attributes model itself because of the override
     VALUES = (
         (Attributes.NONE, 'None'),
-        (Attributes.VARCHAR, 'Varchar'),
+        (Attributes.VARCHAR, 'String'),
         (Attributes.INTEGER, 'Integer'),
         (Attributes.FLOAT, 'Float'),
         (Attributes.DATE, 'Date'),
