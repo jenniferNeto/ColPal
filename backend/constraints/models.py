@@ -25,7 +25,7 @@ class Constraint(models.Model):
         (Attributes.FLOAT, 'Float'),
         (Attributes.DATE, 'Date'),
         (Attributes.BOOLEAN, 'Boolean'),
-        (Attributes.ADDRESS, 'Datetime'),
+        (Attributes.ADDRESS, 'Address'),
         (Attributes.EMAIL, 'Email')
     )
 
