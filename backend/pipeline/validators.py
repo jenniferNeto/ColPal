@@ -16,6 +16,7 @@ import os
 
 maps = googlemaps.Client(key=os.environ.get("MAPS_API_KEY"))
 
+
 def validate_date(x: str) -> bool:
     """Validate a date"""
     try:
@@ -24,6 +25,7 @@ def validate_date(x: str) -> bool:
         return False
     return True
 
+
 def validate_email(x: str) -> bool:
     """Validate an email address"""
     try:
@@ -31,6 +33,7 @@ def validate_email(x: str) -> bool:
     except Exception:
         return False
     return True
+
 
 def validate_address(x: str) -> bool:
     """Validate an address using google maps api"""
@@ -52,6 +55,7 @@ def infer_type(x, dtype) -> bool:
             return dtype(x) % 1 != 0
         return float(x) % 1 == 0
     return inference
+
 
 def generate_base_types(file):
     """Generate inferred types about a csv file"""
@@ -78,6 +82,7 @@ def generate_base_types(file):
         most_common_types[col] = max(counts, key=counts.get)
 
     return dataframe, [n.__name__ for n in most_common_types.values()]
+
 
 def generate_types(file):
     # Get dataframe and base inferred types
@@ -119,6 +124,7 @@ def generate_types(file):
     for i in range(len(dataframe.columns)):
         response.append({"column_name": dataframe.columns[i], "column_type": types[i]})
     return response
+
 
 def validate(file: FieldFile, pipeline: Pipeline):
     """Validate a csv file based on provided types"""

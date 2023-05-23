@@ -1,3 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 .dot {
   height: 15px;
   width: 15px;
@@ -26,7 +31,6 @@
 }
 
 .scroll {
-  max-height: 300px;
   overflow-y: auto;
 }
 
@@ -38,8 +42,4 @@
 .view-btn {
   color: #605CA8;
   cursor: pointer;
-}
-
-.bg-main{
-  background: #605CA8;
 }

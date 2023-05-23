@@ -1,12 +1,12 @@
-import {useState} from 'react'
-import axios from 'axios'
+import { useState } from 'react'
 import { formatDate } from '../../utils/functions'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Card from 'react-bootstrap/Card'
 import { faEye } from "@fortawesome/free-solid-svg-icons"
-import {CSVModal} from '../commons/CSVDisplay'
+import { CSVModal } from '../commons/CSVDisplay'
+import Panel from '../commons/Panel'
 
-export default function PipelineHistory({uploadHistory}) {
+export default function PipelineHistory({ uploadHistory }) {
   const [showModal, setShowModal] = useState(false)
   const [viewFile, setViewFile] = useState(null)
 
@@ -31,37 +31,37 @@ export default function PipelineHistory({uploadHistory}) {
   }
 
   return (
-    <>
-    {viewFile && <CSVModal show={showModal} file={viewFile} close={handleClose}/>}
-    <Card className="shadow bg-white h-100">
-        <Card.Body className='scroll '>
-          <table className="table" >
-            <thead>
+   
+      <Panel>
+        <div className="max-h-full overflow-y-scroll">
+        {viewFile && <CSVModal show={showModal} file={viewFile} close={handleClose} />}
+        <table className="table" >
+          <thead>
+            <tr>
+              <th scope="col">File Name</th>
+              <th scope="col">Upload Time</th>
+              <th scope="col">Download</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            {uploadHistory.map((upload) => (
               <tr>
-                <th scope="col">File Name</th>
-                <th scope="col">Upload Time</th>
-                <th scope="col">Download</th>
+                <td scope="row">{upload['path'].split("/").pop()}</td>
+                <td scope="row">{formatDate(upload['upload_date'])}</td>
+                <td scope="row">
+                  <a href={upload['file']}>
+                    <FontAwesomeIcon icon={faEye} className="view-btn" />
+                  </a>
+                </td>
 
               </tr>
-            </thead>
-            <tbody>
-              {uploadHistory.map((upload) => (
-                <tr>
-                  <td scope="col">{upload['path'].split("/").pop()}</td>
-                  <td scope="col">{formatDate(upload['upload_date'])}</td>
-                  <td scope="col">
-                    <a href={"https://storage.cloud.google.com/dataplatformcolgate_cloudbuild/"+upload['path']}>
-                      <FontAwesomeIcon icon={faEye} className="view-btn" />
-                    </a>
-                  </td>
+            ))}
 
-                </tr>
-              ))}
-
-            </tbody>
-          </table>
-        </Card.Body>
-    </Card>
-    </>
+          </tbody>
+        </table>
+        </div>
+      </Panel>
+ 
   )
 }

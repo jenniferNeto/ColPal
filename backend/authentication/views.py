@@ -112,4 +112,3 @@ class UserDeleteAPIView(generics.CreateAPIView):
             user.delete()
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Cannot delete yourself"})
-    

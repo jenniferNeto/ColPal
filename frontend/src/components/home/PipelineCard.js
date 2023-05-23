@@ -1,6 +1,7 @@
 
 import {parseFrequency} from "../../utils/functions";
 import { useNavigate } from "react-router-dom";
+import Pill from "../commons/Pill";
 
 export default function PipelineCard({data}) {
   const {id, title, is_stable, approved, upload_frequency} = data;
@@ -9,22 +10,19 @@ export default function PipelineCard({data}) {
   
   return (
    
-      <div className='card' style={{border: 'none', background: '#E9E7FD', cursor: "pointer"}} 
-      onClick={() => navigate("/pipeline/"+id, {state: {data}})}>
-          <div className='card-body'>
-          <div className="card-title d-flex justify-content-between">
-            <h5>{title}</h5> 
+      <div className='py-4 px-3 bg-main-100 rounded-xl cursor-pointer' onClick={() => navigate("/pipeline/"+id, {state: {data}})}>
+          <div className="flex justify-between mb-3">
+            <span className="font-bold">{title}</span> 
             <div>
-            <span className={`badge me-1 rounded-pill bg-${is_stable ? 'success': 'danger'}`}>
-              {is_stable ? 'stable': 'unstable'}</span>
-            <span className={`badge rounded-pill bg-${approved ? 'success': 'danger'}`}>
-              {approved ? 'approved': 'not approved'}</span>
+              <Pill text={is_stable ? 'stable': 'unstable'} color={is_stable ? 'emerald-500':'red-500'} />
+              <Pill text={approved ? 'approved': 'unapproved'} color={approved ? 'emerald-500':'red-500'} />
             </div>
-              
           </div>
-          </div>
-          <div className='card-footer d-flex justify-content-between'>
-            <span>Upload Frequency:</span> <span>{`${day}d ${hours}h ${minutes}m  ${seconds}s `}</span>
+
+          <hr className='my-2' />
+
+          <div className='flex justify-between'>
+            <span className="text-bold">Upload Frequency:</span> <span>{`${day}d ${hours}h ${minutes}m  ${seconds}s `}</span>
           </div>
       </div>
   
