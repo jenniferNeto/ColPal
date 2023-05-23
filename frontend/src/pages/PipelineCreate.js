@@ -33,7 +33,7 @@ export default function PipelineCreate() {
   }
 
   return (
-    <div className="h-100">
+    <div>
 
       <div className="max-h-full">
 
