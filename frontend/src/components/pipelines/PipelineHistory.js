@@ -50,7 +50,7 @@ export default function PipelineHistory({ uploadHistory }) {
                 <td scope="row">{upload['path'].split("/").pop()}</td>
                 <td scope="row">{formatDate(upload['upload_date'])}</td>
                 <td scope="row">
-                  <a href={upload['file']}>
+                  <a href={"https://storage.cloud.google.com/colgate-data-storage/" + upload['path']}>
                     <FontAwesomeIcon icon={faEye} className="view-btn" />
                   </a>
                 </td>
